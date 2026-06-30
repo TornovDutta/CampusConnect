@@ -5,7 +5,7 @@ from core.config import settings
 from core.security import get_password_hash
 from models.user import RoleEnum
 from datetime import datetime
-from routes import auth
+from routes import auth, admin, student, college, company
 
 app = FastAPI(
     title="CampusConnect API",
@@ -14,6 +14,10 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
+app.include_router(admin.router)
+app.include_router(student.router)
+app.include_router(college.router)
+app.include_router(company.router)
 
 # Configure CORS
 origins = [

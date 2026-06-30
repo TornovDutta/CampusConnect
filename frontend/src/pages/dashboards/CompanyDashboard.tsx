@@ -1,7 +1,35 @@
 import React from 'react';
-import { Briefcase, FileSignature, CheckCircle, Plus } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Briefcase, FileSignature, CheckCircle, Plus, Loader2 } from 'lucide-react';
+import { api } from '../../services/api';
 
 export default function CompanyDashboard() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['companyDashboardStats'],
+    queryFn: async () => {
+      const response = await api.get('/company/dashboard-stats');
+      return response.data;
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="animate-spin text-brand-500" size={32} />
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-100">
+        Failed to load dashboard data.
+      </div>
+    );
+  }
+
+  const { stats, recent_jobs } = data;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -12,33 +40,33 @@ export default function CompanyDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card p-6 flex items-center gap-4">
+        <div className="card p-6 flex items-center gap-4 hover:-translate-y-1 transition-transform">
           <div className="p-4 bg-brand-50 text-brand-600 rounded-xl">
             <Briefcase size={24} />
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Active Jobs</p>
-            <p className="text-2xl font-bold text-slate-800">5</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.active_jobs}</p>
           </div>
         </div>
         
-        <div className="card p-6 flex items-center gap-4">
+        <div className="card p-6 flex items-center gap-4 hover:-translate-y-1 transition-transform">
           <div className="p-4 bg-purple-50 text-purple-600 rounded-xl">
             <FileSignature size={24} />
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Total Applications</p>
-            <p className="text-2xl font-bold text-slate-800">342</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.total_applications}</p>
           </div>
         </div>
         
-        <div className="card p-6 flex items-center gap-4">
+        <div className="card p-6 flex items-center gap-4 hover:-translate-y-1 transition-transform">
           <div className="p-4 bg-green-50 text-green-600 rounded-xl">
             <CheckCircle size={24} />
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Offers Sent</p>
-            <p className="text-2xl font-bold text-slate-800">18</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.offers_sent}</p>
           </div>
         </div>
       </div>
@@ -59,25 +87,29 @@ export default function CompanyDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {[
-                { title: 'Frontend Developer', loc: 'Remote', apps: 124, status: 'Active' },
-                { title: 'Backend Engineer Intern', loc: 'New York', apps: 89, status: 'Active' },
-                { title: 'UI/UX Designer', loc: 'Remote', apps: 45, status: 'Closed' },
-              ].map((job, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-800">{job.title}</td>
-                  <td className="px-6 py-4 text-slate-600">{job.loc}</td>
-                  <td className="px-6 py-4 text-slate-600">{job.apps}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${job.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button className="text-brand-600 hover:text-brand-700 font-medium text-sm mr-3">View Candidates</button>
+              {recent_jobs.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                    No active job postings found. Click "Post New Job" to get started.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                recent_jobs.map((job: any) => (
+                  <tr key={job._id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-slate-800">{job.title}</td>
+                    <td className="px-6 py-4 text-slate-600">{job.location}</td>
+                    <td className="px-6 py-4 text-slate-600">{job.applications_count || 0}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${job.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>
+                        {job.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button className="text-brand-600 hover:text-brand-700 font-medium text-sm mr-3">View Candidates</button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

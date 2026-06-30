@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from database import get_database
-from core.security import verify_password, create_access_token
+from core.security import verify_password, create_access_token, get_password_hash
 from models.user import UserResponse
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -28,12 +28,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # 3. Check if active
+    # 3. Check if active and suspended
     if not user.get("is_active", True):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Inactive user account",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+        
+    if user.get("is_suspended", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account Suspended by Admin"
         )
 
     # 4. Create Token
@@ -68,14 +74,17 @@ async def register(user_in: UserCreate):
         )
     
     # Create new user dictionary
-    user_dict = user_in.dict(exclude={"password"})
+    user_dict = user_in.model_dump(exclude={"password"})
     user_dict["hashed_password"] = get_password_hash(user_in.password)
     user_dict["is_active"] = True
+    user_dict["is_suspended"] = False
     user_dict["created_at"] = datetime.utcnow()
     
-    # Needs approval if it's a college or company
-    if user_in.role in ["college", "company"]:
+    # Needs approval if it's a company
+    if user_in.role == "company":
         user_dict["is_approved"] = False
+    else:
+        user_dict["is_approved"] = True
         
     result = await users_collection.insert_one(user_dict)
     user_dict["_id"] = str(result.inserted_id)
