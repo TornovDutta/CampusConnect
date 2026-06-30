@@ -132,6 +132,7 @@ import AdminDashboard from './pages/dashboards/AdminDashboard';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
 import CompanyDashboard from './pages/dashboards/CompanyDashboard';
+import OrganizationDetails from './pages/dashboards/OrganizationDetails';
 
 function App() {
   return (
@@ -144,6 +145,7 @@ function App() {
           
           <Route path="/dashboard" element={<DashboardLayout allowedRoles={['super_admin', 'college', 'student', 'company']} />}>
             <Route path="admin" element={<AdminDashboard />} />
+            <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />
             <Route path="college" element={<CollegeDashboard />} />
             <Route path="company" element={<CompanyDashboard />} />

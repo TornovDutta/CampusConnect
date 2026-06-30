@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Building2, GraduationCap, ShieldAlert, Loader2 } from 'lucide-react';
+import { Users, Building2, GraduationCap, ShieldAlert, Loader2, X } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['adminDashboardStats'],
@@ -20,6 +23,7 @@ export default function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminDashboardStats'] });
+      setSelectedOrg(null); // Close modal if state changes
     }
   });
 
@@ -31,7 +35,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (isError) {
+  if (isError || !data) {
     return (
       <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-100">
         Failed to load dashboard data.
@@ -39,7 +43,8 @@ export default function AdminDashboard() {
     );
   }
 
-  const { stats, organizations } = data;
+  const stats = data?.stats || { total_users: 0, total_colleges: 0, total_companies: 0 };
+  const organizations = data?.organizations || [];
 
   return (
     <div className="space-y-6">
@@ -51,7 +56,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Total Users</p>
-            <p className="text-2xl font-bold text-slate-800">{stats.total_users}</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.total_users || 0}</p>
           </div>
         </div>
         
@@ -61,7 +66,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Colleges</p>
-            <p className="text-2xl font-bold text-slate-800">{stats.total_colleges}</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.total_colleges || 0}</p>
           </div>
         </div>
         
@@ -71,7 +76,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Companies</p>
-            <p className="text-2xl font-bold text-slate-800">{stats.total_companies}</p>
+            <p className="text-2xl font-bold text-slate-800">{stats.total_companies || 0}</p>
           </div>
         </div>
       </div>
@@ -82,28 +87,34 @@ export default function AdminDashboard() {
           <h2 className="text-lg font-bold text-slate-800">Manage Organizations</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full text-left table-fixed">
             <thead className="bg-slate-50/50 text-slate-500 text-sm">
               <tr>
-                <th className="px-6 py-3 font-medium">Organization Name</th>
-                <th className="px-6 py-3 font-medium">Email</th>
-                <th className="px-6 py-3 font-medium">Type</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium">Action</th>
+                <th className="w-1/3 px-6 py-3 font-medium">Organization Name</th>
+                <th className="w-1/4 px-6 py-3 font-medium">Type</th>
+                <th className="w-1/4 px-6 py-3 font-medium">Status</th>
+                <th className="w-1/4 px-6 py-3 font-medium">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {organizations.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
                     No organizations found in the platform.
                   </td>
                 </tr>
               ) : (
                 organizations.map((org: any) => (
                   <tr key={org._id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-6 py-4 font-medium text-slate-800">{org.name}</td>
-                    <td className="px-6 py-4 text-slate-600">{org.email}</td>
+                    <td className="px-6 py-4">
+                      <button 
+                        onClick={() => navigate(`/dashboard/admin/organization/${org._id}`)}
+                        className="font-medium text-brand-600 hover:text-brand-700 hover:underline text-left block w-full truncate max-w-[200px]"
+                        title={org.name || org.email}
+                      >
+                        {org.name || org.email}
+                      </button>
+                    </td>
                     <td className="px-6 py-4 text-slate-600 capitalize">
                       <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${org.role === 'college' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
                         {org.role}

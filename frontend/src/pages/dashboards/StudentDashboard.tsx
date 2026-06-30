@@ -28,7 +28,9 @@ export default function StudentDashboard() {
     );
   }
 
-  const { stats, recommended_jobs, recent_applications } = data;
+  const stats = data?.stats || { total_applications: 0, in_review: 0, shortlisted: 0, rejected: 0 };
+  const recommended_jobs = data?.recommended_jobs || [];
+  const recent_applications = data?.recent_applications || [];
 
   return (
     <div className="space-y-6">

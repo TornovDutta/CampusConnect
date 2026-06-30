@@ -10,6 +10,7 @@ class RoleEnum(str, Enum):
     company = "company"
 
 class UserBase(BaseModel):
+    name: str
     email: EmailStr
     role: RoleEnum
     is_active: bool = True

@@ -68,3 +68,32 @@ async def toggle_suspend(user_id: str, admin=Depends(get_current_admin)):
     # Optional: if it's a college, you can also suspend all its students (requires students to have college_id)
     
     return {"message": f"Suspension status changed to {new_status}"}
+
+@router.get("/organization/{org_id}")
+async def get_organization_details(org_id: str, admin=Depends(get_current_admin)):
+    db = get_database()
+    users_collection = db["users"]
+    
+    org = await users_collection.find_one({"_id": ObjectId(org_id)})
+    if not org:
+        raise HTTPException(status_code=404, detail="Organization not found")
+        
+    org["_id"] = str(org["_id"])
+    if "hashed_password" in org:
+        del org["hashed_password"]
+        
+    students = []
+    # If it's a college, fetch their students
+    if org.get("role") == "college":
+        # We assume students have a 'college_id' field.
+        student_cursor = users_collection.find({"role": "student", "college_id": org_id})
+        async for student in student_cursor:
+            student["_id"] = str(student["_id"])
+            if "hashed_password" in student:
+                del student["hashed_password"]
+            students.append(student)
+            
+    return {
+        "organization": org,
+        "students": students
+    }

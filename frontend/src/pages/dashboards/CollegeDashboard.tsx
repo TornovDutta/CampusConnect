@@ -28,7 +28,8 @@ export default function CollegeDashboard() {
     );
   }
 
-  const { stats, recent_invitations } = data;
+  const stats = data?.stats || { registered_students: 0, drive_invitations: 0, students_placed: 0 };
+  const recent_invitations = data?.recent_invitations || [];
 
   return (
     <div className="space-y-6">

@@ -28,7 +28,8 @@ export default function CompanyDashboard() {
     );
   }
 
-  const { stats, recent_jobs } = data;
+  const stats = data?.stats || { active_jobs: 0, total_applications: 0, offers_sent: 0 };
+  const recent_jobs = data?.recent_jobs || [];
 
   return (
     <div className="space-y-6">
