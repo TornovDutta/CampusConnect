@@ -19,9 +19,15 @@ async def get_current_student(token: str = Depends(oauth2_scheme)):
 @router.get("/dashboard-stats")
 async def get_student_dashboard(student=Depends(get_current_student)):
     db = get_database()
-    # In a real app, you would query applications and jobs collections
-    # For now, we return 0s since collections might be empty
+    student_id = student["sub"]
+    
+    # Fetch full student profile to check approval status
+    from bson import ObjectId
+    user = await db["users"].find_one({"_id": ObjectId(student_id)})
+    
     return {
+        "is_college_approved": user.get("is_college_approved", False),
+        "college_id": user.get("college_id"),
         "stats": {
             "total_applications": 0,
             "in_review": 0,

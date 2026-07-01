@@ -44,7 +44,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     # 4. Create Token
     access_token = create_access_token(
-        data={"sub": user["email"], "role": user["role"]}
+        data={"sub": str(user["_id"]), "role": user["role"]}
     )
     
     # Remove hashed password from user dict to safely return it
@@ -59,6 +59,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 from models.user import UserCreate, UserInDB
 from datetime import datetime
+
+@router.get("/colleges")
+async def get_colleges():
+    db = get_database()
+    colleges_cursor = db["users"].find({"role": "college", "is_suspended": False})
+    colleges = []
+    async for college in colleges_cursor:
+        colleges.append({
+            "id": str(college["_id"]),
+            "name": college.get("name", college.get("email"))
+        })
+    return colleges
 
 @router.post("/register")
 async def register(user_in: UserCreate):
@@ -85,6 +97,12 @@ async def register(user_in: UserCreate):
         user_dict["is_approved"] = False
     else:
         user_dict["is_approved"] = True
+        
+    # If student, require college approval
+    if user_in.role == "student":
+        if not user_in.college_id:
+            raise HTTPException(status_code=400, detail="Students must select a college")
+        user_dict["is_college_approved"] = False
         
     result = await users_collection.insert_one(user_dict)
     user_dict["_id"] = str(result.inserted_id)

@@ -31,6 +31,26 @@ export default function StudentDashboard() {
   const stats = data?.stats || { total_applications: 0, in_review: 0, shortlisted: 0, rejected: 0 };
   const recommended_jobs = data?.recommended_jobs || [];
   const recent_applications = data?.recent_applications || [];
+  const isApproved = data?.is_college_approved;
+
+  if (!isApproved) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="w-20 h-20 bg-orange-100 text-orange-600 flex items-center justify-center rounded-full mb-6">
+          <Clock size={40} />
+        </div>
+        <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Waiting for College Approval</h2>
+        <p className="text-slate-500 max-w-md mx-auto mb-8">
+          Your account has been created successfully, but you must wait for your selected college's placement cell to approve your profile before you can apply to jobs.
+        </p>
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg max-w-md w-full">
+          <p className="text-sm font-medium text-slate-600">
+            Status: <span className="text-orange-600">Pending Review</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

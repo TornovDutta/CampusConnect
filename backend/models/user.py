@@ -14,6 +14,8 @@ class UserBase(BaseModel):
     email: EmailStr
     role: RoleEnum
     is_active: bool = True
+    college_id: Optional[str] = None
+    is_college_approved: Optional[bool] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserCreate(UserBase):

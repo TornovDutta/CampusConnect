@@ -12,16 +12,25 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [collegeId, setCollegeId] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   
   const navigate = useNavigate();
 
+  const { data: colleges = [] } = useQuery({
+    queryKey: ['colleges'],
+    queryFn: async () => {
+      const response = await api.get('/auth/colleges');
+      return response.data;
+    }
+  });
+
   const registerMutation = useMutation({
     mutationFn: async () => {
-      const response = await api.post('/auth/register', {
-        email, password, role, name
-      });
+      const payload: any = { email, password, role, name };
+      if (role === 'student') payload.college_id = collegeId;
+      const response = await api.post('/auth/register', payload);
       return response.data;
     },
     onSuccess: () => {
@@ -38,6 +47,10 @@ export default function Register() {
     setErrorMsg('');
     if (!email || !password || !name) {
       setErrorMsg('Please fill in all fields');
+      return;
+    }
+    if (role === 'student' && !collegeId) {
+      setErrorMsg('Please select a college');
       return;
     }
     registerMutation.mutate();
@@ -122,6 +135,24 @@ export default function Register() {
                 placeholder="email@example.com"
               />
             </div>
+
+            {role === 'student' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Select College</label>
+                <select
+                  value={collegeId}
+                  onChange={(e) => setCollegeId(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="">-- Choose your institution --</option>
+                  {colleges.map((college: any) => (
+                    <option key={college.id} value={college.id}>
+                      {college.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
