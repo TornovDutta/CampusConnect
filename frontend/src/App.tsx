@@ -133,6 +133,9 @@ import StudentDashboard from './pages/dashboards/StudentDashboard';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
 import CompanyDashboard from './pages/dashboards/CompanyDashboard';
 import OrganizationDetails from './pages/dashboards/OrganizationDetails';
+import Profile from './pages/dashboards/Profile';
+import Settings from './pages/dashboards/Settings';
+import UserActivity from './pages/dashboards/UserActivity';
 
 function App() {
   return (
@@ -144,7 +147,10 @@ function App() {
           <Route path="/register" element={<Register />} />
           
           <Route path="/dashboard" element={<DashboardLayout allowedRoles={['super_admin', 'college', 'student', 'company']} />}>
+            <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<Settings />} />
             <Route path="admin" element={<AdminDashboard />} />
+            <Route path="admin/activity" element={<UserActivity />} />
             <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />
             <Route path="college" element={<CollegeDashboard />} />

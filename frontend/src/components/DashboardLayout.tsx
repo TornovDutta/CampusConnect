@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, User, Settings, GraduationCap } from 'lucide-react';
+import { LogOut, LayoutDashboard, User, Settings, GraduationCap, Activity } from 'lucide-react';
 
 export default function DashboardLayout({ allowedRoles }: { allowedRoles: string[] }) {
   const { user, logout, isAuthenticated } = useAuth();
@@ -28,11 +28,19 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
             <LayoutDashboard size={20} />
             <span className="font-medium">Dashboard</span>
           </Link>
-          <Link to="#" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          
+          {user.role === 'super_admin' && (
+            <Link to="/dashboard/admin/activity" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+              <Activity size={20} />
+              <span className="font-medium">Activity</span>
+            </Link>
+          )}
+
+          <Link to="/dashboard/profile" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
             <User size={20} />
             <span className="font-medium">Profile</span>
           </Link>
-          <Link to="#" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          <Link to="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
             <Settings size={20} />
             <span className="font-medium">Settings</span>
           </Link>

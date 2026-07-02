@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Building2, GraduationCap, ShieldAlert, Loader2, X } from 'lucide-react';
+import { Users, Building2, GraduationCap, ShieldAlert, Loader2, X, Search, Filter } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['adminDashboardStats'],
@@ -46,6 +48,12 @@ export default function AdminDashboard() {
   const stats = data?.stats || { total_users: 0, total_colleges: 0, total_companies: 0 };
   const organizations = data?.organizations || [];
 
+  const filteredOrganizations = organizations.filter((org: any) => {
+    const matchesSearch = (org.name || org.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = filterRole === 'all' || org.role === filterRole;
+    return matchesSearch && matchesRole;
+  });
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -83,8 +91,32 @@ export default function AdminDashboard() {
 
       {/* Organizations Table */}
       <div className="card">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white/50 backdrop-blur-md">
+        <div className="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/50 backdrop-blur-md">
           <h2 className="text-lg font-bold text-slate-800">Manage Organizations</h2>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search organizations..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-64 pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
+              />
+            </div>
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <select 
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value)}
+                className="w-full sm:w-40 pl-10 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm appearance-none"
+              >
+                <option value="all">All Types</option>
+                <option value="college">College</option>
+                <option value="company">Company</option>
+              </select>
+            </div>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left table-fixed">
@@ -97,14 +129,14 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {organizations.length === 0 ? (
+              {filteredOrganizations.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                    No organizations found in the platform.
+                    No organizations found matching your criteria.
                   </td>
                 </tr>
               ) : (
-                organizations.map((org: any) => (
+                filteredOrganizations.map((org: any) => (
                   <tr key={org._id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-6 py-4">
                       <button 

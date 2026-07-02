@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Dict
+from datetime import datetime
+from database import get_database
+from typing import List, Dict
 from database import get_database
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -97,3 +100,54 @@ async def get_organization_details(org_id: str, admin=Depends(get_current_admin)
         "organization": org,
         "students": students
     }
+
+@router.get("/activity")
+async def get_user_activity(admin=Depends(get_current_admin)):
+    db = get_database()
+    users_collection = db["users"]
+    
+    # 1. Fetch recent user registrations for the Activity Log
+    recent_users_cursor = users_collection.find({}).sort("created_at", -1).limit(10)
+    activities = []
+    
+    async for user in recent_users_cursor:
+        created_at = user.get("created_at")
+        name = user.get("name") or user.get("email")
+        role = user.get("role")
+        activities.append({
+            "id": str(user["_id"]),
+            "type": "signup",
+            "user": name,
+            "role": role,
+            "time": created_at.isoformat() if isinstance(created_at, datetime) else str(created_at),
+            "details": f"Registered a new {role} account"
+        })
+        
+    chart_data_dict = {
+        "Mon": {"name": "Mon", "Student": 0, "College": 0, "Company": 0},
+        "Tue": {"name": "Tue", "Student": 0, "College": 0, "Company": 0},
+        "Wed": {"name": "Wed", "Student": 0, "College": 0, "Company": 0},
+        "Thu": {"name": "Thu", "Student": 0, "College": 0, "Company": 0},
+        "Fri": {"name": "Fri", "Student": 0, "College": 0, "Company": 0},
+        "Sat": {"name": "Sat", "Student": 0, "College": 0, "Company": 0},
+        "Sun": {"name": "Sun", "Student": 0, "College": 0, "Company": 0},
+    }
+    
+    all_users = users_collection.find({}, {"created_at": 1, "role": 1})
+    async for u in all_users:
+        ca = u.get("created_at")
+        role = u.get("role", "").capitalize()
+        if role not in ["Student", "College", "Company"]:
+            continue
+        if isinstance(ca, datetime):
+            day_name = ca.strftime("%a")
+            if day_name in chart_data_dict:
+                chart_data_dict[day_name][role] += 1
+                
+    chart_data = list(chart_data_dict.values())
+    
+    return {
+        "activities": activities,
+        "chart_data": chart_data
+    }
+
