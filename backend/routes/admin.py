@@ -139,6 +139,11 @@ async def get_user_activity(admin=Depends(get_current_admin)):
         role = u.get("role", "").capitalize()
         if role not in ["Student", "College", "Company"]:
             continue
+        if isinstance(ca, str):
+            try:
+                ca = datetime.fromisoformat(ca.replace("Z", "+00:00"))
+            except ValueError:
+                pass
         if isinstance(ca, datetime):
             day_name = ca.strftime("%a")
             if day_name in chart_data_dict:

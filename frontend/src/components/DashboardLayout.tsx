@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, Navigate, Link } from 'react-router-dom';
+import { Outlet, Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, LayoutDashboard, User, Settings, GraduationCap, Activity } from 'lucide-react';
 
@@ -24,26 +24,64 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
         </div>
         
         <nav className="flex-1 px-4 py-6 space-y-2">
-          <Link to={`/dashboard/${user.role.replace('_', '')}`} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-brand-600/20 text-brand-400">
+          <NavLink 
+            to={`/dashboard/${user.role === 'super_admin' ? 'admin' : user.role}`} 
+            end
+            className={({ isActive }) => 
+              `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                isActive 
+                  ? 'bg-brand-600/20 text-brand-400' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`
+            }
+          >
             <LayoutDashboard size={20} />
             <span className="font-medium">Dashboard</span>
-          </Link>
+          </NavLink>
           
           {user.role === 'super_admin' && (
-            <Link to="/dashboard/admin/activity" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-              <Activity size={20} />
-              <span className="font-medium">Activity</span>
-            </Link>
+            <NavLink 
+              to="/dashboard/admin/activity" 
+              className={({ isActive }) => 
+                `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  isActive 
+                    ? 'bg-brand-600/20 text-brand-400' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`
+            }
+          >
+            <Activity size={20} />
+            <span className="font-medium">Activity</span>
+          </NavLink>
           )}
 
-          <Link to="/dashboard/profile" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          <NavLink 
+            to="/dashboard/profile" 
+            className={({ isActive }) => 
+              `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                isActive 
+                  ? 'bg-brand-600/20 text-brand-400' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`
+            }
+          >
             <User size={20} />
             <span className="font-medium">Profile</span>
-          </Link>
-          <Link to="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          </NavLink>
+          
+          <NavLink 
+            to="/dashboard/settings" 
+            className={({ isActive }) => 
+              `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                isActive 
+                  ? 'bg-brand-600/20 text-brand-400' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`
+            }
+          >
             <Settings size={20} />
             <span className="font-medium">Settings</span>
-          </Link>
+          </NavLink>
         </nav>
 
         <div className="p-4 border-t border-slate-800">
