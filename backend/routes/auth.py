@@ -127,3 +127,53 @@ async def register(user_in: UserCreate):
     )
     
     return {"message": "User registered successfully", "user": user_dict}
+
+from pydantic import BaseModel
+from jose import jwt, JWTError
+from core.config import settings
+from bson import ObjectId
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+@router.post("/change-password")
+async def change_password(req: ChangePasswordRequest, current_user: dict = Depends(get_current_user)):
+    db = get_database()
+    users_collection = db["users"]
+    
+    user_id = current_user.get("sub")
+    user = await users_collection.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if not verify_password(req.current_password, user["hashed_password"]):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+        
+    new_hashed_password = get_password_hash(req.new_password)
+    await users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"hashed_password": new_hashed_password}}
+    )
+    
+    await log_activity(
+        user_id=user_id,
+        user_name=user.get("name") or user.get("email"),
+        role=user.get("role", "student"),
+        action_type="security",
+        details="Changed password"
+    )
+    
+    return {"message": "Password updated successfully"}
