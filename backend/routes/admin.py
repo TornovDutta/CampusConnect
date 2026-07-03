@@ -104,23 +104,21 @@ async def get_organization_details(org_id: str, admin=Depends(get_current_admin)
 @router.get("/activity")
 async def get_user_activity(admin=Depends(get_current_admin)):
     db = get_database()
-    users_collection = db["users"]
+    activities_collection = db["activities"]
     
-    # 1. Fetch recent user registrations for the Activity Log
-    recent_users_cursor = users_collection.find({}).sort("created_at", -1).limit(10)
+    # 1. Fetch recent activities for the Activity Log
+    recent_activities_cursor = activities_collection.find({}).sort("created_at", -1).limit(20)
     activities = []
     
-    async for user in recent_users_cursor:
-        created_at = user.get("created_at")
-        name = user.get("name") or user.get("email")
-        role = user.get("role")
+    async for act in recent_activities_cursor:
+        created_at = act.get("created_at")
         activities.append({
-            "id": str(user["_id"]),
-            "type": "signup",
-            "user": name,
-            "role": role,
+            "id": str(act["_id"]),
+            "type": act.get("type", "activity"),
+            "user": act.get("user_name", "Unknown"),
+            "role": act.get("role", "user"),
             "time": created_at.isoformat() if isinstance(created_at, datetime) else str(created_at),
-            "details": f"Registered a new {role} account"
+            "details": act.get("details", "")
         })
         
     chart_data_dict = {
@@ -133,8 +131,8 @@ async def get_user_activity(admin=Depends(get_current_admin)):
         "Sun": {"name": "Sun", "Student": 0, "College": 0, "Company": 0},
     }
     
-    all_users = users_collection.find({}, {"created_at": 1, "role": 1})
-    async for u in all_users:
+    all_activities = activities_collection.find({}, {"created_at": 1, "role": 1})
+    async for u in all_activities:
         ca = u.get("created_at")
         role = u.get("role", "").capitalize()
         if role not in ["Student", "College", "Company"]:

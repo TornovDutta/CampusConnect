@@ -25,3 +25,16 @@ async def close_mongo_connection():
 
 def get_database():
     return db_instance.db
+
+async def log_activity(user_id: str, user_name: str, role: str, action_type: str, details: str):
+    db = get_database()
+    if db is not None:
+        import datetime
+        await db["activities"].insert_one({
+            "user_id": user_id,
+            "user_name": user_name,
+            "role": role,
+            "type": action_type,
+            "details": details,
+            "created_at": datetime.datetime.utcnow()
+        })

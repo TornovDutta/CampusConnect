@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from database import get_database
 from core.security import verify_password, create_access_token, get_password_hash
+from database import get_database, log_activity
 from models.user import UserResponse
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -50,6 +50,15 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # Remove hashed password from user dict to safely return it
     user["_id"] = str(user["_id"])
     del user["hashed_password"]
+    
+    # Log login activity
+    await log_activity(
+        user_id=str(user["_id"]),
+        user_name=user.get("name") or user.get("email"),
+        role=user.get("role", "student"),
+        action_type="login",
+        details="User logged in"
+    )
     
     return {
         "access_token": access_token, 
@@ -107,5 +116,14 @@ async def register(user_in: UserCreate):
     result = await users_collection.insert_one(user_dict)
     user_dict["_id"] = str(result.inserted_id)
     del user_dict["hashed_password"]
+    
+    # Log registration activity
+    await log_activity(
+        user_id=str(result.inserted_id),
+        user_name=user_dict.get("name") or user_dict.get("email"),
+        role=user_dict.get("role", "student"),
+        action_type="signup",
+        details=f"Registered a new {user_dict.get('role', 'student')} account"
+    )
     
     return {"message": "User registered successfully", "user": user_dict}
