@@ -121,27 +121,35 @@ async def get_user_activity(admin=Depends(get_current_admin)):
             "details": act.get("details", "")
         })
         
-    chart_data_dict = {
-        "Mon": {"name": "Mon", "Student": 0, "College": 0, "Company": 0},
-        "Tue": {"name": "Tue", "Student": 0, "College": 0, "Company": 0},
-        "Wed": {"name": "Wed", "Student": 0, "College": 0, "Company": 0},
-        "Thu": {"name": "Thu", "Student": 0, "College": 0, "Company": 0},
-        "Fri": {"name": "Fri", "Student": 0, "College": 0, "Company": 0},
-        "Sat": {"name": "Sat", "Student": 0, "College": 0, "Company": 0},
-        "Sun": {"name": "Sun", "Student": 0, "College": 0, "Company": 0},
-    }
+    from datetime import timedelta
+    today = datetime.utcnow()
+    chart_data_dict = {}
     
-    all_activities = activities_collection.find({}, {"created_at": 1, "role": 1})
+    # Generate the last 7 days in order
+    for i in range(6, -1, -1):
+        d = today - timedelta(days=i)
+        day_name = d.strftime("%a")
+        chart_data_dict[day_name] = {"name": day_name, "Student": 0, "College": 0, "Company": 0}
+    
+    seven_days_ago = today - timedelta(days=7)
+    all_activities = activities_collection.find({"created_at": {"$gte": seven_days_ago}}, {"created_at": 1, "role": 1})
+    
     async for u in all_activities:
         ca = u.get("created_at")
-        role = u.get("role", "").capitalize()
+        role = u.get("role", "")
+        if not role:
+            continue
+        role = str(role).capitalize()
+        
         if role not in ["Student", "College", "Company"]:
             continue
+            
         if isinstance(ca, str):
             try:
                 ca = datetime.fromisoformat(ca.replace("Z", "+00:00"))
             except ValueError:
                 pass
+                
         if isinstance(ca, datetime):
             day_name = ca.strftime("%a")
             if day_name in chart_data_dict:

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Building2, GraduationCap, User, ArrowRight, Loader2 } from 'lucide-react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { GraduationCap, ArrowRight, Loader2 } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 

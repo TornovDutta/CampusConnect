@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from core.security import verify_password, create_access_token, get_password_hash
 from database import get_database, log_activity
 from models.user import UserResponse
@@ -121,9 +121,9 @@ async def register(user_in: UserCreate):
     await log_activity(
         user_id=str(result.inserted_id),
         user_name=user_dict.get("name") or user_dict.get("email"),
-        role=user_dict.get("role", "student"),
+        role=user_in.role.value if hasattr(user_in.role, 'value') else user_in.role,
         action_type="signup",
-        details=f"Registered a new {user_dict.get('role', 'student')} account"
+        details=f"Registered a new {user_in.role.value if hasattr(user_in.role, 'value') else user_in.role} account"
     )
     
     return {"message": "User registered successfully", "user": user_dict}

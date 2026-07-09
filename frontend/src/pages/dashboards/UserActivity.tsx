@@ -129,12 +129,6 @@ export default function UserActivity() {
               ))
             )}
           </div>
-          
-          <div className="p-4 border-t border-slate-100 text-center">
-            <button className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">
-              Load More Activity
-            </button>
-          </div>
         </div>
       </div>
     </div>
