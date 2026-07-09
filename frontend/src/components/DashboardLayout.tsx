@@ -107,6 +107,7 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 shadow-sm">
+          <img src="/favicon.svg" alt="Logo" className="w-8 h-8 mr-3" />
           <h1 className="text-xl font-bold text-slate-800 capitalize">
             {user.role.replace('_', ' ')} Portal
           </h1>

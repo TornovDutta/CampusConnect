@@ -7,6 +7,13 @@ from database import get_database
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from core.config import settings
+from pydantic import BaseModel
+
+class ContactInfo(BaseModel):
+    email: str = ""
+    phone: str = ""
+    github: str = ""
+    linkedin: str = ""
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -161,4 +168,23 @@ async def get_user_activity(admin=Depends(get_current_admin)):
         "activities": activities,
         "chart_data": chart_data
     }
+
+@router.get("/contact-info")
+async def get_contact_info():
+    db = get_database()
+    settings_col = db["settings"]
+    contact = await settings_col.find_one({"type": "contact_info"})
+    if contact:
+        contact.pop("_id", None)
+        return contact
+    return {"email": "admin@campusconnect.com", "phone": "+1 234 567 8900", "github": "https://github.com", "linkedin": "https://linkedin.com"}
+
+@router.put("/contact-info")
+async def update_contact_info(info: ContactInfo, admin=Depends(get_current_admin)):
+    db = get_database()
+    settings_col = db["settings"]
+    info_dict = info.model_dump()
+    info_dict["type"] = "contact_info"
+    await settings_col.update_one({"type": "contact_info"}, {"$set": info_dict}, upsert=True)
+    return {"message": "Contact info updated successfully"}
 

@@ -4,12 +4,78 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, Building2, GraduationCap, ShieldAlert, Loader2, X, Search, Filter } from 'lucide-react';
 import { api } from '../../services/api';
 
+function ContactSettings() {
+  const queryClient = useQueryClient();
+  const { data: contactInfo, isLoading } = useQuery({
+    queryKey: ['adminContactInfo'],
+    queryFn: async () => {
+      const response = await api.get('/admin/contact-info');
+      return response.data;
+    }
+  });
+
+  const [form, setForm] = useState({ email: '', phone: '', github: '', linkedin: '' });
+
+  React.useEffect(() => {
+    if (contactInfo) {
+      setForm({
+        email: contactInfo.email || '',
+        phone: contactInfo.phone || '',
+        github: contactInfo.github || '',
+        linkedin: contactInfo.linkedin || ''
+      });
+    }
+  }, [contactInfo]);
+
+  const updateMutation = useMutation({
+    mutationFn: async (newInfo: any) => {
+      await api.put('/admin/contact-info', newInfo);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminContactInfo'] });
+      alert('Contact info updated successfully!');
+    }
+  });
+
+  if (isLoading) return <div className="p-8 text-center"><Loader2 className="animate-spin inline" /></div>;
+
+  return (
+    <div className="card p-6 max-w-2xl mx-auto mt-6">
+      <h3 className="text-xl font-bold text-slate-800 mb-6">Contact Information Settings</h3>
+      <p className="text-slate-500 mb-6 text-sm">Update the contact details displayed in the landing page footer.</p>
+      <form onSubmit={(e) => { e.preventDefault(); updateMutation.mutate(form); }} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="input-field" placeholder="admin@example.com" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+          <input type="text" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="input-field" placeholder="+1 234 567 8900" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">GitHub Link</label>
+          <input type="url" value={form.github} onChange={e => setForm({...form, github: e.target.value})} className="input-field" placeholder="https://github.com/yourprofile" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn Link</label>
+          <input type="url" value={form.linkedin} onChange={e => setForm({...form, linkedin: e.target.value})} className="input-field" placeholder="https://linkedin.com/in/yourprofile" />
+        </div>
+        <button type="submit" disabled={updateMutation.isPending} className="btn-primary mt-6 flex items-center gap-2">
+          {updateMutation.isPending && <Loader2 className="animate-spin" size={16} />}
+          Save Changes
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+  const [activeTab, setActiveTab] = useState('organizations');
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['adminDashboardStats'],
@@ -89,7 +155,24 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Organizations Table */}
+      <div className="flex gap-4 border-b border-slate-200">
+        <button 
+          onClick={() => setActiveTab('organizations')}
+          className={`py-3 px-4 border-b-2 font-medium transition-colors ${activeTab === 'organizations' ? 'border-brand-500 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          Manage Organizations
+        </button>
+        <button 
+          onClick={() => setActiveTab('contact')}
+          className={`py-3 px-4 border-b-2 font-medium transition-colors ${activeTab === 'contact' ? 'border-brand-500 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          Contact Settings
+        </button>
+      </div>
+
+      {activeTab === 'contact' ? (
+        <ContactSettings />
+      ) : (
       <div className="card">
         <div className="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/50 backdrop-blur-md">
           <h2 className="text-lg font-bold text-slate-800">Manage Organizations</h2>
@@ -183,6 +266,7 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
+      )}
     </div>
   );
 }

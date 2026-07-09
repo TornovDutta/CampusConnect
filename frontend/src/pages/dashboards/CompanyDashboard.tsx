@@ -1,9 +1,12 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Briefcase, FileSignature, CheckCircle, Plus, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function CompanyDashboard() {
+  const navigate = useNavigate();
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['companyDashboardStats'],
     queryFn: async () => {
@@ -35,7 +38,7 @@ export default function CompanyDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">Recruitment Overview</h2>
-        <button className="btn-primary flex items-center gap-2">
+        <button onClick={() => navigate('/dashboard/company/post-job')} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> Post New Job
         </button>
       </div>

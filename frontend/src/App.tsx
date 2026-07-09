@@ -1,7 +1,16 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { GraduationCap, Briefcase, Building2, ChevronRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from './services/api';
 
 function LandingPage() {
+  const { data: contactInfo } = useQuery({
+    queryKey: ['publicContactInfo'],
+    queryFn: async () => {
+      const response = await api.get('/admin/contact-info');
+      return response.data;
+    }
+  });
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200">
@@ -13,10 +22,7 @@ function LandingPage() {
               </div>
               <span className="text-xl font-bold text-slate-800 tracking-tight">CampusConnect</span>
             </div>
-            <nav className="hidden md:flex space-x-8">
-              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Features</a>
-              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">How it works</a>
-            </nav>
+            
             <div className="flex items-center gap-4">
               <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Log in</Link>
               <Link to="/register" className="btn-primary text-sm px-5">Get Started</Link>
@@ -100,11 +106,37 @@ function LandingPage() {
 
       <footer className="bg-slate-900 text-slate-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex justify-center items-center gap-2 mb-4">
+          <div className="flex justify-center items-center gap-2 mb-6">
             <GraduationCap size={24} className="text-brand-500" />
             <span className="text-xl font-bold text-white tracking-tight">CampusConnect</span>
           </div>
-          <p className="text-sm">© {new Date().getFullYear()} CampusConnect. All rights reserved.</p>
+          
+          {contactInfo && (
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 mb-8 text-sm">
+              {contactInfo.email && (
+                <a href={`mailto:${contactInfo.email}`} className="hover:text-brand-400 transition-colors flex items-center gap-1">
+                  Email: {contactInfo.email}
+                </a>
+              )}
+              {contactInfo.phone && (
+                <a href={`tel:${contactInfo.phone}`} className="hover:text-brand-400 transition-colors flex items-center gap-1">
+                  Phone: {contactInfo.phone}
+                </a>
+              )}
+              {contactInfo.github && (
+                <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors flex items-center gap-1">
+                  GitHub
+                </a>
+              )}
+              {contactInfo.linkedin && (
+                <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors flex items-center gap-1">
+                  LinkedIn
+                </a>
+              )}
+            </div>
+          )}
+
+          <p className="text-sm border-t border-slate-800 pt-8">© {new Date().getFullYear()} CampusConnect. All rights reserved.</p>
         </div>
       </footer>
     </div>
@@ -136,6 +168,7 @@ import OrganizationDetails from './pages/dashboards/OrganizationDetails';
 import Profile from './pages/dashboards/Profile';
 import Settings from './pages/dashboards/Settings';
 import UserActivity from './pages/dashboards/UserActivity';
+import PostJob from './pages/dashboards/PostJob';
 
 function App() {
   return (
@@ -155,6 +188,7 @@ function App() {
             <Route path="student" element={<StudentDashboard />} />
             <Route path="college" element={<CollegeDashboard />} />
             <Route path="company" element={<CompanyDashboard />} />
+            <Route path="company/post-job" element={<PostJob />} />
           </Route>
         </Routes>
       </AuthProvider>
