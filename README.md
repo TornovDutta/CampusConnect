@@ -1,4 +1,4 @@
-# 🎓 CampusConnect: Democratizing Campus Recruitment
+# CampusConnect: Democratizing Campus Recruitment
 
 [![Frontend: React](https://img.shields.io/badge/Frontend-React%20%7C%20Vite-blue?style=flat-square&logo=react)](https://react.dev)
 [![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
@@ -9,7 +9,7 @@
 
 ---
 
-## 🛑 The Problem It Solves: Breaking the College Monopoly
+## The Problem It Solves: Breaking the College Monopoly
 
 Historically, premium companies have focused their campus recruitment efforts almost exclusively on elite or "famous" universities. This creates an institutional monopoly where brilliant students from lesser-known, regional, or tier-2/tier-3 colleges are marginalized simply because of their college's brand name. 
 
@@ -17,7 +17,7 @@ Historically, premium companies have focused their campus recruitment efforts al
 
 ---
 
-## 💼 Business Model & Competitive Advantage
+## Business Model & Competitive Advantage
 
 CampusConnect operates on a **B2B2C model** where Colleges and Companies are the primary stakeholders, and Students are the end-users. 
 
@@ -29,7 +29,7 @@ CampusConnect operates on a **B2B2C model** where Colleges and Companies are the
 
 ---
 
-## 🏗️ Technical Point of View (Architecture)
+## Technical Point of View (Architecture)
 
 To support high-concurrency placement drives (where thousands of students might apply for a role in minutes), the platform is architected for maximum scalability and speed.
 
@@ -44,25 +44,25 @@ To support high-concurrency placement drives (where thousands of students might 
 
 ---
 
-## ✨ Platform Features
+## Platform Features
 
-### 👨‍🎓 For Students
+### For Students
 * **Merit-Based Profiling:** Build digital resumes highlighting skills and achievements rather than just institution names.
 * **Universal Job Discovery:** Browse internships and jobs from companies extending offers across the platform network.
 * **One-Click Applications:** Apply and track application statuses in real-time.
 
-### 🏢 For Companies
+### For Companies
 * **Centralized ATS:** Review applications, shortlist candidates, and manage interview pipelines across multiple colleges from a single dashboard.
 * **Skill-First Talent Search:** Query the global student database for specific skillsets, ignoring institutional biases.
 * **Broadcast Postings:** Publish job descriptions directly to multiple targeted colleges simultaneously.
 
-### 🏫 For Colleges
+### For Colleges
 * **Streamlined Management:** Oversee student registrations and approve authentic company partnerships.
 * **Placement Analytics:** Track placement success, average packages, and top recruiters through visual dashboards.
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
 Follow these instructions to run the project locally.
 
@@ -110,7 +110,7 @@ npm run dev
 
 ---
 
-## 🔮 Future Scope
+## Future Scope
 * **AI-Powered Resume Parsing:** Using NLP to automatically extract and verify skills from student resumes, further reducing recruiter bias.
 * **Real-time Chat & WebSockets:** For instant communication between recruiters and shortlisted candidates.
 * **Automated Interview Scheduling:** Integration with Google Workspace/Outlook for seamless remote interviews.
