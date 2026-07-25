@@ -1,9 +1,6 @@
 # CampusConnect: Democratizing Campus Recruitment
 
-[![Frontend: React](https://img.shields.io/badge/Frontend-React%20%7C%20Vite-blue?style=flat-square&logo=react)](https://react.dev)
-[![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
-[![Database: MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=flat-square&logo=mongodb)](https://www.mongodb.com)
-[![Styling: Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com)
+
 
 **CampusConnect** is a comprehensive, full-stack recruitment platform designed to bridge the gap between Students, Educational Institutions, and Corporate Recruiters. More than just a job board, it is an ecosystem built to ensure equal opportunity for all graduates.
 
