@@ -14,6 +14,8 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [collegeId, setCollegeId] = useState('');
+  const [collegeSearch, setCollegeSearch] = useState('');
+  const [showCollegeDropdown, setShowCollegeDropdown] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   
@@ -123,6 +125,7 @@ export default function Register() {
                 onChange={(e) => setName(e.target.value)}
                 className="input-field"
                 placeholder="Enter name"
+                required
               />
             </div>
 
@@ -134,24 +137,54 @@ export default function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="input-field"
                 placeholder="email@example.com"
+                required
               />
             </div>
 
             {role === 'student' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Select College</label>
-                <select
-                  value={collegeId}
-                  onChange={(e) => setCollegeId(e.target.value)}
+              <div className="relative">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Search and Select College</label>
+                <input
+                  type="text"
+                  value={collegeSearch}
+                  onChange={(e) => {
+                    setCollegeSearch(e.target.value);
+                    setShowCollegeDropdown(true);
+                    setCollegeId('');
+                  }}
+                  onFocus={() => setShowCollegeDropdown(true)}
+                  onBlur={() => {
+                    // Small delay to allow click on dropdown to register before hiding
+                    setTimeout(() => setShowCollegeDropdown(false), 200);
+                  }}
                   className="input-field"
-                >
-                  <option value="">-- Choose your institution --</option>
-                  {colleges.map((college: any) => (
-                    <option key={college.id} value={college.id}>
-                      {college.name}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Type college name to search..."
+                  autoComplete="off"
+                />
+                
+                {showCollegeDropdown && (
+                  <div className="absolute z-20 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-60 overflow-auto">
+                    {colleges.filter((c: any) => c.name.toLowerCase().includes(collegeSearch.toLowerCase())).length > 0 ? (
+                      colleges
+                        .filter((c: any) => c.name.toLowerCase().includes(collegeSearch.toLowerCase()))
+                        .map((college: any) => (
+                          <div
+                            key={college.id}
+                            className={`px-4 py-3 hover:bg-brand-50 cursor-pointer text-sm transition-colors ${collegeId === college.id ? 'bg-brand-50 text-brand-700 font-medium' : 'text-slate-700'}`}
+                            onClick={() => {
+                              setCollegeId(college.id);
+                              setCollegeSearch(college.name);
+                              setShowCollegeDropdown(false);
+                            }}
+                          >
+                            {college.name}
+                          </div>
+                        ))
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-slate-500 italic">No colleges found matching "{collegeSearch}"</div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -164,6 +197,7 @@ export default function Register() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="input-field pr-10"
                   placeholder="••••••••"
+                  required
                 />
                 <button
                   type="button"

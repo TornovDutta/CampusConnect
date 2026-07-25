@@ -85,6 +85,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="input-field pl-10 bg-white/50"
                   placeholder="admin@campusconnect.com"
+                  required
                 />
               </div>
             </div>
@@ -92,7 +93,7 @@ export default function Login() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-medium text-slate-700">Password</label>
-                <a href="#" className="text-sm font-medium text-brand-600 hover:text-brand-500">Forgot password?</a>
+                <a href="#" className="text-sm font-medium text-brand-600 hover:text-brand-500 transition-colors">Forgot password?</a>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -104,6 +105,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="input-field pl-10 pr-10 bg-white/50"
                   placeholder="••••••••"
+                  required
                 />
                 <button
                   type="button"

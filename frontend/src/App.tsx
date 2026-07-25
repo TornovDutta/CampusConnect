@@ -45,12 +45,16 @@ function LandingPage() {
             <p className="mt-4 text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-10">
               The all-in-one centralized platform for Colleges, Students, and Companies to streamline campus recruitment and internship hiring.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/register?role=college" className="btn-primary px-8 py-3 text-lg flex items-center justify-center gap-2 group">
-                Register Institution
-                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+              <Link to="/register?role=student" className="btn-primary px-8 py-3 text-lg flex items-center justify-center gap-2 group w-full sm:w-auto shadow-lg shadow-brand-500/30">
+                <GraduationCap size={20} />
+                Join as Student
               </Link>
-              <Link to="/register?role=company" className="btn-secondary px-8 py-3 text-lg flex items-center justify-center gap-2">
+              <Link to="/register?role=college" className="btn-secondary px-8 py-3 text-lg flex items-center justify-center gap-2 w-full sm:w-auto hover:bg-slate-50">
+                Register Institution
+                <ChevronRight size={20} className="text-slate-400" />
+              </Link>
+              <Link to="/register?role=company" className="btn-secondary px-8 py-3 text-lg flex items-center justify-center gap-2 w-full sm:w-auto hover:bg-slate-50">
                 <Building2 size={20} className="text-slate-500" />
                 Hire Talent
               </Link>
