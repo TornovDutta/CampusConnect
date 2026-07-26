@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, User, Settings, GraduationCap, Activity } from 'lucide-react';
+import { LogOut, LayoutDashboard, User as UserIcon, Settings, GraduationCap, Activity, Users } from 'lucide-react';
 
 export default function DashboardLayout({ allowedRoles }: { allowedRoles: string[] }) {
   const { user, logout, isAuthenticated } = useAuth();
@@ -55,6 +55,22 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
           </NavLink>
           )}
 
+          {user.role === 'college' && (
+            <NavLink 
+              to="/dashboard/college/students" 
+              className={({ isActive }) => 
+                `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  isActive 
+                    ? 'bg-brand-600/20 text-brand-400' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`
+            }
+          >
+            <Users size={20} />
+            <span className="font-medium">Students List</span>
+          </NavLink>
+          )}
+
           <NavLink 
             to="/dashboard/profile" 
             className={({ isActive }) => 
@@ -65,7 +81,7 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
               }`
             }
           >
-            <User size={20} />
+            <UserIcon size={20} />
             <span className="font-medium">Profile</span>
           </NavLink>
           
@@ -107,7 +123,9 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 shadow-sm">
-          <img src="/favicon.svg" alt="Logo" className="w-8 h-8 mr-3" />
+          <div className="bg-brand-500 p-1.5 rounded-md text-white mr-3">
+            <GraduationCap size={20} />
+          </div>
           <h1 className="text-xl font-bold text-slate-800 capitalize">
             {user.role.replace('_', ' ')} Portal
           </h1>

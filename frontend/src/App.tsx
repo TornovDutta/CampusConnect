@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { GraduationCap, Briefcase, Building2, ChevronRight } from 'lucide-react';
+import { GraduationCap, Briefcase, Building2, ChevronRight, Mail, Phone, ExternalLink } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from './services/api';
 
@@ -108,57 +108,100 @@ function LandingPage() {
         </section>
       </main>
 
-      <footer className="bg-slate-900 text-slate-400 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex justify-center items-center gap-2 mb-6">
-            <GraduationCap size={24} className="text-brand-500" />
-            <span className="text-xl font-bold text-white tracking-tight">CampusConnect</span>
-          </div>
-          
-          {contactInfo && (
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 mb-8 text-sm">
-              {contactInfo.email && (
-                <a href={`mailto:${contactInfo.email}`} className="hover:text-brand-400 transition-colors flex items-center gap-1">
-                  Email: {contactInfo.email}
-                </a>
-              )}
-              {contactInfo.phone && (
-                <a href={`tel:${contactInfo.phone}`} className="hover:text-brand-400 transition-colors flex items-center gap-1">
-                  Phone: {contactInfo.phone}
-                </a>
-              )}
-              {contactInfo.github && (
-                <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors flex items-center gap-1">
-                  GitHub
-                </a>
-              )}
-              {contactInfo.linkedin && (
-                <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors flex items-center gap-1">
-                  LinkedIn
-                </a>
+      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div className="flex flex-col items-center md:items-start">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="bg-brand-500/10 p-2 rounded-lg">
+                  <GraduationCap size={28} className="text-brand-500" />
+                </div>
+                <span className="text-2xl font-bold text-white tracking-tight">CampusConnect</span>
+              </div>
+              <p className="text-slate-500 text-center md:text-left max-w-sm leading-relaxed">
+                Empowering students and streamlining recruitment. The ultimate bridge between academia and industry.
+              </p>
+            </div>
+            
+            <div className="flex flex-col items-center md:items-start">
+              <h4 className="text-white font-semibold mb-6 text-lg">Quick Links</h4>
+              <ul className="space-y-3 text-sm flex flex-col items-center md:items-start">
+                <li><Link to="/register?role=college" className="hover:text-brand-400 transition-colors">Register Institution</Link></li>
+                <li><Link to="/register?role=company" className="hover:text-brand-400 transition-colors">Hire Talent</Link></li>
+                <li><Link to="/register?role=student" className="hover:text-brand-400 transition-colors">Join as Student</Link></li>
+                <li><Link to="/login" className="hover:text-brand-400 transition-colors">Login to Portal</Link></li>
+              </ul>
+            </div>
+            
+            <div className="flex flex-col items-center md:items-start">
+              <h4 className="text-white font-semibold mb-6 text-lg">Connect With Us</h4>
+              {contactInfo ? (
+                <ul className="space-y-4 text-sm w-full max-w-xs flex flex-col items-center md:items-start">
+                  {contactInfo.email && (
+                    <li>
+                      <a href={`mailto:${contactInfo.email}`} className="group flex items-center gap-3 p-2 -ml-2 rounded-lg hover:bg-slate-900 transition-colors">
+                        <div className="bg-slate-800 p-2 rounded-md group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-colors">
+                          <Mail size={16} />
+                        </div>
+                        <span className="group-hover:text-brand-300 transition-colors">{contactInfo.email}</span>
+                      </a>
+                    </li>
+                  )}
+                  {contactInfo.phone && (
+                    <li>
+                      <a href={`tel:${contactInfo.phone}`} className="group flex items-center gap-3 p-2 -ml-2 rounded-lg hover:bg-slate-900 transition-colors">
+                        <div className="bg-slate-800 p-2 rounded-md group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-colors">
+                          <Phone size={16} />
+                        </div>
+                        <span className="group-hover:text-brand-300 transition-colors">{contactInfo.phone}</span>
+                      </a>
+                    </li>
+                  )}
+                  {(contactInfo.github || contactInfo.linkedin) && (
+                    <>
+                      {contactInfo.github && (
+                        <li>
+                          <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 p-2 -ml-2 rounded-lg hover:bg-slate-900 transition-colors">
+                            <div className="bg-slate-800 p-2 rounded-md group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-colors">
+                              <ExternalLink size={16} />
+                            </div>
+                            <span className="group-hover:text-brand-300 transition-colors">GitHub</span>
+                          </a>
+                        </li>
+                      )}
+                      {contactInfo.linkedin && (
+                        <li>
+                          <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 p-2 -ml-2 rounded-lg hover:bg-slate-900 transition-colors">
+                            <div className="bg-slate-800 p-2 rounded-md group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-colors">
+                              <ExternalLink size={16} />
+                            </div>
+                            <span className="group-hover:text-brand-300 transition-colors">LinkedIn</span>
+                          </a>
+                        </li>
+                      )}
+                    </>
+                  )}
+                </ul>
+              ) : (
+                <p className="text-sm text-slate-500">Contact information not available</p>
               )}
             </div>
-          )}
+          </div>
 
-          <p className="text-sm border-t border-slate-800 pt-8">© {new Date().getFullYear()} CampusConnect. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-800 text-sm text-slate-500 gap-4">
+            <p>© {new Date().getFullYear()} CampusConnect. All rights reserved.</p>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-slate-300 transition-colors">Terms of Service</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
   );
 }
 
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-slate-800 mb-4">{title}</h1>
-        <Link to="/" className="text-brand-600 hover:underline flex items-center justify-center gap-1">
-          Return to Home
-        </Link>
-      </div>
-    </div>
-  );
-}
+
 
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -167,6 +210,8 @@ import DashboardLayout from './components/DashboardLayout';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
+import CollegeStudentsList from './pages/dashboards/CollegeStudentsList';
+import CollegeStudentProfile from './pages/dashboards/CollegeStudentProfile';
 import CompanyDashboard from './pages/dashboards/CompanyDashboard';
 import OrganizationDetails from './pages/dashboards/OrganizationDetails';
 import Profile from './pages/dashboards/Profile';
@@ -191,6 +236,8 @@ function App() {
             <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />
             <Route path="college" element={<CollegeDashboard />} />
+            <Route path="college/students" element={<CollegeStudentsList />} />
+            <Route path="college/students/:id" element={<CollegeStudentProfile />} />
             <Route path="company" element={<CompanyDashboard />} />
             <Route path="company/post-job" element={<PostJob />} />
           </Route>

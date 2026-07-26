@@ -7,7 +7,6 @@ export default function CollegeDashboard() {
   const queryClient = useQueryClient();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', email: '', password: '' });
-
   const { data: statsData, isLoading: isLoadingStats } = useQuery({
     queryKey: ['collegeDashboardStats'],
     queryFn: async () => {
@@ -67,8 +66,9 @@ export default function CollegeDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-xl font-bold text-slate-800">Placement Cell Overview</h2>
+        
         <button 
           onClick={() => setIsAddModalOpen(true)}
           className="btn-primary flex items-center gap-2"

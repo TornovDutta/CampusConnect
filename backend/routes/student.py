@@ -37,3 +37,20 @@ async def get_student_dashboard(student=Depends(get_current_student)):
         "recommended_jobs": [],
         "recent_applications": []
     }
+
+@router.post("/apply/{job_id}")
+async def apply_job(job_id: str, student=Depends(get_current_student)):
+    db = get_database()
+    student_id = student["sub"]
+    
+    from bson import ObjectId
+    user = await db["users"].find_one({"_id": ObjectId(student_id)})
+    
+    if user.get("is_suspended", False):
+        raise HTTPException(status_code=403, detail="You are suspended and cannot apply for jobs")
+        
+    if not user.get("is_college_approved", False):
+        raise HTTPException(status_code=403, detail="Your college has not approved your account yet")
+        
+    # Logic for applying to job would go here
+    return {"message": "Successfully applied for job"}

@@ -102,3 +102,67 @@ async def add_student(student_in: StudentAddRequest, college=Depends(get_current
     
     result = await db["users"].insert_one(user_dict)
     return {"message": "Student added successfully", "id": str(result.inserted_id)}
+
+@router.get("/students")
+async def get_college_students(college=Depends(get_current_college)):
+    db = get_database()
+    college_id = college["sub"]
+    
+    cursor = db["users"].find({
+        "role": "student", 
+        "college_id": college_id, 
+        "is_college_approved": True
+    }).sort("created_at", -1)
+    
+    students = []
+    async for student in cursor:
+        student["_id"] = str(student["_id"])
+        if "hashed_password" in student:
+            del student["hashed_password"]
+        students.append(student)
+        
+    return students
+
+@router.get("/students/{student_id}")
+async def get_student_details(student_id: str, college=Depends(get_current_college)):
+    db = get_database()
+    college_id = college["sub"]
+    
+    student = await db["users"].find_one({
+        "_id": ObjectId(student_id),
+        "college_id": college_id,
+        "role": "student"
+    })
+    
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found or does not belong to this college")
+        
+    student["_id"] = str(student["_id"])
+    if "hashed_password" in student:
+        del student["hashed_password"]
+        
+    return student
+
+@router.patch("/students/{student_id}/toggle-suspend")
+async def toggle_student_suspension(student_id: str, college=Depends(get_current_college)):
+    db = get_database()
+    college_id = college["sub"]
+    
+    # Check if student exists and belongs to this college
+    student = await db["users"].find_one({
+        "_id": ObjectId(student_id),
+        "college_id": college_id,
+        "role": "student"
+    })
+    
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found or does not belong to this college")
+        
+    new_status = not student.get("is_suspended", False)
+    
+    await db["users"].update_one(
+        {"_id": ObjectId(student_id)},
+        {"$set": {"is_suspended": new_status}}
+    )
+    
+    return {"message": "Student suspended" if new_status else "Student unsuspended", "is_suspended": new_status}
