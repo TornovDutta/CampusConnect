@@ -1,17 +1,39 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, FileSignature, CheckCircle, Plus, Loader2 } from 'lucide-react';
+import { Briefcase, FileSignature, CheckCircle, Plus, Loader2, Globe, Building, X, User, Mail, Calendar } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function CompanyDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [selectedJob, setSelectedJob] = useState<{ id: string; title: string } | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['companyDashboardStats'],
     queryFn: async () => {
       const response = await api.get('/company/dashboard-stats');
       return response.data;
+    }
+  });
+
+  const { data: candidates = [], isLoading: isLoadingCandidates } = useQuery({
+    queryKey: ['jobCandidates', selectedJob?.id],
+    queryFn: async () => {
+      if (!selectedJob) return [];
+      const response = await api.get(`/company/jobs/${selectedJob.id}/candidates`);
+      return response.data;
+    },
+    enabled: !!selectedJob
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ appId, status }: { appId: string; status: string }) => {
+      await api.patch(`/company/applications/${appId}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jobCandidates', selectedJob?.id] });
+      queryClient.invalidateQueries({ queryKey: ['companyDashboardStats'] });
     }
   });
 
@@ -85,6 +107,7 @@ export default function CompanyDashboard() {
               <tr>
                 <th className="px-6 py-3 font-medium">Job Title</th>
                 <th className="px-6 py-3 font-medium">Location</th>
+                <th className="px-6 py-3 font-medium">Visibility</th>
                 <th className="px-6 py-3 font-medium">Applications</th>
                 <th className="px-6 py-3 font-medium">Status</th>
                 <th className="px-6 py-3 font-medium">Action</th>
@@ -93,7 +116,7 @@ export default function CompanyDashboard() {
             <tbody className="divide-y divide-slate-100">
               {recent_jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
                     No active job postings found. Click "Post New Job" to get started.
                   </td>
                 </tr>
@@ -102,14 +125,30 @@ export default function CompanyDashboard() {
                   <tr key={job._id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-800">{job.title}</td>
                     <td className="px-6 py-4 text-slate-600">{job.location}</td>
-                    <td className="px-6 py-4 text-slate-600">{job.applications_count || 0}</td>
+                    <td className="px-6 py-4">
+                      {job.visibility === 'requested_college' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded-md">
+                          <Building size={12} /> Requested College ({job.target_colleges?.length || 0})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-md">
+                          <Globe size={12} /> Public (All Students)
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 font-bold">{job.applications_count || 0}</td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 text-xs font-medium rounded-full ${job.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>
                         {job.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button className="text-brand-600 hover:text-brand-700 font-medium text-sm mr-3">View Candidates</button>
+                      <button 
+                        onClick={() => setSelectedJob({ id: job._id, title: job.title })}
+                        className="text-brand-600 hover:text-brand-700 font-semibold text-sm hover:underline"
+                      >
+                        View Candidates ({job.applications_count || 0})
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -118,6 +157,75 @@ export default function CompanyDashboard() {
           </table>
         </div>
       </div>
+
+      {selectedJob && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-3xl shadow-xl max-h-[85vh] flex flex-col">
+            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">Candidates for: {selectedJob.title}</h3>
+                <p className="text-sm text-slate-500">Review applicants and update recruitment status</p>
+              </div>
+              <button onClick={() => setSelectedJob(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="py-4 overflow-y-auto flex-1 space-y-3">
+              {isLoadingCandidates ? (
+                <div className="flex justify-center items-center h-40">
+                  <Loader2 className="animate-spin text-brand-500" size={28} />
+                </div>
+              ) : candidates.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  No students have applied for this position yet.
+                </div>
+              ) : (
+                candidates.map((app: any) => (
+                  <div key={app._id} className="p-4 border border-slate-200 rounded-xl hover:border-brand-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                        <User size={16} className="text-brand-500" /> {app.student_name}
+                      </h4>
+                      <p className="text-xs text-slate-500 flex items-center gap-2">
+                        <Mail size={14} className="text-slate-400" /> {app.student_email}
+                      </p>
+                      {app.created_at && (
+                        <p className="text-xs text-slate-400 flex items-center gap-2">
+                          <Calendar size={14} className="text-slate-400" /> Applied on {new Date(app.created_at).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <select 
+                        value={app.status} 
+                        onChange={(e) => updateStatusMutation.mutate({ appId: app._id, status: e.target.value })}
+                        className="text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 focus:outline-none focus:border-brand-500 cursor-pointer"
+                      >
+                        <option value="In Review">In Review</option>
+                        <option value="Shortlisted">Shortlisted</option>
+                        <option value="Offer Sent">Offer Sent</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex justify-end">
+              <button 
+                onClick={() => setSelectedJob(null)}
+                className="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

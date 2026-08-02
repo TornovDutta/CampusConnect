@@ -21,14 +21,29 @@ async def get_college_dashboard(college=Depends(get_current_college)):
     db = get_database()
     college_id = college["sub"]  # subject/user_id in JWT
     
-    # We'll calculate real stats later
+    registered_students = await db["users"].count_documents({"role": "student", "college_id": college_id, "is_college_approved": True})
+    
+    # Fetch campus drive invitations (jobs targeting this college)
+    invites_cursor = db["jobs"].find({"status": "active", "visibility": "requested_college", "target_colleges": college_id}).sort("created_at", -1)
+    recent_invitations = []
+    async for invite in invites_cursor:
+        invite["_id"] = str(invite["_id"])
+        invite["id"] = str(invite["_id"])
+        if "created_at" in invite and invite["created_at"]:
+            invite["created_at"] = invite["created_at"].isoformat() if hasattr(invite["created_at"], "isoformat") else str(invite["created_at"])
+        invite["package_details"] = invite.get("stipend") or invite.get("employment_type", "Competitive Package")
+        recent_invitations.append(invite)
+        
+    drive_invitations = len(recent_invitations)
+    students_placed = await db["applications"].count_documents({"college_id": college_id, "status": {"$in": ["Shortlisted", "Offer Sent", "Hired"]}})
+
     return {
         "stats": {
-            "registered_students": await db["users"].count_documents({"role": "student", "college_id": college_id, "is_college_approved": True}),
-            "drive_invitations": 0,
-            "students_placed": 0
+            "registered_students": registered_students,
+            "drive_invitations": drive_invitations,
+            "students_placed": students_placed
         },
-        "recent_invitations": []
+        "recent_invitations": recent_invitations
     }
 
 from bson import ObjectId
