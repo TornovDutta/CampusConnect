@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Briefcase, ArrowLeft, Globe, Building, X, Plus, Sparkles, Tag, CheckSquare, Square } from 'lucide-react';
+import { Loader2, Briefcase, ArrowLeft, Globe, Building, X, Plus, Sparkles, Tag, CheckSquare, Square, Link as LinkIcon } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function PostJob() {
@@ -21,7 +21,9 @@ export default function PostJob() {
     working_hours: '',
     prerequisites: [] as string[],
     visibility: 'public',
-    target_colleges: [] as string[]
+    target_colleges: [] as string[],
+    apply_type: 'easy_apply',
+    external_link: ''
   });
 
   const { data: colleges = [], isLoading: isLoadingColleges } = useQuery({
@@ -76,6 +78,10 @@ export default function PostJob() {
     e.preventDefault();
     if (form.visibility === 'requested_college' && form.target_colleges.length === 0) {
       alert('Please select at least one target college for Requested College visibility.');
+      return;
+    }
+    if (form.apply_type === 'external_link' && !form.external_link.trim()) {
+      alert('Please provide an external application link.');
       return;
     }
     postJobMutation.mutate();
@@ -235,6 +241,54 @@ export default function PostJob() {
                       <span>Add <span className="underline font-extrabold">"{prereqInput.trim()}"</span> as a new prerequisite (will be saved to database)</span>
                     </div>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* Apply Method Section */}
+            <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-2 space-y-4">
+              <label className="block text-base font-bold text-slate-800 mb-2">How should candidates apply? *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  onClick={() => setForm({ ...form, apply_type: 'easy_apply', external_link: '' })}
+                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-start gap-3 ${form.apply_type === 'easy_apply' ? 'border-brand-500 bg-brand-50/20' : 'border-slate-200 hover:border-slate-300'}`}
+                >
+                  <div className={`p-2 rounded-lg ${form.apply_type === 'easy_apply' ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                    <Sparkles size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800">Easy Apply</h4>
+                    <p className="text-xs text-slate-500 mt-1">Candidates can apply directly through CampusConnect with their profile.</p>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => setForm({ ...form, apply_type: 'external_link' })}
+                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-start gap-3 ${form.apply_type === 'external_link' ? 'border-brand-500 bg-brand-50/20' : 'border-slate-200 hover:border-slate-300'}`}
+                >
+                  <div className={`p-2 rounded-lg ${form.apply_type === 'external_link' ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                    <LinkIcon size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800">External Link</h4>
+                    <p className="text-xs text-slate-500 mt-1">Redirect candidates to your own career site or external form.</p>
+                  </div>
+                </div>
+              </div>
+
+              {form.apply_type === 'external_link' && (
+                <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <label className="block text-sm font-bold text-slate-700 mb-1">External Application Link *</label>
+                  <input 
+                    type="url" 
+                    name="external_link"
+                    value={form.external_link} 
+                    onChange={handleChange} 
+                    required={form.apply_type === 'external_link'}
+                    className="input-field w-full" 
+                    placeholder="https://careers.yourcompany.com/apply/..." 
+                  />
+                  <p className="text-xs text-slate-500 mt-2">When candidates click "Apply", they will be redirected to this URL.</p>
                 </div>
               )}
             </div>

@@ -212,7 +212,10 @@ import StudentDashboard from './pages/dashboards/StudentDashboard';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
 import CollegeStudentsList from './pages/dashboards/CollegeStudentsList';
 import CollegeStudentProfile from './pages/dashboards/CollegeStudentProfile';
+import CollegeSelectedJobs from './pages/dashboards/CollegeSelectedJobs';
 import CompanyDashboard from './pages/dashboards/CompanyDashboard';
+import CompanyJobs from './pages/dashboards/CompanyJobs';
+import CompanyApplicants from './pages/dashboards/CompanyApplicants';
 import OrganizationDetails from './pages/dashboards/OrganizationDetails';
 import Profile from './pages/dashboards/Profile';
 import Settings from './pages/dashboards/Settings';
@@ -238,7 +241,10 @@ function App() {
             <Route path="college" element={<CollegeDashboard />} />
             <Route path="college/students" element={<CollegeStudentsList />} />
             <Route path="college/students/:id" element={<CollegeStudentProfile />} />
+            <Route path="college/selected-jobs" element={<CollegeSelectedJobs />} />
             <Route path="company" element={<CompanyDashboard />} />
+            <Route path="company/jobs" element={<CompanyJobs />} />
+            <Route path="company/applicants" element={<CompanyApplicants />} />
             <Route path="company/post-job" element={<PostJob />} />
           </Route>
         </Routes>

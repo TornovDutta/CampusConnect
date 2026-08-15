@@ -138,6 +138,25 @@ async def get_college_students(college=Depends(get_current_college)):
         
     return students
 
+@router.get("/selected-jobs")
+async def get_selected_jobs(college=Depends(get_current_college)):
+    db = get_database()
+    college_id = college["sub"]
+    
+    cursor = db["applications"].find({
+        "college_id": college_id, 
+        "status": {"$in": ["Shortlisted", "Offer Sent", "Hired"]}
+    }).sort("applied_at", -1)
+    
+    selected_jobs = []
+    async for app in cursor:
+        app["_id"] = str(app["_id"])
+        if "applied_at" in app and app["applied_at"]:
+            app["applied_at"] = app["applied_at"].isoformat() if hasattr(app["applied_at"], "isoformat") else str(app["applied_at"])
+        selected_jobs.append(app)
+        
+    return selected_jobs
+
 @router.get("/students/{student_id}")
 async def get_student_details(student_id: str, college=Depends(get_current_college)):
     db = get_database()

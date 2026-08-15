@@ -32,6 +32,8 @@ class JobCreate(BaseModel):
     prerequisites: Optional[Union[List[str], str]] = None
     visibility: str = "public"  # "public" or "requested_college"
     target_colleges: Optional[List[str]] = []
+    apply_type: str = "easy_apply"  # "easy_apply" or "external_link"
+    external_link: Optional[str] = None
 
 @router.get("/dashboard-stats")
 async def get_company_dashboard(company=Depends(get_current_company)):
@@ -136,6 +138,35 @@ async def get_job_candidates(job_id: str, company=Depends(get_current_company)):
         app["_id"] = str(app["_id"])
         candidates.append(app)
     return candidates
+
+@router.get("/all-jobs")
+async def get_all_jobs(company=Depends(get_current_company)):
+    db = get_database()
+    jobs_collection = db["jobs"]
+    applications_collection = db["applications"]
+    company_id = company.get("sub")
+    
+    cursor = jobs_collection.find({"company_id": company_id}).sort("created_at", -1)
+    jobs = []
+    async for job in cursor:
+        job["_id"] = str(job["_id"])
+        count = await applications_collection.count_documents({"job_id": str(job["_id"])})
+        job["applications_count"] = count
+        jobs.append(job)
+    return jobs
+
+@router.get("/all-applications")
+async def get_all_applications(company=Depends(get_current_company)):
+    db = get_database()
+    applications_collection = db["applications"]
+    company_id = company.get("sub")
+    
+    cursor = applications_collection.find({"company_id": company_id}).sort("created_at", -1)
+    applications = []
+    async for app in cursor:
+        app["_id"] = str(app["_id"])
+        applications.append(app)
+    return applications
 
 class UpdateStatusRequest(BaseModel):
     status: str

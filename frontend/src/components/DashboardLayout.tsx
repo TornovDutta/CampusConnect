@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, User as UserIcon, Settings, GraduationCap, Activity, Users } from 'lucide-react';
+import { LogOut, LayoutDashboard, User as UserIcon, Settings, GraduationCap, Activity, Users, Award, Briefcase, PlusCircle, ChevronRight, Menu } from 'lucide-react';
 
 export default function DashboardLayout({ allowedRoles }: { allowedRoles: string[] }) {
   const { user, logout, isAuthenticated } = useAuth();
@@ -23,81 +23,165 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
           <span className="text-xl font-bold tracking-tight">CampusConnect</span>
         </div>
         
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          <NavLink 
-            to={`/dashboard/${user.role === 'super_admin' ? 'admin' : user.role}`} 
-            end
-            className={({ isActive }) => 
-              `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-brand-600/20 text-brand-400' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <LayoutDashboard size={20} />
-            <span className="font-medium">Dashboard</span>
-          </NavLink>
-          
-          {user.role === 'super_admin' && (
-            <NavLink 
-              to="/dashboard/admin/activity" 
-              className={({ isActive }) => 
-                `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-brand-600/20 text-brand-400' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <Activity size={20} />
-            <span className="font-medium">Activity</span>
-          </NavLink>
+        <nav className="flex-1 px-4 py-6 overflow-y-auto custom-scrollbar">
+          {/* Overview Section */}
+          <div className="mb-6">
+            <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Overview</h3>
+            <div className="space-y-1">
+              <NavLink 
+                to={`/dashboard/${user.role === 'super_admin' ? 'admin' : user.role}`} 
+                end
+                className={({ isActive }) => 
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`
+                }
+              >
+                <LayoutDashboard size={18} />
+                <span className="font-medium text-sm">Dashboard</span>
+              </NavLink>
+              
+              {user.role === 'super_admin' && (
+                <NavLink 
+                  to="/dashboard/admin/activity" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`
+                }
+              >
+                <Activity size={18} />
+                <span className="font-medium text-sm">Activity Logs</span>
+              </NavLink>
+              )}
+            </div>
+          </div>
+
+          {/* Role-Specific Sections */}
+          {(user.role === 'college' || user.role === 'company') && (
+            <div className="mb-6">
+              <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+                {user.role === 'college' ? 'Placement Cell' : 'Recruitment'}
+              </h3>
+              <div className="space-y-1">
+                {user.role === 'college' && (
+                  <>
+                    <NavLink 
+                      to="/dashboard/college/students" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Users size={18} />
+                      <span className="font-medium text-sm">Students List</span>
+                    </NavLink>
+                    
+                    <NavLink 
+                      to="/dashboard/college/selected-jobs" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Award size={18} />
+                      <span className="font-medium text-sm">Selected Jobs</span>
+                    </NavLink>
+                  </>
+                )}
+
+                {user.role === 'company' && (
+                  <>
+                    <NavLink 
+                      to="/dashboard/company/jobs" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Briefcase size={18} />
+                      <span className="font-medium text-sm">Manage Jobs</span>
+                    </NavLink>
+                    
+                    <NavLink 
+                      to="/dashboard/company/applicants" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Users size={18} />
+                      <span className="font-medium text-sm">Applicants</span>
+                    </NavLink>
+                    
+                    <NavLink 
+                      to="/dashboard/company/post-job" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <PlusCircle size={18} />
+                      <span className="font-medium text-sm">Post a Job</span>
+                    </NavLink>
+                  </>
+                )}
+              </div>
+            </div>
           )}
 
-          {user.role === 'college' && (
-            <NavLink 
-              to="/dashboard/college/students" 
-              className={({ isActive }) => 
-                `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-brand-600/20 text-brand-400' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <Users size={20} />
-            <span className="font-medium">Students List</span>
-          </NavLink>
-          )}
-
-          <NavLink 
-            to="/dashboard/profile" 
-            className={({ isActive }) => 
-              `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-brand-600/20 text-brand-400' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <UserIcon size={20} />
-            <span className="font-medium">Profile</span>
-          </NavLink>
-          
-          <NavLink 
-            to="/dashboard/settings" 
-            className={({ isActive }) => 
-              `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-brand-600/20 text-brand-400' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`
-            }
-          >
-            <Settings size={20} />
-            <span className="font-medium">Settings</span>
-          </NavLink>
+          {/* Account Section */}
+          <div className="mb-6">
+            <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Account</h3>
+            <div className="space-y-1">
+              <NavLink 
+                to="/dashboard/profile" 
+                className={({ isActive }) => 
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`
+                }
+              >
+                <UserIcon size={18} />
+                <span className="font-medium text-sm">Profile</span>
+              </NavLink>
+              
+              <NavLink 
+                to="/dashboard/settings" 
+                className={({ isActive }) => 
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`
+                }
+              >
+                <Settings size={18} />
+                <span className="font-medium text-sm">Settings</span>
+              </NavLink>
+            </div>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-slate-800">

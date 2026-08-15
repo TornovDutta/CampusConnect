@@ -166,7 +166,7 @@ export default function StudentDashboard() {
                         onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
                         className="btn-primary text-xs px-3 py-1 h-auto"
                       >
-                        Apply
+                        {job.apply_type === 'external_link' ? 'View & Apply' : 'Apply'}
                       </button>
                     )}
                   </div>
@@ -284,6 +284,15 @@ export default function StudentDashboard() {
                 <button disabled className="px-6 py-2 bg-green-100 text-green-700 font-bold rounded-xl flex items-center gap-2 cursor-not-allowed">
                   <Check size={18} /> Already Applied
                 </button>
+              ) : selectedJob.apply_type === 'external_link' ? (
+                <a 
+                  href={selectedJob.external_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary px-8 flex items-center gap-2"
+                >
+                  Apply on Company Site <Globe size={18} />
+                </a>
               ) : (
                 <button 
                   onClick={() => applyMutation.mutate(selectedJob.id || selectedJob._id)}
