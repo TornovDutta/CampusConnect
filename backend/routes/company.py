@@ -139,6 +139,58 @@ async def get_job_candidates(job_id: str, company=Depends(get_current_company)):
         candidates.append(app)
     return candidates
 
+@router.get("/jobs/{job_id}")
+async def get_job(job_id: str, company=Depends(get_current_company)):
+    db = get_database()
+    jobs_collection = db["jobs"]
+    company_id = company.get("sub")
+    
+    job = await jobs_collection.find_one({"_id": ObjectId(job_id), "company_id": company_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    job["_id"] = str(job["_id"])
+    return job
+
+@router.put("/jobs/{job_id}")
+async def update_job(job_id: str, job_in: JobCreate, company=Depends(get_current_company)):
+    db = get_database()
+    jobs_collection = db["jobs"]
+    company_id = company.get("sub")
+    
+    # Check if job exists and belongs to company
+    existing_job = await jobs_collection.find_one({"_id": ObjectId(job_id), "company_id": company_id})
+    if not existing_job:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    update_data = job_in.model_dump()
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await jobs_collection.update_one(
+        {"_id": ObjectId(job_id), "company_id": company_id},
+        {"$set": update_data}
+    )
+    
+    if job_in.prerequisites:
+        pre_list = job_in.prerequisites if isinstance(job_in.prerequisites, list) else [job_in.prerequisites]
+        for p in pre_list:
+            if p and isinstance(p, str) and p.strip():
+                await db["prerequisites"].update_one(
+                    {"name": p.strip()},
+                    {"$set": {"name": p.strip()}},
+                    upsert=True
+                )
+    
+    from database import log_activity
+    await log_activity(
+        user_id=company_id,
+        user_name=existing_job.get("company_name", "Company"),
+        role="company",
+        action_type="job_update",
+        details=f"Updated job posting: {job_in.title}"
+    )
+    
+    return {"message": "Job updated successfully"}
+
 @router.get("/all-jobs")
 async def get_all_jobs(company=Depends(get_current_company)):
     db = get_database()

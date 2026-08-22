@@ -143,12 +143,21 @@ export default function CompanyDashboard() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button 
-                        onClick={() => setSelectedJob({ id: job._id, title: job.title })}
-                        className="text-brand-600 hover:text-brand-700 font-semibold text-sm hover:underline"
-                      >
-                        View Candidates ({job.applications_count || 0})
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => setSelectedJob({ id: job._id, title: job.title })}
+                          className="text-brand-600 hover:text-brand-700 font-semibold text-sm hover:underline"
+                        >
+                          View Candidates ({job.applications_count || 0})
+                        </button>
+                        <span className="text-slate-300">|</span>
+                        <button 
+                          onClick={() => navigate(`/dashboard/company/edit-job/${job._id}`)}
+                          className="text-slate-600 hover:text-brand-700 font-semibold text-sm hover:underline"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

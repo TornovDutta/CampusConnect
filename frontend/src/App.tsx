@@ -18,6 +18,7 @@ import Profile from './pages/dashboards/Profile';
 import Settings from './pages/dashboards/Settings';
 import UserActivity from './pages/dashboards/UserActivity';
 import PostJob from './pages/dashboards/PostJob';
+import EditJob from './pages/dashboards/EditJob';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="company/jobs" element={<CompanyJobs />} />
             <Route path="company/applicants" element={<CompanyApplicants />} />
             <Route path="company/post-job" element={<PostJob />} />
+            <Route path="company/edit-job/:id" element={<EditJob />} />
           </Route>
         </Routes>
       </AuthProvider>

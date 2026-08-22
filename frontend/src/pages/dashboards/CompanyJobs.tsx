@@ -90,9 +90,14 @@ export default function CompanyJobs() {
                   <Users size={18} className="text-brand-500" />
                   <span>{job.applications_count || 0} Applicants</span>
                 </div>
-                <button onClick={() => navigate('/dashboard/company')} className="text-brand-600 hover:text-brand-700 text-sm font-bold hover:underline transition-all">
-                  Manage
-                </button>
+                <div className="flex items-center gap-4">
+                  <button onClick={() => navigate(`/dashboard/company/edit-job/${job._id}`)} className="text-slate-600 hover:text-brand-700 text-sm font-bold hover:underline transition-all">
+                    Edit
+                  </button>
+                  <button onClick={() => navigate('/dashboard/company')} className="text-brand-600 hover:text-brand-700 text-sm font-bold hover:underline transition-all">
+                    Manage
+                  </button>
+                </div>
               </div>
             </div>
           ))
