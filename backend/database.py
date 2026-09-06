@@ -1,9 +1,9 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
+from core.config import settings
 
-# Using a standard localhost mongo URI for development
-MONGO_DETAILS = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-DATABASE_NAME = "campusconnect"
+# Using standard configs
+MONGO_DETAILS = settings.MONGO_URI
+DATABASE_NAME = settings.DATABASE_NAME
 
 class MongoDB:
     client: AsyncIOMotorClient = None
