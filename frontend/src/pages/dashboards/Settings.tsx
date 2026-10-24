@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import {
   Globe,
   Bell,
@@ -76,7 +76,7 @@ export default function Settings() {
   }, []);
 
   // Handle saving preferences
-  const handleSavePreferences = async (e?: React.FormEvent) => {
+  const handleSavePreferences = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     setIsSavingPrefs(true);
     setPrefsError('');
@@ -119,7 +119,7 @@ export default function Settings() {
   };
 
   // Handle Password Change
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleChangePassword = async (e: FormEvent) => {
     e.preventDefault();
     setPasswordError('');
     setPasswordSuccess('');

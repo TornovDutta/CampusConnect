@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Building2, GraduationCap, Mail, Calendar, ShieldAlert, ShieldCheck, Loader2 } from 'lucide-react';
@@ -24,115 +23,101 @@ export default function OrganizationDetails() {
     );
   }
 
-  if (isError || !data) {
+  if (isError || !data?.organization) {
     return (
-      <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-100">
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
         Failed to load organization details.
       </div>
     );
   }
 
   const { organization, students } = data;
+  const isCollege = organization.role === 'college';
 
   return (
     <div className="space-y-6">
       <button 
         onClick={() => navigate('/dashboard/admin')}
-        className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
+        className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors"
       >
-        <ArrowLeft size={16} /> Back to Dashboard
+        <ArrowLeft size={16} /> Back to Organizations
       </button>
 
-      {/* Organization Header Card */}
-      <div className="card p-8 bg-white/80 backdrop-blur-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-50 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none"></div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center text-brand-600 shadow-sm border border-brand-100/50">
-            {organization.role === 'college' ? <GraduationCap size={40} /> : <Building2 size={40} />}
+      {/* Organization Info Header */}
+      <div className="card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-brand-50 text-brand-600 rounded-xl">
+            {isCollege ? <GraduationCap size={32} /> : <Building2 size={32} />}
           </div>
-          
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                {organization.name || organization.email}
-              </h1>
-              {organization.is_suspended ? (
-                <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1">
-                  <ShieldAlert size={14} /> Suspended
-                </span>
-              ) : (
-                <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1">
-                  <ShieldCheck size={14} /> Active
-                </span>
-              )}
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold text-slate-800">{organization.name || organization.email}</h2>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                organization.role === 'college' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'
+              }`}>
+                {organization.role.toUpperCase()}
+              </span>
             </div>
-            <p className="text-slate-500 font-medium capitalize flex items-center gap-2">
-              {organization.role} Account
+            <p className="text-sm text-slate-500 flex items-center gap-1 mt-1">
+              <Mail size={14} /> {organization.email}
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-8 border-t border-slate-100 relative z-10">
-          <div className="flex items-center gap-3 text-slate-600">
-            <div className="p-2 bg-slate-50 rounded-lg text-slate-400">
-              <Mail size={20} />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Email Address</p>
-              <p className="font-medium text-slate-800">{organization.email}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3 text-slate-600">
-            <div className="p-2 bg-slate-50 rounded-lg text-slate-400">
-              <Calendar size={20} />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Registration Date</p>
-              <p className="font-medium text-slate-800">{new Date(organization.created_at).toLocaleDateString()}</p>
-            </div>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="text-right flex-1 md:flex-none">
+            <span className="text-xs text-slate-400 block">Status</span>
+            <span className={`inline-flex items-center gap-1 text-sm font-semibold ${
+              organization.is_suspended ? 'text-red-600' : 'text-green-600'
+            }`}>
+              {organization.is_suspended ? <ShieldAlert size={16} /> : <ShieldCheck size={16} />}
+              {organization.is_suspended ? 'Suspended' : 'Active'}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Associated Students Section (Only for Colleges) */}
-      {organization.role === 'college' && (
+      {/* If College, show their students */}
+      {isCollege && (
         <div className="card">
-          <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
-            <h2 className="text-lg font-bold text-slate-800">Associated Students</h2>
-            <p className="text-sm text-slate-500 mt-1">Students registered under this institution.</p>
+          <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 className="font-bold text-slate-800">Registered Students ({students?.length || 0})</h3>
           </div>
-          
+
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-white text-slate-400 text-xs uppercase tracking-wider">
+            <table className="w-full text-left text-sm text-slate-600">
+              <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 font-medium border-b border-slate-100">Student Name</th>
-                  <th className="px-6 py-4 font-medium border-b border-slate-100">Email</th>
-                  <th className="px-6 py-4 font-medium border-b border-slate-100">Joined</th>
-                  <th className="px-6 py-4 font-medium border-b border-slate-100">Status</th>
+                  <th className="px-6 py-4">Student</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Registered Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50 bg-white">
+              <tbody className="divide-y divide-slate-100">
                 {students?.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center justify-center text-slate-400">
-                        <GraduationCap size={32} className="mb-2 opacity-50" />
-                        <p>No students found for this college.</p>
-                      </div>
+                    <td colSpan={3} className="px-6 py-8 text-center text-slate-400">
+                      No students registered for this college yet.
                     </td>
                   </tr>
                 ) : (
-                  students?.map((student: any) => (
-                    <tr key={student._id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-6 py-4 font-medium text-slate-800">{student.name || 'Unnamed Student'}</td>
-                      <td className="px-6 py-4 text-slate-600">{student.email}</td>
-                      <td className="px-6 py-4 text-slate-500 text-sm">{new Date(student.created_at).toLocaleDateString()}</td>
+                  students?.map((s: any) => (
+                    <tr key={s._id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                          Student
+                        <div className="font-medium text-slate-800">{s.name || 'Unnamed'}</div>
+                        <div className="text-xs text-slate-400">{s.email}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          s.is_suspended ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+                        }`}>
+                          {s.is_suspended ? 'Suspended' : 'Active'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-xs text-slate-400">
+                        <span className="flex items-center gap-1">
+                          <Calendar size={14} />
+                          {new Date(s.created_at || Date.now()).toLocaleDateString()}
                         </span>
                       </td>
                     </tr>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Activity, User, Building2, GraduationCap, Clock, BarChart3, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -29,12 +28,11 @@ export default function UserActivity() {
     }
   };
 
-  const formatDate = (isoString: string) => {
-    try {
-      const date = new Date(isoString);
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch (e) {
-      return isoString;
+  const getBadgeColor = (role: string) => {
+    switch (role) {
+      case 'college': return 'bg-blue-100 text-blue-800';
+      case 'company': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-teal-100 text-teal-800';
     }
   };
 
@@ -48,87 +46,80 @@ export default function UserActivity() {
 
   if (isError || !data) {
     return (
-      <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-100">
-        Failed to load activity data.
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+        Failed to load activity logs.
       </div>
     );
   }
 
-  const { activities = [], chart_data = [] } = data;
+  const { activities, chart_data } = data;
 
   return (
     <div className="space-y-6">
-      {/* Activity Graph */}
-      <div className="card">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-              <BarChart3 size={20} />
-            </div>
-            <h2 className="text-lg font-bold text-slate-800">Activity Overview</h2>
-          </div>
-        </div>
-        <div className="p-6 h-80">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+          <Activity size={28} className="text-brand-500" /> Platform Activity Logs
+        </h2>
+        <p className="text-slate-500 mt-1">Real-time overview of users joining and logging into CampusConnect</p>
+      </div>
+
+      {/* Analytics Chart */}
+      <div className="card p-6">
+        <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+          <BarChart3 size={20} className="text-slate-400" /> Last 7 Days Engagement
+        </h3>
+        <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chart_data}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-            >
+            <BarChart data={chart_data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dx={-10} />
+              <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} />
+              <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} allowDecimals={false} />
               <Tooltip 
-                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
               />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} />
-              <Bar dataKey="Student" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="College" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Company" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+              <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+              <Bar dataKey="Student" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="College" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Company" fill="#a855f7" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
+      {/* Detailed Activity Stream */}
       <div className="card">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-brand-50 text-brand-600 rounded-lg">
-              <Activity size={20} />
-            </div>
-            <h2 className="text-lg font-bold text-slate-800">User Activity Log</h2>
-          </div>
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="font-bold text-slate-800">Recent User Actions</h3>
+          <span className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">Live Feed</span>
         </div>
-        <div className="p-0">
-          <div className="divide-y divide-slate-100">
-            {activities.length === 0 ? (
-              <div className="p-8 text-center text-slate-500">
-                No recent activity found.
-              </div>
-            ) : (
-              activities.map((activity: any) => (
-              <div key={activity.id} className="p-6 flex items-start gap-4 hover:bg-slate-50/50 transition-colors">
-                <div className={`p-3 rounded-xl flex-shrink-0 ${getBgColor(activity.role)}`}>
-                  {getIcon(activity.role)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-sm font-bold text-slate-900 truncate">
-                      {activity.user}
-                    </h3>
-                    <div className="flex items-center gap-1 text-xs font-medium text-slate-500 whitespace-nowrap">
-                      <Clock size={14} />
-                      {formatDate(activity.time)}
-                    </div>
+
+        <div className="divide-y divide-slate-100">
+          {activities.length === 0 ? (
+            <div className="p-8 text-center text-slate-400">No activity recorded yet.</div>
+          ) : (
+            activities.map((act: any) => (
+              <div key={act.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className={`p-2.5 rounded-xl ${getBgColor(act.role)}`}>
+                    {getIcon(act.role)}
                   </div>
-                  <p className="text-sm text-slate-600">{activity.details}</p>
-                  <span className="inline-block mt-2 px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase bg-slate-100 text-slate-600">
-                    {activity.role}
-                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-slate-800 text-sm">{act.user}</span>
+                      <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${getBadgeColor(act.role)}`}>
+                        {act.role}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">{act.details}</p>
+                  </div>
+                </div>
+                <div className="text-xs text-slate-400 flex items-center gap-1">
+                  <Clock size={12} />
+                  <span>{new Date(act.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               </div>
-              ))
-            )}
-          </div>
+            ))
+          )}
         </div>
       </div>
     </div>

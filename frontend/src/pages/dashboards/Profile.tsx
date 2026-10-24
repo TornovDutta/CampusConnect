@@ -1,6 +1,5 @@
-import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User, Mail, Shield } from 'lucide-react';
+import { Mail, Shield } from 'lucide-react';
 
 export default function Profile() {
   const { user } = useAuth();
@@ -30,6 +29,7 @@ export default function Profile() {
                 {user.email}
               </div>
             </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-500 flex items-center gap-2">
                 <Shield size={16} /> Role

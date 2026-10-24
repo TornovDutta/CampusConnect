@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Briefcase, Plus, Globe, Building, Clock, MapPin, Users } from 'lucide-react';
+import { Loader2, Briefcase, Plus, Building, Clock, MapPin, Users } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function CompanyJobs() {
@@ -29,80 +28,76 @@ export default function CompanyJobs() {
           <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <Briefcase size={28} className="text-brand-500" /> Manage Postings
           </h2>
-          <p className="text-slate-500 mt-1">View and manage all your active and past job postings</p>
+          <p className="text-slate-500 mt-1">View and edit your broadcasted recruitment drives</p>
         </div>
-        <button onClick={() => navigate('/dashboard/company/post-job')} className="btn-primary flex items-center gap-2 shadow-md">
+        <button
+          onClick={() => navigate('/dashboard/company/post-job')}
+          className="btn-primary flex items-center gap-2"
+        >
           <Plus size={18} /> Post New Job
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {jobs.length === 0 ? (
-          <div className="col-span-full card p-12 text-center text-slate-500">
-            <Briefcase size={48} className="mx-auto text-slate-300 mb-4" />
-            <h3 className="text-lg font-bold text-slate-700 mb-1">No Jobs Posted Yet</h3>
-            <p className="mb-6">Create your first job posting to start receiving applications.</p>
-            <button onClick={() => navigate('/dashboard/company/post-job')} className="btn-primary mx-auto">
-              Post your first job
-            </button>
-          </div>
-        ) : (
-          jobs.map((job: any) => (
-            <div key={job._id} className="card hover:shadow-lg transition-all duration-200 flex flex-col group border-t-4 border-t-brand-500">
-              <div className="p-6 flex-1">
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`px-2.5 py-1 text-xs font-bold rounded-full border flex items-center gap-1 ${
-                    job.status === 'active' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-slate-100 text-slate-700 border-slate-200'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${job.status === 'active' ? 'bg-green-500' : 'bg-slate-500'}`}></span>
-                    {job.status.toUpperCase()}
-                  </span>
-                  
-                  {job.visibility === 'requested_college' ? (
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-purple-100 text-purple-700 inline-flex items-center gap-1">
-                      <Building size={12} /> Campus Drive
-                    </span>
-                  ) : (
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-blue-100 text-blue-700 inline-flex items-center gap-1">
-                      <Globe size={12} /> Public
-                    </span>
-                  )}
-                </div>
-                
-                <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-1" title={job.title}>
-                  {job.title}
-                </h3>
-                
-                <div className="space-y-2 mt-4">
-                  <div className="flex items-center gap-2 text-slate-600 text-sm">
-                    <MapPin size={16} className="text-slate-400" />
-                    <span className="line-clamp-1">{job.location}</span>
+      {jobs.length === 0 ? (
+        <div className="card p-12 text-center">
+          <Briefcase className="mx-auto text-slate-300 mb-4" size={48} />
+          <h3 className="text-lg font-medium text-slate-700">No jobs posted yet</h3>
+          <p className="text-slate-500 text-sm mt-1 mb-6">
+            Create your first campus recruitment opening to receive applications from students.
+          </p>
+          <button
+            onClick={() => navigate('/dashboard/company/post-job')}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <Plus size={18} /> Post Job Opening
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {jobs.map((job: any) => (
+            <div key={job._id} className="card p-6 flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">{job.title}</h3>
+                    <p className="text-sm font-medium text-brand-600 flex items-center gap-1 mt-1">
+                      <Building size={16} /> {job.company_name}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600 text-sm">
+                  <span className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-semibold">
+                    Active
+                  </span>
+                </div>
+
+                <div className="space-y-2 text-sm text-slate-600 mb-6">
+                  <div className="flex items-center gap-2">
+                    <MapPin size={16} className="text-slate-400" />
+                    <span>{job.location || 'Remote / Hybrid'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <Clock size={16} className="text-slate-400" />
-                    <span>{job.employment_type} • {job.job_type}</span>
+                    <span>{job.job_type || 'Full Time'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users size={16} className="text-slate-400" />
+                    <span>{job.applicants_count || 0} Applicants</span>
                   </div>
                 </div>
               </div>
-              
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 mt-auto rounded-b-2xl flex justify-between items-center">
-                <div className="flex items-center gap-2 text-slate-700 font-bold">
-                  <Users size={18} className="text-brand-500" />
-                  <span>{job.applications_count || 0} Applicants</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => navigate(`/dashboard/company/edit-job/${job._id}`)} className="text-slate-600 hover:text-brand-700 text-sm font-bold hover:underline transition-all">
-                    Edit
-                  </button>
-                  <button onClick={() => navigate('/dashboard/company')} className="text-brand-600 hover:text-brand-700 text-sm font-bold hover:underline transition-all">
-                    Manage
-                  </button>
-                </div>
+
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs text-slate-500 font-medium">{job.salary || 'Competitive'}</span>
+                <button
+                  onClick={() => navigate(`/dashboard/company/edit-job/${job._id}`)}
+                  className="text-xs btn-secondary px-3 py-1.5"
+                >
+                  Edit Opening
+                </button>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

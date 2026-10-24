@@ -1,7 +1,6 @@
-import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, User, Mail, Calendar, Activity, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, Mail, Calendar, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function CollegeStudentProfile() {
@@ -28,74 +27,71 @@ export default function CollegeStudentProfile() {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-slate-800">Student not found</h2>
-        <button onClick={() => navigate(-1)} className="mt-4 text-brand-600 hover:underline">
-          Go Back
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 btn-primary inline-flex items-center gap-2"
+        >
+          <ArrowLeft size={16} /> Go Back
         </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <button 
-        onClick={() => navigate('/dashboard/college/students')}
-        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors"
+    <div className="max-w-4xl mx-auto space-y-6">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
       >
-        <ArrowLeft size={20} />
-        Back to Students List
+        <ArrowLeft size={16} /> Back to Students
       </button>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-brand-500 to-indigo-600"></div>
-        <div className="px-8 pb-8 relative">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end -mt-12 mb-6">
-            <div className="flex items-end gap-6">
-              <div className="w-24 h-24 rounded-2xl bg-white p-2 shadow-lg">
-                <div className="w-full h-full rounded-xl bg-slate-100 flex items-center justify-center text-3xl font-bold text-brand-600">
-                  {student.name.charAt(0).toUpperCase()}
-                </div>
-              </div>
-              <div className="pb-2">
-                <h1 className="text-2xl font-bold text-slate-800">{student.name}</h1>
-                <p className="text-slate-500 font-medium flex items-center gap-2 mt-1">
-                  <User size={16} /> Student Profile
-                </p>
-              </div>
+      <div className="card p-8">
+        <div className="flex items-start justify-between border-b border-slate-100 pb-6 mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-2xl">
+              {student.name ? student.name[0].toUpperCase() : student.email[0].toUpperCase()}
             </div>
-            <div className="mt-4 sm:mt-0 pb-2">
-              <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${
-                student.is_suspended ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-              }`}>
-                {student.is_suspended ? 'Suspended' : 'Active'}
-              </span>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-800">{student.name || 'Unnamed Student'}</h1>
+              <p className="text-slate-500 text-sm flex items-center gap-1.5 mt-1">
+                <Mail size={14} /> {student.email}
+              </p>
+            </div>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            student.is_suspended 
+              ? 'bg-red-50 text-red-700' 
+              : student.is_college_approved 
+                ? 'bg-green-50 text-green-700' 
+                : 'bg-amber-50 text-amber-700'
+          }`}>
+            {student.is_suspended ? 'Suspended' : student.is_college_approved ? 'Approved' : 'Pending Approval'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Account Information</h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-sm text-slate-600">
+                <User size={16} className="text-slate-400" />
+                <span>Role: <strong className="text-slate-800 capitalize">{student.role}</strong></span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-slate-600">
+                <Calendar size={16} className="text-slate-400" />
+                <span>Joined: {new Date(student.created_at || Date.now()).toLocaleDateString()}</span>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            <div className="space-y-4">
-              <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-2">Contact Information</h3>
-              <div className="flex items-center gap-3 text-slate-600">
-                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
-                  <Mail size={18} />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-400">Email Address</p>
-                  <p className="font-medium text-slate-800">{student.email}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-2">Account Details</h3>
-              <div className="flex items-center gap-3 text-slate-600">
-                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
-                  <Calendar size={18} />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-400">Joined Date</p>
-                  <p className="font-medium text-slate-800">{new Date(student.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Academic & Placement Status</h3>
+            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+              <p className="text-xs text-slate-500 mb-1">Placement Eligibility</p>
+              <p className="text-sm font-medium text-slate-800">
+                {student.is_suspended ? 'Restricted from campus drives' : 'Eligible for all active on-campus recruitments'}
+              </p>
             </div>
           </div>
         </div>

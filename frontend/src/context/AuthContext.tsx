@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,29 +24,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
+  
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token');
   });
+
   const navigate = useNavigate();
 
   const login = (newToken: string, newUser: User) => {
-    setToken(newToken);
-    setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
+    setToken(newToken);
+    setUser(newUser);
     
     // Redirect based on role
-    if (newUser.role === 'super_admin') navigate('/dashboard/admin');
-    else if (newUser.role === 'college') navigate('/dashboard/college');
-    else if (newUser.role === 'company') navigate('/dashboard/company');
-    else navigate('/dashboard/student');
+    switch (newUser.role) {
+      case 'super_admin':
+        navigate('/dashboard/admin');
+        break;
+      case 'college':
+        navigate('/dashboard/college');
+        break;
+      case 'company':
+        navigate('/dashboard/company');
+        break;
+      case 'student':
+        navigate('/dashboard/student');
+        break;
+      default:
+        navigate('/');
+    }
   };
 
   const logout = () => {
-    setToken(null);
-    setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
     navigate('/login');
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, FileText, CheckSquare, Plus, Loader2, UserCheck, X } from 'lucide-react';
 import { api } from '../../services/api';
@@ -48,7 +48,7 @@ export default function CollegeDashboard() {
     }
   });
 
-  const handleAddStudent = (e: React.FormEvent) => {
+  const handleAddStudent = (e: FormEvent) => {
     e.preventDefault();
     addStudentMutation.mutate(newStudent);
   };

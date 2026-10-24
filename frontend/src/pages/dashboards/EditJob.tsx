@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Briefcase, ArrowLeft, Globe, Building, X, Plus, Sparkles, Tag, CheckSquare, Square, Link as LinkIcon } from 'lucide-react';
@@ -74,7 +74,7 @@ export default function EditJob() {
     enabled: !!id
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (jobDetails) {
       setForm({
         title: jobDetails.title || '',
@@ -107,7 +107,7 @@ export default function EditJob() {
     }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (form.visibility === 'requested_college' && form.target_colleges.length === 0) {
       alert('Please select at least one target college for Requested College visibility.');
@@ -120,7 +120,7 @@ export default function EditJob() {
     updateJobMutation.mutate();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 

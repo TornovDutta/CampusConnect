@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Building2, GraduationCap, ShieldAlert, Loader2, X, Search, Filter } from 'lucide-react';
+import { Users, Building2, GraduationCap, ShieldAlert, Loader2, Search, Filter } from 'lucide-react';
 import { api } from '../../services/api';
 
 function ContactSettings() {
@@ -16,7 +16,7 @@ function ContactSettings() {
 
   const [form, setForm] = useState({ email: '', phone: '', github: '', linkedin: '' });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (contactInfo) {
       setForm({
         email: contactInfo.email || '',
@@ -72,7 +72,6 @@ function ContactSettings() {
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [activeTab, setActiveTab] = useState('organizations');
@@ -91,7 +90,6 @@ export default function AdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminDashboardStats'] });
-      setSelectedOrg(null); // Close modal if state changes
     }
   });
 

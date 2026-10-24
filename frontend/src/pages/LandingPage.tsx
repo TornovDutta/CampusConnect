@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, Briefcase, Building2, ChevronRight, Mail, Phone, ExternalLink, Users, BarChart3, CheckCircle2, ArrowRight, ShieldCheck, Globe, Star, Quote, ChevronDown } from 'lucide-react';
+import { GraduationCap, Briefcase, Building2, ChevronRight, Mail, Phone, ExternalLink, Users, BarChart3, CheckCircle2, ArrowRight, ShieldCheck, Globe, Star, Quote } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { motion, useInView, useMotionValue, useSpring } from 'framer-motion';
