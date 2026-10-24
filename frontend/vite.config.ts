@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     allowedHosts: [
-      "earache-marlin-elevating.ngrok-free.dev"
+      "earache-marlin-elevating.ngrok-free.dev",
+      "campus-connect-l5ro-two.vercel.app"
     ]
   }
 })

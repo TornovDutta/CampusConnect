@@ -20,19 +20,50 @@ app.include_router(college.router)
 app.include_router(company.router)
 app.include_router(notifications.router)
 
-# Configure CORS
-origins = [
-    "http://localhost:5173", # Vite frontend default port
+# Configure CORS origins dynamically from environment variables
+default_origins = [
+    "http://localhost:5173", # Vite default port
     "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
 ]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+env_origins = []
+if settings.FRONTEND_URL:
+    for url in settings.FRONTEND_URL.split(","):
+        cleaned = url.strip().rstrip("/")
+        if cleaned:
+            env_origins.append(cleaned)
+
+if settings.CORS_ORIGINS:
+    for url in settings.CORS_ORIGINS.split(","):
+        cleaned = url.strip().rstrip("/")
+        if cleaned:
+            env_origins.append(cleaned)
+
+# Combine and deduplicate
+allowed_origins = list(dict.fromkeys(default_origins + env_origins))
+
+# Allow wildcard if explicitly specified
+allow_all = "*" in env_origins or settings.FRONTEND_URL.strip() == "*"
+
+if allow_all:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_origin_regex=r"^https:\/\/.*\.vercel\.app$", # Auto-allows Vercel preview & production deployments
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 async def init_super_admin():
     db = get_database()
