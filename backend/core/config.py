@@ -12,6 +12,6 @@ class Settings(BaseSettings):
     ADMIN_NAME: str
 
     class Config:
-        env_file = ".env"
+        env_file = (".env", "backend/.env")
 
 settings = Settings()

@@ -1,7 +1,18 @@
-import React from 'react';
 import { Outlet, Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, User as UserIcon, Settings, GraduationCap, Activity, Users, Award, Briefcase, PlusCircle, ChevronRight, Menu } from 'lucide-react';
+import {
+  LogOut,
+  LayoutDashboard,
+  User as UserIcon,
+  Settings,
+  GraduationCap,
+  Activity,
+  Users,
+  Award,
+  Briefcase,
+  PlusCircle
+} from 'lucide-react';
+import NotificationBell from './NotificationBell';
 
 export default function DashboardLayout({ allowedRoles }: { allowedRoles: string[] }) {
   const { user, logout, isAuthenticated } = useAuth();
@@ -17,7 +28,7 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col shrink-0">
         <div className="h-16 flex items-center px-6 border-b border-slate-800">
           <GraduationCap size={24} className="text-brand-400 mr-2" />
           <span className="text-xl font-bold tracking-tight">CampusConnect</span>
@@ -205,16 +216,36 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 shadow-sm">
-          <div className="bg-brand-500 p-1.5 rounded-md text-white mr-3">
-            <GraduationCap size={20} />
+      <main className="flex-1 overflow-auto flex flex-col min-w-0">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sm:px-8 shadow-sm shrink-0">
+          <div className="flex items-center">
+            <div className="bg-brand-500 p-1.5 rounded-md text-white mr-3">
+              <GraduationCap size={20} />
+            </div>
+            <h1 className="text-xl font-bold text-slate-800 capitalize">
+              {user.role.replace('_', ' ')} Portal
+            </h1>
           </div>
-          <h1 className="text-xl font-bold text-slate-800 capitalize">
-            {user.role.replace('_', ' ')} Portal
-          </h1>
+
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <div className="hidden sm:flex items-center gap-2.5 pl-3 border-l border-slate-200">
+              <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-bold flex items-center justify-center text-xs">
+                {user.email.charAt(0).toUpperCase()}
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-semibold text-slate-800 max-w-[120px] truncate leading-tight">
+                  {user.name || user.email}
+                </p>
+                <p className="text-[10px] text-slate-400 capitalize leading-tight">
+                  {user.role.replace('_', ' ')}
+                </p>
+              </div>
+            </div>
+          </div>
         </header>
-        <div className="p-8">
+
+        <div className="p-6 sm:p-8 flex-1">
           <Outlet />
         </div>
       </main>
