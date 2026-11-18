@@ -138,13 +138,19 @@ export default function StudentDashboard() {
                       <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">{job.employment_type || 'Full-time'}</span>
                       {job.visibility === 'requested_college' ? (
                         <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-700 inline-flex items-center gap-1">
-                          <Building size={11} /> Requested College Drive
+                          <Building size={11} /> Campus Drive (Eligible)
                         </span>
                       ) : (
                         <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-blue-100 text-blue-700 inline-flex items-center gap-1">
                           <Globe size={11} /> Public Opportunity
                         </span>
                       )}
+                      {Array.isArray(job.college_criteria_tags) &&
+                        job.college_criteria_tags.map((tag: string, idx: number) => (
+                          <span key={idx} className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ✓ {tag}
+                          </span>
+                        ))}
                     </div>
                     <h3 className="font-bold text-slate-800 text-base group-hover:text-brand-600 transition-colors">{job.title}</h3>
                     <p className="text-sm text-slate-600 mb-1">{job.company_name || 'Company'} • {job.location}</p>

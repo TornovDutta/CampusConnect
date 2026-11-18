@@ -108,7 +108,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @router.get("/colleges")
 async def get_colleges():
     db = get_database()
-    colleges_cursor = db["users"].find({"role": "college", "is_suspended": False})
+    colleges_cursor = db["users"].find({"role": "college", "is_suspended": {"$ne": True}})
     colleges = []
     async for college in colleges_cursor:
         colleges.append({

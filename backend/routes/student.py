@@ -74,20 +74,49 @@ async def get_student_dashboard(student=Depends(get_current_student)):
 
         from routes.college import _student_matches_rule
 
-        jobs_cursor = db["jobs"].find(query).sort("created_at", -1).limit(30)
+        jobs_cursor = db["jobs"].find(query).sort("created_at", -1).limit(50)
         async for job in jobs_cursor:
             jid = str(job["_id"])
+            visibility = job.get("visibility", "public")
             rule = college_rules_map.get(jid)
-            if rule and rule.get("is_open", True) is False:
-                continue
-            is_eligible, reason = _student_matches_rule(user, rule)
+
+            if visibility == "requested_college":
+                # Campus drives ONLY distribute to students AFTER the college accepts & sets criteria,
+                # and ONLY show to students matching those criteria!
+                if not rule or not rule.get("criteria_configured", False) or rule.get("is_open", False) is False:
+                    continue
+                is_eligible, reason = _student_matches_rule(user, rule)
+                if not is_eligible:
+                    continue
+            else:
+                # Public opportunities are open to ALL approved students across all colleges
+                if rule and rule.get("is_open", True) is False:
+                    continue
+                is_eligible, reason = _student_matches_rule(user, rule) if rule else (True, "")
+                if not is_eligible:
+                    continue
+
+            criteria_tags = []
+            if rule:
+                if rule.get("min_cgpa"):
+                    criteria_tags.append(f"CGPA ≥ {rule['min_cgpa']}")
+                if rule.get("allowed_batches"):
+                    criteria_tags.append(f"Batch {', '.join(rule['allowed_batches'])}")
+                if rule.get("allowed_branches"):
+                    criteria_tags.append(f"Branch {', '.join(rule['allowed_branches'])}")
+                if rule.get("max_backlogs") is not None:
+                    criteria_tags.append(f"Max Backlogs: {rule['max_backlogs']}")
+                if rule.get("specific_student_ids"):
+                    criteria_tags.append("Selected Students Only")
+
             job["_id"] = jid
             job["id"] = jid
             if "created_at" in job and job["created_at"]:
                 job["created_at"] = job["created_at"].isoformat() if hasattr(job["created_at"], "isoformat") else str(job["created_at"])
             job["has_applied"] = jid in applied_job_ids
-            job["college_eligible"] = is_eligible
-            job["eligibility_reason"] = reason
+            job["college_eligible"] = True
+            job["eligibility_reason"] = ""
+            job["college_criteria_tags"] = criteria_tags
             recommended_jobs.append(job)
 
     return {
@@ -122,8 +151,21 @@ async def apply_job(job_id: str, student=Depends(get_current_student)):
         if user.get("college_id") not in target_colleges:
             raise HTTPException(status_code=403, detail="This job opportunity is restricted to students of specific invited colleges.")
 
-    # Enforce college-configured eligibility rules (CGPA, batch, branch, backlogs, specific students)
-    if user.get("college_id"):
+        college_rule = await db["college_job_rules"].find_one({
+            "college_id": user.get("college_id"),
+            "job_id": job_id,
+        })
+        if not college_rule or not college_rule.get("criteria_configured", False) or college_rule.get("is_open", False) is False:
+            raise HTTPException(
+                status_code=403,
+                detail="This campus drive has not been opened by your college placement cell yet.",
+            )
+        from routes.college import _student_matches_rule
+        is_eligible, reason = _student_matches_rule(user, college_rule)
+        if not is_eligible:
+            raise HTTPException(status_code=403, detail=reason or "You do not meet your college's eligibility criteria for this drive.")
+    elif user.get("college_id"):
+        # Public job: open to all unless college explicitly closed/restricted it
         college_rule = await db["college_job_rules"].find_one({
             "college_id": user.get("college_id"),
             "job_id": job_id,
@@ -132,7 +174,7 @@ async def apply_job(job_id: str, student=Depends(get_current_student)):
             from routes.college import _student_matches_rule
             is_eligible, reason = _student_matches_rule(user, college_rule)
             if not is_eligible:
-                raise HTTPException(status_code=403, detail=reason or "You do not meet your college's eligibility criteria for this drive.")
+                raise HTTPException(status_code=403, detail=reason or "You do not meet your college's eligibility criteria for this job.")
             
     existing_app = await db["applications"].find_one({"job_id": job_id, "student_id": student_id})
     if existing_app:

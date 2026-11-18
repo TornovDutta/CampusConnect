@@ -244,6 +244,13 @@ class JobEligibilityRuleRequest(BaseModel):
 
 class InvitationResponseRequest(BaseModel):
     decision: str  # "accepted" | "declined"
+    min_cgpa: Optional[float] = None
+    allowed_batches: List[str] = []
+    allowed_branches: List[str] = []
+    max_backlogs: Optional[int] = None
+    specific_student_ids: List[str] = []
+    note: Optional[str] = ""
+    notify_eligible: bool = True
 
 
 class CollegeReportRequest(BaseModel):
@@ -267,26 +274,62 @@ async def get_college_dashboard(college=Depends(get_current_college)):
     db = get_database()
     college_id = college["sub"]
 
-    registered_students = await db["users"].count_documents({
-        "role": "student", "college_id": college_id, "is_college_approved": True
-    })
+    college_students = []
+    async for s in db["users"].find({
+        "role": "student", "college_id": college_id, "is_college_approved": True, "is_suspended": {"$ne": True}
+    }):
+        college_students.append(s)
+
+    registered_students = len(college_students)
     pending_students_count = await db["users"].count_documents({
         "role": "student", "college_id": college_id, "is_college_approved": False
     })
+
+    rules_map: Dict[str, dict] = {}
+    async for r in db["college_job_rules"].find({"college_id": college_id}):
+        rules_map[r["job_id"]] = r
 
     # Fetch campus drive invitations (jobs targeting this college)
     invites_cursor = db["jobs"].find({
         "status": "active", "visibility": "requested_college", "target_colleges": college_id
     }).sort("created_at", -1)
     recent_invitations = []
+    pending_invitations_count = 0
     async for invite in invites_cursor:
-        responses = invite.get("college_responses", {})
-        invite["_id"] = str(invite["_id"])
-        invite["id"] = str(invite["_id"])
+        jid = str(invite["_id"])
+        responses = invite.get("college_responses", {}) or {}
+        rule = rules_map.get(jid)
+        criteria_configured = bool(rule and rule.get("criteria_configured", False))
+        decision = responses.get(college_id, "accepted" if (criteria_configured and rule.get("is_open", True)) else "pending")
+        if decision == "pending" or (decision == "accepted" and not criteria_configured):
+            pending_invitations_count += 1
+
+        eligible_count = (
+            sum(1 for s in college_students if _student_matches_rule(s, rule)[0])
+            if (criteria_configured and rule and rule.get("is_open", True))
+            else 0
+        )
+        applied_count = await db["applications"].count_documents({"job_id": jid, "college_id": college_id})
+
+        invite["_id"] = jid
+        invite["id"] = jid
         if "created_at" in invite and invite["created_at"]:
             invite["created_at"] = _safe_iso(invite["created_at"])
         invite["package_details"] = invite.get("stipend") or invite.get("employment_type", "Competitive Package")
-        invite["college_decision"] = responses.get(college_id, "pending")
+        invite["college_decision"] = decision
+        invite["criteria_configured"] = criteria_configured
+        invite["eligible_students_count"] = eligible_count
+        invite["total_college_students"] = registered_students
+        invite["applied_count"] = applied_count
+        invite["rule"] = {
+            "is_open": rule.get("is_open", False) if rule else False,
+            "min_cgpa": rule.get("min_cgpa") if rule else None,
+            "allowed_batches": rule.get("allowed_batches", []) if rule else [],
+            "allowed_branches": rule.get("allowed_branches", []) if rule else [],
+            "max_backlogs": rule.get("max_backlogs") if rule else None,
+            "specific_student_ids": rule.get("specific_student_ids", []) if rule else [],
+            "note": rule.get("note", "") if rule else "",
+        }
         recent_invitations.append(invite)
 
     drive_invitations = len(recent_invitations)
@@ -298,16 +341,22 @@ async def get_college_dashboard(college=Depends(get_current_college)):
         "college_id": college_id, "sender_role": "super_admin", "read_by_college": {"$ne": True}
     })
 
+    batches = sorted({str(s.get("batch")).strip() for s in college_students if s.get("batch")})
+    branches = sorted({str(s.get("branch")).strip() for s in college_students if s.get("branch")})
+
     return {
         "stats": {
             "registered_students": registered_students,
             "pending_students": pending_students_count,
             "drive_invitations": drive_invitations,
+            "pending_invitations": pending_invitations_count,
             "students_placed": students_placed,
             "total_applications": total_applications,
             "unread_admin_messages": unread_admin_messages,
         },
         "recent_invitations": recent_invitations,
+        "batches": batches,
+        "branches": branches,
     }
 
 
@@ -322,17 +371,73 @@ async def respond_to_invitation(job_id: str, req: InvitationResponseRequest, col
     if not job:
         raise HTTPException(status_code=404, detail="Job drive not found")
 
+    now = datetime.utcnow()
     await db["jobs"].update_one(
         {"_id": ObjectId(job_id)},
         {"$set": {f"college_responses.{college_id}": req.decision}},
     )
 
-    # Also sync college_job_rules open/closed state automatically
+    rule_doc = {
+        "college_id": college_id,
+        "job_id": job_id,
+        "is_open": req.decision == "accepted",
+        "criteria_configured": True,
+        "min_cgpa": req.min_cgpa if req.decision == "accepted" else None,
+        "allowed_batches": [b.strip() for b in req.allowed_batches if b.strip()] if req.decision == "accepted" else [],
+        "allowed_branches": [b.strip() for b in req.allowed_branches if b.strip()] if req.decision == "accepted" else [],
+        "max_backlogs": req.max_backlogs if req.decision == "accepted" else None,
+        "specific_student_ids": [sid for sid in req.specific_student_ids if sid] if req.decision == "accepted" else [],
+        "note": (req.note or "").strip(),
+        "updated_at": now,
+    }
+
     await db["college_job_rules"].update_one(
         {"college_id": college_id, "job_id": job_id},
-        {"$set": {"is_open": req.decision == "accepted", "updated_at": datetime.utcnow()}},
+        {"$set": rule_doc},
         upsert=True,
     )
+
+    # Calculate matching students & notify them if accepted
+    eligible_students = []
+    notified_count = 0
+    if req.decision == "accepted":
+        async for s in db["users"].find({
+            "role": "student", "college_id": college_id, "is_college_approved": True, "is_suspended": {"$ne": True}
+        }):
+            if _student_matches_rule(s, rule_doc)[0]:
+                eligible_students.append(s)
+
+        if req.notify_eligible and eligible_students:
+            criteria_parts = []
+            if req.min_cgpa:
+                criteria_parts.append(f"CGPA >= {req.min_cgpa}")
+            if rule_doc["allowed_batches"]:
+                criteria_parts.append(f"Batch {', '.join(rule_doc['allowed_batches'])}")
+            if rule_doc["allowed_branches"]:
+                criteria_parts.append(f"Branch {', '.join(rule_doc['allowed_branches'])}")
+            criteria_text = f" ({' · '.join(criteria_parts)})" if criteria_parts else ""
+
+            try:
+                await db["notifications"].insert_many([
+                    {
+                        "recipient_id": str(stu["_id"]),
+                        "title": f"Campus Drive Open: {job.get('title', 'Opportunity')}",
+                        "message": f"You qualify for the campus drive '{job.get('title')}' at {job.get('company_name', 'Company')}{criteria_text}. Apply now from your dashboard!",
+                        "type": "announcement",
+                        "priority": "high",
+                        "sent_by_college": True,
+                        "sender_id": college_id,
+                        "job_id": job_id,
+                        "read_by": [],
+                        "dismissed_by": [],
+                        "is_read": False,
+                        "created_at": now,
+                    }
+                    for stu in eligible_students
+                ])
+                notified_count = len(eligible_students)
+            except Exception as e:
+                print(f"Failed to notify eligible students: {e}")
 
     # Notify company of college response
     if job.get("company_id"):
@@ -342,18 +447,31 @@ async def respond_to_invitation(job_id: str, req: InvitationResponseRequest, col
             await db["notifications"].insert_one({
                 "recipient_id": job["company_id"],
                 "title": f"Campus Drive Invitation {req.decision.title()}",
-                "message": f"{col_name} has {req.decision} your drive invitation for '{job.get('title', 'Job')}'.",
+                "message": (
+                    f"{col_name} accepted '{job.get('title', 'Job')}' and opened applications to {len(eligible_students)} eligible student(s)."
+                    if req.decision == "accepted"
+                    else f"{col_name} declined your drive invitation for '{job.get('title', 'Job')}'."
+                ),
                 "type": "announcement" if req.decision == "accepted" else "warning",
                 "priority": "normal",
                 "read_by": [],
                 "dismissed_by": [],
                 "is_read": False,
-                "created_at": datetime.utcnow(),
+                "created_at": now,
             })
         except Exception:
             pass
 
-    return {"message": f"Invitation {req.decision}", "decision": req.decision}
+    return {
+        "message": (
+            f"Drive accepted and opened to {len(eligible_students)} matching student(s)"
+            if req.decision == "accepted"
+            else "Drive invitation declined"
+        ),
+        "decision": req.decision,
+        "eligible_students_count": len(eligible_students),
+        "notified_count": notified_count,
+    }
 
 
 # =====================================================================
@@ -894,8 +1012,25 @@ async def get_college_jobs_with_rules(college=Depends(get_current_college)):
     jobs = []
     async for job in db["jobs"].find(query).sort("created_at", -1):
         jid = str(job["_id"])
+        visibility = job.get("visibility", "public")
         rule = rules_map.get(jid)
-        eligible_count = sum(1 for s in college_students if _student_matches_rule(s, rule)[0])
+        responses = job.get("college_responses", {}) or {}
+        criteria_configured = bool(rule and rule.get("criteria_configured", False))
+        decision = responses.get(
+            college_id,
+            "accepted" if (visibility != "requested_college" or (criteria_configured and rule and rule.get("is_open", True))) else "pending",
+        )
+
+        # For requested_college drives, students only see the job once criteria_configured is True & is_open is True
+        if visibility == "requested_college":
+            is_live_for_students = bool(criteria_configured and rule and rule.get("is_open", True))
+            eligible_count = sum(1 for s in college_students if _student_matches_rule(s, rule)[0]) if is_live_for_students else 0
+            effective_is_open = bool(rule.get("is_open", False)) if rule else False
+        else:
+            is_live_for_students = bool(rule.get("is_open", True)) if rule else True
+            eligible_count = sum(1 for s in college_students if _student_matches_rule(s, rule)[0]) if is_live_for_students else 0
+            effective_is_open = is_live_for_students
+
         stats = job_apps_map.get(jid, {"applied": 0, "shortlisted": 0, "offers": 0, "hired": 0, "rejected": 0})
         jobs.append({
             "id": jid,
@@ -904,13 +1039,16 @@ async def get_college_jobs_with_rules(college=Depends(get_current_college)):
             "location": job.get("location", ""),
             "employment_type": job.get("employment_type", ""),
             "stipend": job.get("stipend", ""),
-            "visibility": job.get("visibility", "public"),
+            "visibility": visibility,
+            "college_decision": decision,
+            "criteria_configured": criteria_configured,
+            "is_live_for_students": is_live_for_students,
             "created_at": _safe_iso(job.get("created_at")),
             "total_college_students": len(college_students),
             "eligible_students_count": eligible_count,
             "college_stats": stats,
             "rule": {
-                "is_open": rule.get("is_open", True) if rule else True,
+                "is_open": effective_is_open,
                 "min_cgpa": rule.get("min_cgpa") if rule else None,
                 "allowed_batches": rule.get("allowed_batches", []) if rule else [],
                 "allowed_branches": rule.get("allowed_branches", []) if rule else [],
@@ -944,6 +1082,7 @@ async def set_job_eligibility_rule(
         "college_id": college_id,
         "job_id": job_id,
         "is_open": req.is_open,
+        "criteria_configured": True,
         "min_cgpa": req.min_cgpa,
         "allowed_batches": [b.strip() for b in req.allowed_batches if b.strip()],
         "allowed_branches": [b.strip() for b in req.allowed_branches if b.strip()],
@@ -958,6 +1097,14 @@ async def set_job_eligibility_rule(
         {"$set": rule_doc},
         upsert=True,
     )
+
+    # Sync college response status on the job document for requested_college drives
+    if job.get("visibility") == "requested_college":
+        decision = "accepted" if req.is_open else "declined"
+        await db["jobs"].update_one(
+            {"_id": ObjectId(job_id)},
+            {"$set": {f"college_responses.{college_id}": decision}},
+        )
 
     # Calculate eligible students & optionally notify them
     eligible_students = []

@@ -74,6 +74,17 @@ async def create_job(job_in: JobCreate, company=Depends(get_current_company)):
     company_name = company_user.get("name") if company_user and company_user.get("name") else company_user.get("email", "Company") if company_user else "Company"
 
     job_dict = job_in.model_dump()
+    clean_colleges = [str(c).strip() for c in (job_in.target_colleges or []) if str(c).strip()]
+    if job_in.visibility == "requested_college":
+        if not clean_colleges:
+            raise HTTPException(status_code=400, detail="Please select at least one target college for a Campus Drive.")
+        job_dict["target_colleges"] = clean_colleges
+        job_dict["college_responses"] = {cid: "pending" for cid in clean_colleges}
+    else:
+        job_dict["visibility"] = "public"
+        job_dict["target_colleges"] = []
+        job_dict["college_responses"] = {}
+
     job_dict["company_id"] = company_id
     job_dict["company_name"] = company_name
     job_dict["status"] = "active"
@@ -81,6 +92,43 @@ async def create_job(job_in: JobCreate, company=Depends(get_current_company)):
     job_dict["created_at"] = datetime.utcnow()
     
     result = await jobs_collection.insert_one(job_dict)
+    job_id_str = str(result.inserted_id)
+
+    # Notify invited colleges (for campus drives) or students (for public opportunities)
+    try:
+        now = datetime.utcnow()
+        if job_dict["visibility"] == "requested_college" and clean_colleges:
+            notif_docs = [
+                {
+                    "recipient_id": cid,
+                    "title": f"New Campus Drive Invitation: {job_in.title}",
+                    "message": f"{company_name} invited your college to a campus drive for '{job_in.title}'. Review the invitation and set student eligibility criteria (CGPA/batch/branch) to open applications.",
+                    "type": "announcement",
+                    "priority": "high",
+                    "job_id": job_id_str,
+                    "read_by": [],
+                    "dismissed_by": [],
+                    "is_read": False,
+                    "created_at": now,
+                }
+                for cid in clean_colleges
+            ]
+            await db["notifications"].insert_many(notif_docs)
+        elif job_dict["visibility"] == "public":
+            await db["notifications"].insert_one({
+                "recipient_role": "student",
+                "title": f"New Public Job Open: {job_in.title}",
+                "message": f"{company_name} posted a public opportunity for '{job_in.title}' ({job_in.location}). Open to all verified students!",
+                "type": "announcement",
+                "priority": "normal",
+                "job_id": job_id_str,
+                "read_by": [],
+                "dismissed_by": [],
+                "is_read": False,
+                "created_at": now,
+            })
+    except Exception as e:
+        print(f"Failed to create job notifications: {e}")
     
     if job_in.prerequisites:
         pre_list = job_in.prerequisites if isinstance(job_in.prerequisites, list) else [job_in.prerequisites]
@@ -163,12 +211,55 @@ async def update_job(job_id: str, job_in: JobCreate, company=Depends(get_current
         raise HTTPException(status_code=404, detail="Job not found")
         
     update_data = job_in.model_dump()
+    clean_colleges = [str(c).strip() for c in (job_in.target_colleges or []) if str(c).strip()]
+    existing_responses = existing_job.get("college_responses", {}) or {}
+    newly_invited = []
+
+    if job_in.visibility == "requested_college":
+        if not clean_colleges:
+            raise HTTPException(status_code=400, detail="Please select at least one target college for a Campus Drive.")
+        update_data["target_colleges"] = clean_colleges
+        new_responses = {}
+        for cid in clean_colleges:
+            if cid in existing_responses:
+                new_responses[cid] = existing_responses[cid]
+            else:
+                new_responses[cid] = "pending"
+                newly_invited.append(cid)
+        update_data["college_responses"] = new_responses
+    else:
+        update_data["visibility"] = "public"
+        update_data["target_colleges"] = []
+        update_data["college_responses"] = {}
+
     update_data["updated_at"] = datetime.utcnow()
     
     result = await jobs_collection.update_one(
         {"_id": ObjectId(job_id), "company_id": company_id},
         {"$set": update_data}
     )
+
+    if newly_invited:
+        try:
+            now = datetime.utcnow()
+            company_name = existing_job.get("company_name", "Company")
+            await db["notifications"].insert_many([
+                {
+                    "recipient_id": cid,
+                    "title": f"New Campus Drive Invitation: {job_in.title}",
+                    "message": f"{company_name} invited your college to '{job_in.title}'. Review and set student criteria to open applications.",
+                    "type": "announcement",
+                    "priority": "high",
+                    "job_id": job_id,
+                    "read_by": [],
+                    "dismissed_by": [],
+                    "is_read": False,
+                    "created_at": now,
+                }
+                for cid in newly_invited
+            ])
+        except Exception as e:
+            print(f"Failed to notify newly invited colleges: {e}")
     
     if job_in.prerequisites:
         pre_list = job_in.prerequisites if isinstance(job_in.prerequisites, list) else [job_in.prerequisites]
@@ -197,13 +288,38 @@ async def get_all_jobs(company=Depends(get_current_company)):
     jobs_collection = db["jobs"]
     applications_collection = db["applications"]
     company_id = company.get("sub")
-    
+
+    # Map college names for status badges
+    college_names = {}
+    async for c in db["users"].find({"role": "college"}, {"name": 1, "email": 1}):
+        college_names[str(c["_id"])] = c.get("name") or c.get("email") or "College"
+
     cursor = jobs_collection.find({"company_id": company_id}).sort("created_at", -1)
     jobs = []
     async for job in cursor:
-        job["_id"] = str(job["_id"])
-        count = await applications_collection.count_documents({"job_id": str(job["_id"])})
+        jid = str(job["_id"])
+        job["_id"] = jid
+        count = await applications_collection.count_documents({"job_id": jid})
         job["applications_count"] = count
+
+        # Include live per-college distribution status for requested_college drives
+        college_statuses = []
+        if job.get("visibility") == "requested_college":
+            responses = job.get("college_responses", {}) or {}
+            rules_by_college = {}
+            async for rule in db["college_job_rules"].find({"job_id": jid}):
+                rules_by_college[rule.get("college_id")] = rule
+            for cid in (job.get("target_colleges") or []):
+                rule = rules_by_college.get(cid)
+                is_live = bool(rule and rule.get("is_open", True) and rule.get("criteria_configured", False))
+                decision = responses.get(cid, "accepted" if is_live else "pending")
+                college_statuses.append({
+                    "college_id": cid,
+                    "college_name": college_names.get(cid, "College"),
+                    "decision": decision,
+                    "is_live": is_live,
+                })
+        job["college_statuses"] = college_statuses
         jobs.append(job)
     return jobs
 

@@ -16,6 +16,10 @@ import {
   SlidersHorizontal,
   ArrowRight,
   CheckCheck,
+  Bell,
+  CheckCircle2,
+  XCircle,
+  Clock,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -48,6 +52,14 @@ export default function CollegeDashboard() {
     branch: '',
     roll_number: '',
   });
+
+  // Inline Accept & Set Criteria modal for Recent Drive Invitations
+  const [criteriaInvite, setCriteriaInvite] = useState<any | null>(null);
+  const [inviteMinCgpa, setInviteMinCgpa] = useState('');
+  const [inviteBatches, setInviteBatches] = useState('');
+  const [inviteBranches, setInviteBranches] = useState('');
+  const [inviteMaxBacklogs, setInviteMaxBacklogs] = useState('');
+  const [inviteNotify, setInviteNotify] = useState(true);
 
   const { data: statsData, isLoading: isLoadingStats } = useQuery({
     queryKey: ['collegeDashboardStats'],
@@ -96,14 +108,65 @@ export default function CollegeDashboard() {
   });
 
   const respondInviteMutation = useMutation({
-    mutationFn: async ({ jobId, decision }: { jobId: string; decision: 'accepted' | 'declined' }) => {
-      await api.patch(`/college/invitations/${jobId}/respond`, { decision });
+    mutationFn: async (payload: {
+      jobId: string;
+      decision: 'accepted' | 'declined';
+      min_cgpa?: number | null;
+      allowed_batches?: string[];
+      allowed_branches?: string[];
+      max_backlogs?: number | null;
+      notify_eligible?: boolean;
+    }) => {
+      const { jobId, ...body } = payload;
+      const res = await api.patch(`/college/invitations/${jobId}/respond`, body);
+      return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['collegeDashboardStats'] });
       queryClient.invalidateQueries({ queryKey: ['collegeJobsWithRules'] });
+      setCriteriaInvite(null);
+      if (res?.message) {
+        alert(
+          res.message +
+            (res.notified_count ? ` (${res.notified_count} student(s) notified).` : '.')
+        );
+      }
+    },
+    onError: (err: any) => {
+      alert(err.response?.data?.detail || 'Failed to update drive invitation');
     },
   });
+
+  const openCriteriaModal = (invite: any) => {
+    setCriteriaInvite(invite);
+    const r = invite.rule || {};
+    setInviteMinCgpa(r.min_cgpa !== null && r.min_cgpa !== undefined ? String(r.min_cgpa) : '');
+    setInviteBatches((r.allowed_batches || []).join(', '));
+    setInviteBranches((r.allowed_branches || []).join(', '));
+    setInviteMaxBacklogs(r.max_backlogs !== null && r.max_backlogs !== undefined ? String(r.max_backlogs) : '');
+    setInviteNotify(true);
+  };
+
+  const toggleInviteChip = (currentText: string, val: string, setter: (v: string) => void) => {
+    const arr = currentText.split(',').map((s) => s.trim()).filter(Boolean);
+    const exists = arr.some((x) => x.toLowerCase() === val.toLowerCase());
+    const next = exists ? arr.filter((x) => x.toLowerCase() !== val.toLowerCase()) : [...arr, val];
+    setter(next.join(', '));
+  };
+
+  const handlePublishInviteCriteria = (e: FormEvent) => {
+    e.preventDefault();
+    if (!criteriaInvite) return;
+    respondInviteMutation.mutate({
+      jobId: criteriaInvite.id,
+      decision: 'accepted',
+      min_cgpa: inviteMinCgpa.trim() ? parseFloat(inviteMinCgpa) : null,
+      allowed_batches: inviteBatches.split(',').map((s) => s.trim()).filter(Boolean),
+      allowed_branches: inviteBranches.split(',').map((s) => s.trim()).filter(Boolean),
+      max_backlogs: inviteMaxBacklogs.trim() ? parseInt(inviteMaxBacklogs, 10) : null,
+      notify_eligible: inviteNotify,
+    });
+  };
 
   const addStudentMutation = useMutation({
     mutationFn: async () => {
@@ -393,66 +456,272 @@ export default function CollegeDashboard() {
 
       {/* Drive Invitations */}
       <div className="card">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-800">Recent Drive Invitations</h2>
+        <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">Recent Drive Invitations</h2>
+            <p className="text-xs text-slate-500">
+              Company-invited campus drives stay hidden from students until you accept &amp; set eligibility criteria.
+            </p>
+          </div>
           <button
             onClick={() => navigate('/dashboard/college/jobs')}
             className="text-xs font-semibold text-brand-600 hover:underline"
           >
-            Manage Eligibility Rules →
+            Manage All Job Eligibility Rules →
           </button>
         </div>
         <div className="p-6 space-y-4">
           {recent_invitations.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
-              No pending drive invitations from companies.
+            <div className="text-center py-8 text-slate-500 text-sm">
+              No campus drive invitations from companies yet.
             </div>
           ) : (
-            recent_invitations.map((invite: any) => (
-              <div
-                key={invite.id}
-                className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-slate-100 rounded-xl gap-3"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-slate-800">{invite.title}</h3>
-                    {invite.college_decision && invite.college_decision !== 'pending' && (
-                      <span
-                        className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                          invite.college_decision === 'accepted'
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}
-                      >
-                        {invite.college_decision}
-                      </span>
+            recent_invitations.map((invite: any) => {
+              const isLive = invite.college_decision === 'accepted' && invite.criteria_configured && invite.rule?.is_open;
+              const isDeclined = invite.college_decision === 'declined';
+              const r = invite.rule || {};
+              return (
+                <div
+                  key={invite.id}
+                  className={`flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-xl gap-4 transition-colors ${
+                    isLive
+                      ? 'border-emerald-200 bg-emerald-50/20'
+                      : isDeclined
+                      ? 'border-red-100 bg-red-50/20'
+                      : 'border-amber-200 bg-amber-50/25'
+                  }`}
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-bold text-slate-800">{invite.title}</h3>
+                      {isLive ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                          <CheckCircle2 size={12} /> Live for {invite.eligible_students_count}/{invite.total_college_students} Matching Students
+                        </span>
+                      ) : isDeclined ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700">
+                          <XCircle size={12} /> Declined
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                          <Clock size={12} /> Action Required — Set Criteria to Publish
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      {invite.company_name} • {invite.location || 'Campus'} • {invite.package_details}
+                    </p>
+                    {isLive && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        {r.min_cgpa ? (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                            CGPA ≥ {r.min_cgpa}
+                          </span>
+                        ) : null}
+                        {r.allowed_batches?.length > 0 && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                            Batch: {r.allowed_batches.join(', ')}
+                          </span>
+                        )}
+                        {r.allowed_branches?.length > 0 && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
+                            Branch: {r.allowed_branches.join(', ')}
+                          </span>
+                        )}
+                        {r.max_backlogs !== null && r.max_backlogs !== undefined && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                            Max Backlogs: {r.max_backlogs}
+                          </span>
+                        )}
+                        {!r.min_cgpa && !r.allowed_batches?.length && !r.allowed_branches?.length && r.max_backlogs === null && (
+                          <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                            Open to all approved campus students
+                          </span>
+                        )}
+                        <span className="text-[11px] text-slate-500 ml-1">
+                          ({invite.applied_count || 0} applied)
+                        </span>
+                      </div>
                     )}
                   </div>
-                  <p className="text-sm text-slate-500">
-                    {invite.company_name} • {invite.package_details}
-                  </p>
+                  <div className="flex flex-wrap gap-2 shrink-0">
+                    <button
+                      onClick={() => openCriteriaModal(invite)}
+                      disabled={respondInviteMutation.isPending}
+                      className="btn-primary text-xs px-4 py-2 inline-flex items-center gap-1.5"
+                    >
+                      <SlidersHorizontal size={14} />
+                      {isLive ? 'Edit Criteria' : 'Accept & Set Criteria'}
+                    </button>
+                    {!isDeclined && (
+                      <button
+                        onClick={() => respondInviteMutation.mutate({ jobId: invite.id, decision: 'declined' })}
+                        disabled={respondInviteMutation.isPending}
+                        className="px-4 py-2 text-xs font-semibold bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-700 rounded-xl transition-colors"
+                      >
+                        Decline
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => respondInviteMutation.mutate({ jobId: invite.id, decision: 'accepted' })}
-                    disabled={respondInviteMutation.isPending}
-                    className="btn-primary text-xs px-4 py-2"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => respondInviteMutation.mutate({ jobId: invite.id, decision: 'declined' })}
-                    disabled={respondInviteMutation.isPending}
-                    className="px-4 py-2 text-xs font-semibold bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-700 rounded-xl transition-colors"
-                  >
-                    Decline
-                  </button>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
+
+      {/* Inline Accept & Set Criteria Modal for Recent Drive Invitations */}
+      {criteriaInvite && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto space-y-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Accept Drive &amp; Set Student Criteria</h3>
+                <p className="text-xs text-slate-500">
+                  {criteriaInvite.title} — {criteriaInvite.company_name}
+                </p>
+              </div>
+              <button onClick={() => setCriteriaInvite(null)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-xl bg-brand-50/70 border border-brand-200 text-xs text-brand-900">
+              Only students of your college who <strong>match all criteria below</strong> will see and be able to apply to this drive. Leave fields blank to allow all approved campus students.
+            </div>
+
+            <form onSubmit={handlePublishInviteCriteria} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Minimum CGPA</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="10"
+                    value={inviteMinCgpa}
+                    onChange={(e) => setInviteMinCgpa(e.target.value)}
+                    placeholder="e.g. 9.0"
+                    className="input-field text-sm"
+                  />
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {['', '7.0', '7.5', '8.0', '8.5', '9.0'].map((val) => (
+                      <button
+                        key={val || 'any'}
+                        type="button"
+                        onClick={() => setInviteMinCgpa(val)}
+                        className={`text-[11px] px-2 py-0.5 rounded border ${
+                          inviteMinCgpa === val
+                            ? 'bg-brand-600 text-white border-brand-600'
+                            : 'bg-white text-slate-600 border-slate-200'
+                        }`}
+                      >
+                        {val ? `${val}+` : 'Any'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Max Active Backlogs</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={inviteMaxBacklogs}
+                    onChange={(e) => setInviteMaxBacklogs(e.target.value)}
+                    placeholder="e.g. 0 for zero backlogs"
+                    className="input-field text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                  Allowed Batches (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={inviteBatches}
+                  onChange={(e) => setInviteBatches(e.target.value)}
+                  placeholder="e.g. 2026, 2027"
+                  className="input-field text-sm"
+                />
+                {(statsData?.batches || []).length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {(statsData?.batches || []).map((b: string) => (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => toggleInviteChip(inviteBatches, b, setInviteBatches)}
+                        className="text-[11px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
+                      >
+                        + {b}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                  Allowed Branches / Departments (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={inviteBranches}
+                  onChange={(e) => setInviteBranches(e.target.value)}
+                  placeholder="e.g. CSE, IT, ECE"
+                  className="input-field text-sm"
+                />
+                {(statsData?.branches || []).length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {(statsData?.branches || []).map((br: string) => (
+                      <button
+                        key={br}
+                        type="button"
+                        onClick={() => toggleInviteChip(inviteBranches, br, setInviteBranches)}
+                        className="text-[11px] px-2 py-0.5 rounded bg-teal-50 text-teal-700 hover:bg-teal-100"
+                      >
+                        + {br}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={inviteNotify}
+                  onChange={(e) => setInviteNotify(e.target.checked)}
+                  className="rounded border-slate-300 text-brand-600"
+                />
+                <Bell size={14} className="text-brand-600" />
+                Notify all matching students immediately after publishing
+              </label>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCriteriaInvite(null)}
+                  className="px-4 py-2 text-xs font-semibold bg-slate-100 text-slate-700 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={respondInviteMutation.isPending}
+                  className="btn-primary text-xs px-5 py-2 flex items-center gap-1.5"
+                >
+                  {respondInviteMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                  Approve &amp; Distribute to Matching Students
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add Student Modal */}
       {isAddModalOpen && (

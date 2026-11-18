@@ -34,6 +34,9 @@ interface CollegeJob {
   employment_type: string;
   stipend: string;
   visibility: string;
+  college_decision?: string;
+  criteria_configured?: boolean;
+  is_live_for_students?: boolean;
   created_at: string;
   total_college_students: number;
   eligible_students_count: number;
@@ -50,6 +53,7 @@ interface CollegeJob {
 export default function CollegeJobControl() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [driveFilter, setDriveFilter] = useState<'all' | 'pending' | 'campus' | 'public'>('all');
   const [editingJob, setEditingJob] = useState<CollegeJob | null>(null);
   const [trackingJob, setTrackingJob] = useState<CollegeJob | null>(null);
 
@@ -127,14 +131,15 @@ export default function CollegeJobControl() {
 
   const openRuleModal = (job: CollegeJob) => {
     setEditingJob(job);
-    setIsOpen(job.rule.is_open);
+    const isPendingCampus = job.visibility === 'requested_college' && !job.criteria_configured;
+    setIsOpen(isPendingCampus ? true : job.rule.is_open);
     setMinCgpa(job.rule.min_cgpa !== null && job.rule.min_cgpa !== undefined ? String(job.rule.min_cgpa) : '');
     setBatchesText((job.rule.allowed_batches || []).join(', '));
     setBranchesText((job.rule.allowed_branches || []).join(', '));
     setMaxBacklogs(job.rule.max_backlogs !== null && job.rule.max_backlogs !== undefined ? String(job.rule.max_backlogs) : '');
     setSelectedStudentIds(job.rule.specific_student_ids || []);
     setNote(job.rule.note || '');
-    setNotifyEligible(false);
+    setNotifyEligible(isPendingCampus);
     setStudentPickerSearch('');
   };
 
@@ -157,13 +162,24 @@ export default function CollegeJobControl() {
     saveRuleMutation.mutate();
   };
 
-  const jobs = (data?.jobs || []).filter((j) => {
+  const allJobs = data?.jobs || [];
+  const pendingCount = allJobs.filter(
+    (j) => j.visibility === 'requested_college' && !j.criteria_configured && j.college_decision !== 'declined'
+  ).length;
+
+  const jobs = allJobs.filter((j) => {
     const q = search.toLowerCase();
-    return (
+    const matchesSearch =
       j.title.toLowerCase().includes(q) ||
       j.company_name.toLowerCase().includes(q) ||
-      j.location.toLowerCase().includes(q)
-    );
+      j.location.toLowerCase().includes(q);
+    if (!matchesSearch) return false;
+    if (driveFilter === 'pending') {
+      return j.visibility === 'requested_college' && !j.criteria_configured && j.college_decision !== 'declined';
+    }
+    if (driveFilter === 'campus') return j.visibility === 'requested_college';
+    if (driveFilter === 'public') return j.visibility !== 'requested_college';
+    return true;
   });
   const availableBatches = data?.batches || [];
   const availableBranches = data?.branches || [];
@@ -214,14 +230,37 @@ export default function CollegeJobControl() {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {[
+          { id: 'all', label: `All Drives (${allJobs.length})` },
+          { id: 'pending', label: `Pending Criteria (${pendingCount})` },
+          { id: 'campus', label: 'Invited Campus Drives' },
+          { id: 'public', label: 'Public Jobs (Open to All)' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setDriveFilter(tab.id as any)}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
+              driveFilter === tab.id
+                ? 'bg-brand-600 text-white border-brand-600'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {jobs.length === 0 ? (
         <div className="card p-12 text-center text-slate-400">
-          No active job drives available right now.
+          No active job drives match this filter right now.
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {jobs.map((job) => {
             const r = job.rule;
+            const isPendingCampus =
+              job.visibility === 'requested_college' && !job.criteria_configured && job.college_decision !== 'declined';
             const hasFilters =
               !!r.min_cgpa ||
               r.allowed_batches.length > 0 ||
@@ -230,7 +269,7 @@ export default function CollegeJobControl() {
               r.specific_student_ids.length > 0;
 
             return (
-              <div key={job.id} className="card p-5 flex flex-col justify-between gap-4">
+              <div key={job.id} className={`card p-5 flex flex-col justify-between gap-4 ${isPendingCampus ? 'border-amber-300 bg-amber-50/15' : ''}`}>
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -240,14 +279,20 @@ export default function CollegeJobControl() {
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span
-                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 ${
-                          r.is_open ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                        }`}
-                      >
-                        {r.is_open ? <CheckCircle2 size={11} /> : <XCircle size={11} />}
-                        {r.is_open ? 'Open' : 'Closed'}
-                      </span>
+                      {isPendingCampus ? (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                          Awaiting Criteria
+                        </span>
+                      ) : (
+                        <span
+                          className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                            job.is_live_for_students ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                          }`}
+                        >
+                          {job.is_live_for_students ? <CheckCircle2 size={11} /> : <XCircle size={11} />}
+                          {job.is_live_for_students ? 'Live' : 'Closed'}
+                        </span>
+                      )}
                       <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 inline-flex items-center gap-1">
                         {job.visibility === 'requested_college' ? <Building2 size={11} /> : <Globe size={11} />}
                         {job.visibility === 'requested_college' ? 'Invited' : 'Public'}
@@ -257,7 +302,11 @@ export default function CollegeJobControl() {
 
                   {/* Active Eligibility Rule Pills */}
                   <div className="flex flex-wrap gap-1.5">
-                    {!hasFilters ? (
+                    {isPendingCampus ? (
+                      <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-800">
+                        Hidden from students until you set criteria &amp; publish
+                      </span>
+                    ) : !hasFilters ? (
                       <span className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-600">
                         Open to all approved students ({job.eligible_students_count}/{job.total_college_students})
                       </span>

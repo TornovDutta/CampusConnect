@@ -76,17 +76,41 @@ export default function CompanyJobs() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock size={16} className="text-slate-400" />
-                    <span>{job.job_type || 'Full Time'}</span>
+                    <span>{job.employment_type || job.job_type || 'Full Time'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users size={16} className="text-slate-400" />
-                    <span>{job.applicants_count || 0} Applicants</span>
+                    <span>{job.applications_count ?? job.applicants_count ?? 0} Applicants</span>
                   </div>
                 </div>
+
+                {job.visibility === 'requested_college' && Array.isArray(job.college_statuses) && job.college_statuses.length > 0 && (
+                  <div className="mb-4 pt-3 border-t border-slate-100 space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Invited Colleges Distribution
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {job.college_statuses.map((cs: any) => (
+                        <span
+                          key={cs.college_id}
+                          className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                            cs.is_live
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : cs.decision === 'declined'
+                              ? 'bg-red-50 text-red-700'
+                              : 'bg-amber-50 text-amber-800'
+                          }`}
+                        >
+                          {cs.college_name}: {cs.is_live ? 'Live' : cs.decision === 'declined' ? 'Declined' : 'Pending Criteria'}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-medium">{job.salary || 'Competitive'}</span>
+                <span className="text-xs text-slate-500 font-medium">{job.stipend || job.salary || 'Competitive'}</span>
                 <button
                   onClick={() => navigate(`/dashboard/company/edit-job/${job._id}`)}
                   className="text-xs btn-secondary px-3 py-1.5"
