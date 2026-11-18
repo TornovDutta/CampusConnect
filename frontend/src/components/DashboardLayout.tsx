@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Outlet, Navigate, NavLink } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import {
   LogOut,
@@ -10,12 +12,37 @@ import {
   Users,
   Award,
   Briefcase,
-  PlusCircle
+  PlusCircle,
+  BarChart3,
+  Megaphone,
+  Bug,
+  ShieldCheck,
+  Sparkles,
+  X
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
+import { api } from '../services/api';
 
 export default function DashboardLayout({ allowedRoles }: { allowedRoles: string[] }) {
   const { user, logout, isAuthenticated } = useAuth();
+  const [dismissedBannerAt, setDismissedBannerAt] = useState<string | null>(null);
+
+  const { data: announcement } = useQuery({
+    queryKey: ['platformAnnouncement'],
+    queryFn: async () => {
+      const res = await api.get('/admin/announcement');
+      return res.data as {
+        enabled: boolean;
+        title: string;
+        message: string;
+        variant: 'info' | 'success' | 'warning';
+        target_role: string;
+        updated_at: string;
+      };
+    },
+    enabled: !!isAuthenticated && !!user,
+    staleTime: 30000,
+  });
 
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" />;
@@ -24,6 +51,19 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
   if (!allowedRoles.includes(user.role)) {
     return <div className="p-8 text-center text-red-500 font-bold">Access Denied</div>;
   }
+
+  const showBanner =
+    announcement?.enabled &&
+    (announcement.title || announcement.message) &&
+    (announcement.target_role === 'all' || announcement.target_role === user.role || user.role === 'super_admin') &&
+    dismissedBannerAt !== (announcement.updated_at || announcement.message);
+
+  const bannerClasses =
+    announcement?.variant === 'warning'
+      ? 'bg-amber-50 border-amber-200 text-amber-900'
+      : announcement?.variant === 'success'
+      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+      : 'bg-brand-50 border-brand-200 text-brand-900';
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -55,19 +95,77 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
               </NavLink>
               
               {user.role === 'super_admin' && (
-                <NavLink 
-                  to="/dashboard/admin/activity" 
-                  className={({ isActive }) => 
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                      isActive 
-                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`
-                }
-              >
-                <Activity size={18} />
-                <span className="font-medium text-sm">Activity Logs</span>
-              </NavLink>
+                <>
+                  <NavLink 
+                    to="/dashboard/admin/analytics" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <BarChart3 size={18} />
+                    <span className="font-medium text-sm">Analytics & Charts</span>
+                  </NavLink>
+
+                  <NavLink 
+                    to="/dashboard/admin/notifications" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <Megaphone size={18} />
+                    <span className="font-medium text-sm">Custom Notifications</span>
+                  </NavLink>
+
+                  <NavLink 
+                    to="/dashboard/admin/jobs" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <ShieldCheck size={18} />
+                    <span className="font-medium text-sm">Job Moderation</span>
+                  </NavLink>
+
+                  <NavLink 
+                    to="/dashboard/admin/issues" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <Bug size={18} />
+                    <span className="font-medium text-sm">Issue Monitor</span>
+                  </NavLink>
+
+                  <NavLink 
+                    to="/dashboard/admin/activity" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <Activity size={18} />
+                    <span className="font-medium text-sm">Activity Logs</span>
+                  </NavLink>
+                </>
               )}
             </div>
           </div>
@@ -244,6 +342,26 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
             </div>
           </div>
         </header>
+
+        {showBanner && announcement && (
+          <div className={`mx-6 sm:mx-8 mt-5 px-4 py-3 rounded-xl border text-sm flex items-center justify-between gap-3 ${bannerClasses}`}>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Sparkles size={16} className="shrink-0" />
+              <p className="truncate sm:whitespace-normal">
+                {announcement.title && <strong className="mr-2">{announcement.title}:</strong>}
+                <span>{announcement.message}</span>
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDismissedBannerAt(announcement.updated_at || announcement.message)}
+              className="p-1 rounded-lg hover:bg-black/5 shrink-0"
+              aria-label="Dismiss announcement"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        )}
 
         <div className="p-6 sm:p-8 flex-1">
           <Outlet />

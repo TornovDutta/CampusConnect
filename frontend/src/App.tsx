@@ -5,6 +5,10 @@ import Register from './pages/Register';
 import { AuthProvider } from './context/AuthContext';
 import DashboardLayout from './components/DashboardLayout';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
+import AdminAnalytics from './pages/dashboards/AdminAnalytics';
+import AdminNotifications from './pages/dashboards/AdminNotifications';
+import AdminIssues from './pages/dashboards/AdminIssues';
+import AdminJobs from './pages/dashboards/AdminJobs';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
 import CollegeStudentsList from './pages/dashboards/CollegeStudentsList';
@@ -33,6 +37,10 @@ function App() {
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
             <Route path="admin" element={<AdminDashboard />} />
+            <Route path="admin/analytics" element={<AdminAnalytics />} />
+            <Route path="admin/notifications" element={<AdminNotifications />} />
+            <Route path="admin/issues" element={<AdminIssues />} />
+            <Route path="admin/jobs" element={<AdminJobs />} />
             <Route path="admin/activity" element={<UserActivity />} />
             <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />

@@ -10,7 +10,10 @@ import {
   ShieldAlert,
   Info,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Megaphone,
+  AlertTriangle,
+  Sparkles
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
@@ -21,6 +24,9 @@ interface NotificationItem {
   title: string;
   message: string;
   type: string;
+  priority?: 'normal' | 'high' | 'urgent';
+  sent_by_admin?: boolean;
+  sender_name?: string;
   user_id?: string;
   user_name?: string;
   user_role?: string;
@@ -133,9 +139,28 @@ export default function NotificationBell() {
           </div>
         );
       case 'security':
+      case 'warning':
         return (
           <div className="p-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 shrink-0">
+            <AlertTriangle size={18} />
+          </div>
+        );
+      case 'alert':
+        return (
+          <div className="p-2 rounded-xl bg-red-50 text-red-600 border border-red-100 shrink-0">
             <ShieldAlert size={18} />
+          </div>
+        );
+      case 'announcement':
+        return (
+          <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shrink-0">
+            <Megaphone size={18} />
+          </div>
+        );
+      case 'update':
+        return (
+          <div className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 shrink-0">
+            <Sparkles size={18} />
           </div>
         );
       default:
@@ -281,19 +306,34 @@ export default function NotificationBell() {
                       {notification.message}
                     </p>
 
-                    {notification.user_role && (
-                      <div className="mt-2 flex items-center gap-2">
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {notification.sent_by_admin && (
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                          From Admin
+                        </span>
+                      )}
+                      {notification.priority === 'urgent' && (
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                          Urgent
+                        </span>
+                      )}
+                      {notification.priority === 'high' && (
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                          High Priority
+                        </span>
+                      )}
+                      {notification.user_role && !notification.sent_by_admin && (
                         <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                           {notification.user_role.replace('_', ' ')}
                         </span>
-                        {!notification.is_read && (
-                          <span className="inline-flex items-center gap-1 text-[11px] text-brand-600 font-medium">
-                            <span className="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
-                            New
-                          </span>
-                        )}
-                      </div>
-                    )}
+                      )}
+                      {!notification.is_read && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-brand-600 font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+                          New
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {!notification.is_read && (

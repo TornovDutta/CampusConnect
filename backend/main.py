@@ -1,17 +1,88 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from database import connect_to_mongo, close_mongo_connection, get_database
+from fastapi.responses import JSONResponse
+from database import connect_to_mongo, close_mongo_connection, get_database, log_system_issue
 from core.config import settings
 from core.security import get_password_hash
 from models.user import RoleEnum
 from datetime import datetime
+from jose import jwt
 from routes import auth, admin, student, college, company, notifications
+import traceback
 
 app = FastAPI(
     title="CampusConnect API",
     description="API for the CampusConnect Recruitment Platform",
     version="1.0.0"
 )
+
+def infer_feature_from_path(path: str) -> str:
+    if path.startswith("/auth"):
+        return "Authentication"
+    if path.startswith("/admin"):
+        return "Admin Panel"
+    if path.startswith("/student"):
+        return "Student Portal"
+    if path.startswith("/college"):
+        return "College Portal"
+    if path.startswith("/company"):
+        return "Company / ATS"
+    if path.startswith("/notifications"):
+        return "Notifications"
+    return "API Core"
+
+def extract_user_from_request(request: Request):
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        token = auth_header.split(" ", 1)[1].strip()
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            return payload.get("sub"), payload.get("role")
+        except Exception:
+            pass
+    return None, None
+
+@app.middleware("http")
+async def error_monitoring_middleware(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        # Automatically log server-side 5xx errors (skip the issue report endpoint itself)
+        if response.status_code >= 500 and not request.url.path.startswith("/admin/issues"):
+            user_id, user_role = extract_user_from_request(request)
+            await log_system_issue(
+                feature=infer_feature_from_path(request.url.path),
+                message=f"Server responded with HTTP {response.status_code} on {request.method} {request.url.path}",
+                source="backend",
+                severity="critical",
+                endpoint=request.url.path,
+                method=request.method,
+                status_code=response.status_code,
+                error_type=f"HTTP{response.status_code}",
+                user_id=user_id,
+                user_role=user_role,
+            )
+        return response
+    except Exception as exc:
+        tb = traceback.format_exc()
+        user_id, user_role = extract_user_from_request(request)
+        if not request.url.path.startswith("/admin/issues/report"):
+            await log_system_issue(
+                feature=infer_feature_from_path(request.url.path),
+                message=str(exc) or exc.__class__.__name__,
+                source="backend",
+                severity="critical",
+                endpoint=request.url.path,
+                method=request.method,
+                status_code=500,
+                error_type=exc.__class__.__name__,
+                stack_trace=tb,
+                user_id=user_id,
+                user_role=user_role,
+            )
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error. This issue has been logged for administrators."},
+        )
 
 app.include_router(auth.router)
 app.include_router(admin.router)
