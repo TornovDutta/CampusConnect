@@ -110,6 +110,20 @@ async def apply_job(job_id: str, student=Depends(get_current_student)):
     existing_app = await db["applications"].find_one({"job_id": job_id, "student_id": student_id})
     if existing_app:
         raise HTTPException(status_code=400, detail="You have already applied for this job")
+
+    # Enforce admin max active applications limit if configured
+    controls = await db["settings"].find_one({"type": "platform_controls"}) or {}
+    max_apps = int(controls.get("max_active_applications_per_student") or 0)
+    if max_apps > 0:
+        active_app_count = await db["applications"].count_documents({
+            "student_id": student_id,
+            "status": {"$ne": "Rejected"},
+        })
+        if active_app_count >= max_apps:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Application limit reached ({max_apps} active applications allowed by platform policy).",
+            )
         
     from datetime import datetime
     application_dict = {

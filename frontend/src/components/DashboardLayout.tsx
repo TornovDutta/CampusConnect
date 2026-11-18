@@ -18,6 +18,8 @@ import {
   Bug,
   ShieldCheck,
   Sparkles,
+  Tag,
+  Sliders,
   X
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
@@ -95,9 +97,31 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
               </NavLink>
               
               {user.role === 'super_admin' && (
-                <>
+                <NavLink 
+                  to="/dashboard/admin/analytics" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`
+                  }
+                >
+                  <BarChart3 size={18} />
+                  <span className="font-medium text-sm">Analytics & Charts</span>
+                </NavLink>
+              )}
+            </div>
+          </div>
+
+          {/* Super Admin Management & Operations Sections */}
+          {user.role === 'super_admin' && (
+            <>
+              <div className="mb-6">
+                <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Management</h3>
+                <div className="space-y-1">
                   <NavLink 
-                    to="/dashboard/admin/analytics" 
+                    to="/dashboard/admin/users" 
                     className={({ isActive }) => 
                       `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                         isActive 
@@ -106,12 +130,12 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                       }`
                     }
                   >
-                    <BarChart3 size={18} />
-                    <span className="font-medium text-sm">Analytics & Charts</span>
+                    <Users size={18} />
+                    <span className="font-medium text-sm">User Directory</span>
                   </NavLink>
 
                   <NavLink 
-                    to="/dashboard/admin/notifications" 
+                    to="/dashboard/admin/placements" 
                     className={({ isActive }) => 
                       `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                         isActive 
@@ -120,8 +144,8 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                       }`
                     }
                   >
-                    <Megaphone size={18} />
-                    <span className="font-medium text-sm">Custom Notifications</span>
+                    <Award size={18} />
+                    <span className="font-medium text-sm">Placement Tracker</span>
                   </NavLink>
 
                   <NavLink 
@@ -139,6 +163,39 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                   </NavLink>
 
                   <NavLink 
+                    to="/dashboard/admin/skills" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <Tag size={18} />
+                    <span className="font-medium text-sm">Skills Catalog</span>
+                  </NavLink>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Operations</h3>
+                <div className="space-y-1">
+                  <NavLink 
+                    to="/dashboard/admin/notifications" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <Megaphone size={18} />
+                    <span className="font-medium text-sm">Custom Notifications</span>
+                  </NavLink>
+
+                  <NavLink 
                     to="/dashboard/admin/issues" 
                     className={({ isActive }) => 
                       `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
@@ -150,6 +207,20 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                   >
                     <Bug size={18} />
                     <span className="font-medium text-sm">Issue Monitor</span>
+                  </NavLink>
+
+                  <NavLink 
+                    to="/dashboard/admin/controls" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <Sliders size={18} />
+                    <span className="font-medium text-sm">Platform Controls</span>
                   </NavLink>
 
                   <NavLink 
@@ -165,10 +236,10 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                     <Activity size={18} />
                     <span className="font-medium text-sm">Activity Logs</span>
                   </NavLink>
-                </>
-              )}
-            </div>
-          </div>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Role-Specific Sections */}
           {(user.role === 'college' || user.role === 'company') && (

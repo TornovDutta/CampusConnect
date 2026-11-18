@@ -121,6 +121,22 @@ async def get_colleges():
 async def register(user_in: UserCreate):
     db = get_database()
     users_collection = db["users"]
+
+    # Enforce Admin Platform Governance Controls
+    controls = await db["settings"].find_one({"type": "platform_controls"}) or {}
+    if controls.get("maintenance_mode", False):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=controls.get("maintenance_message") or "Platform is currently in maintenance mode. Registrations are paused.",
+        )
+
+    role_val = user_in.role.value if hasattr(user_in.role, "value") else str(user_in.role)
+    if role_val == "student" and not controls.get("allow_student_registration", True):
+        raise HTTPException(status_code=403, detail="Student registration is currently paused by the administrator.")
+    if role_val == "college" and not controls.get("allow_college_registration", True):
+        raise HTTPException(status_code=403, detail="College registration is currently paused by the administrator.")
+    if role_val == "company" and not controls.get("allow_company_registration", True):
+        raise HTTPException(status_code=403, detail="Company registration is currently paused by the administrator.")
     
     # Check if user exists
     existing_user = await users_collection.find_one({"email": user_in.email})
@@ -137,17 +153,17 @@ async def register(user_in: UserCreate):
     user_dict["is_suspended"] = False
     user_dict["created_at"] = datetime.utcnow()
     
-    # Needs approval if it's a company
-    if user_in.role == "company":
-        user_dict["is_approved"] = False
+    # Needs approval if it's a company (respecting platform controls)
+    if role_val == "company":
+        user_dict["is_approved"] = not controls.get("require_company_approval", True)
     else:
         user_dict["is_approved"] = True
         
-    # If student, require college approval
-    if user_in.role == "student":
+    # If student, require college approval (respecting platform controls)
+    if role_val == "student":
         if not user_in.college_id:
             raise HTTPException(status_code=400, detail="Students must select a college")
-        user_dict["is_college_approved"] = False
+        user_dict["is_college_approved"] = not controls.get("require_student_college_approval", True)
         
     result = await users_collection.insert_one(user_dict)
     user_dict["_id"] = str(result.inserted_id)

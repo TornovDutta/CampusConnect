@@ -9,6 +9,10 @@ import AdminAnalytics from './pages/dashboards/AdminAnalytics';
 import AdminNotifications from './pages/dashboards/AdminNotifications';
 import AdminIssues from './pages/dashboards/AdminIssues';
 import AdminJobs from './pages/dashboards/AdminJobs';
+import AdminUsers from './pages/dashboards/AdminUsers';
+import AdminPlacements from './pages/dashboards/AdminPlacements';
+import AdminSkills from './pages/dashboards/AdminSkills';
+import AdminControls from './pages/dashboards/AdminControls';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
 import CollegeStudentsList from './pages/dashboards/CollegeStudentsList';
@@ -56,9 +60,13 @@ function App() {
             <Route path="settings" element={<Settings />} />
             <Route path="admin" element={<AdminDashboard />} />
             <Route path="admin/analytics" element={<AdminAnalytics />} />
+            <Route path="admin/users" element={<AdminUsers />} />
+            <Route path="admin/placements" element={<AdminPlacements />} />
+            <Route path="admin/jobs" element={<AdminJobs />} />
+            <Route path="admin/skills" element={<AdminSkills />} />
             <Route path="admin/notifications" element={<AdminNotifications />} />
             <Route path="admin/issues" element={<AdminIssues />} />
-            <Route path="admin/jobs" element={<AdminJobs />} />
+            <Route path="admin/controls" element={<AdminControls />} />
             <Route path="admin/activity" element={<UserActivity />} />
             <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />

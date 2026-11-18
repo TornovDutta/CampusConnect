@@ -5,10 +5,11 @@ import time
 from bson import ObjectId
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from database import get_database, log_activity, log_system_issue
 from core.config import settings
+from core.security import get_password_hash
 
 
 class ContactInfo(BaseModel):
@@ -1140,3 +1141,438 @@ async def update_contact_info(info: ContactInfo, admin=Depends(get_current_admin
     info_dict["type"] = "contact_info"
     await settings_col.update_one({"type": "contact_info"}, {"$set": info_dict}, upsert=True)
     return {"message": "Contact info updated successfully"}
+
+
+# =====================================================================
+# 1. GLOBAL USER DIRECTORY, PASSWORD RESET & ACCESS CONTROL
+# =====================================================================
+
+class AdminCreateUserRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    role: str  # "student" | "college" | "company" | "super_admin"
+    college_id: Optional[str] = None
+
+
+class AdminResetPasswordRequest(BaseModel):
+    new_password: str
+
+
+@router.get("/users")
+async def get_all_users(
+    role: Optional[str] = None,
+    status_filter: Optional[str] = Query(None, alias="status"),
+    admin=Depends(get_current_admin),
+):
+    db = get_database()
+    users_col = db["users"]
+
+    # Map college IDs to names for student rows
+    college_names: Dict[str, str] = {}
+    async for c in users_col.find({"role": "college"}, {"name": 1, "email": 1}):
+        college_names[str(c["_id"])] = c.get("name") or c.get("email") or "College"
+
+    query: dict = {}
+    if role and role != "all":
+        query["role"] = role
+    if status_filter == "suspended":
+        query["is_suspended"] = True
+    elif status_filter == "active":
+        query["is_suspended"] = {"$ne": True}
+    elif status_filter == "pending":
+        query["$or"] = [
+            {"role": "company", "is_approved": False},
+            {"role": "student", "is_college_approved": False},
+        ]
+
+    cursor = users_col.find(query).sort("created_at", -1)
+    users = []
+    async for u in cursor:
+        uid = str(u["_id"])
+        u_role = u.get("role", "student")
+        cid = u.get("college_id")
+        is_pending = (
+            (u_role == "company" and u.get("is_approved") is False)
+            or (u_role == "student" and u.get("is_college_approved") is False)
+        )
+        users.append({
+            "id": uid,
+            "name": u.get("name") or u.get("email") or "Unnamed",
+            "email": u.get("email", ""),
+            "role": u_role,
+            "college_id": cid,
+            "college_name": college_names.get(cid, "") if cid else "",
+            "is_active": u.get("is_active", True),
+            "is_suspended": u.get("is_suspended", False),
+            "is_approved": u.get("is_approved", True),
+            "is_college_approved": u.get("is_college_approved", True),
+            "is_pending": is_pending,
+            "created_at": _safe_iso(u.get("created_at")),
+        })
+
+    counts = {
+        "total": await users_col.count_documents({}),
+        "student": await users_col.count_documents({"role": "student"}),
+        "college": await users_col.count_documents({"role": "college"}),
+        "company": await users_col.count_documents({"role": "company"}),
+        "super_admin": await users_col.count_documents({"role": "super_admin"}),
+        "suspended": await users_col.count_documents({"is_suspended": True}),
+    }
+
+    return {"counts": counts, "colleges": [{"id": k, "name": v} for k, v in college_names.items()], "users": users}
+
+
+@router.post("/users")
+async def admin_create_user(req: AdminCreateUserRequest, admin=Depends(get_current_admin)):
+    if req.role not in ("student", "college", "company", "super_admin"):
+        raise HTTPException(status_code=400, detail="Invalid role")
+    if len(req.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+
+    db = get_database()
+    users_col = db["users"]
+    existing = await users_col.find_one({"email": req.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    if req.role == "student" and not req.college_id:
+        raise HTTPException(status_code=400, detail="Please select a college for the student")
+
+    user_doc = {
+        "name": req.name.strip(),
+        "email": req.email,
+        "role": req.role,
+        "hashed_password": get_password_hash(req.password),
+        "is_active": True,
+        "is_suspended": False,
+        "is_approved": True,
+        "created_at": datetime.utcnow(),
+    }
+    if req.role == "student":
+        user_doc["college_id"] = req.college_id
+        user_doc["is_college_approved"] = True
+
+    result = await users_col.insert_one(user_doc)
+    await log_activity(
+        user_id=admin.get("sub", "admin"),
+        user_name="Super Admin",
+        role="super_admin",
+        action_type="governance",
+        details=f"Created new {req.role} account: {req.name.strip()} ({req.email})",
+    )
+    return {"message": f"{req.role.replace('_', ' ').title()} created successfully", "id": str(result.inserted_id)}
+
+
+@router.post("/users/{user_id}/reset-password")
+async def admin_reset_user_password(user_id: str, req: AdminResetPasswordRequest, admin=Depends(get_current_admin)):
+    if len(req.new_password.strip()) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+
+    db = get_database()
+    user = await db["users"].find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    await db["users"].update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"hashed_password": get_password_hash(req.new_password.strip())}},
+    )
+
+    try:
+        await db["notifications"].insert_one({
+            "recipient_id": str(user["_id"]),
+            "title": "Password Reset by Administrator",
+            "message": "Your account password was reset by a CampusConnect administrator. Please update it in Settings after signing in.",
+            "type": "security",
+            "priority": "high",
+            "sent_by_admin": True,
+            "sender_name": "Super Admin",
+            "read_by": [],
+            "dismissed_by": [],
+            "is_read": False,
+            "created_at": datetime.utcnow(),
+        })
+    except Exception:
+        pass
+
+    await log_activity(
+        user_id=admin.get("sub", "admin"),
+        user_name="Super Admin",
+        role="super_admin",
+        action_type="security",
+        details=f"Reset password for {user.get('name') or user.get('email')} ({user.get('role')})",
+    )
+    return {"message": f"Password updated for {user.get('email')}"}
+
+
+@router.patch("/users/{user_id}/approve")
+async def admin_approve_user(user_id: str, admin=Depends(get_current_admin)):
+    db = get_database()
+    user = await db["users"].find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    role = user.get("role")
+    if role == "student":
+        new_val = not user.get("is_college_approved", False)
+        await db["users"].update_one({"_id": ObjectId(user_id)}, {"$set": {"is_college_approved": new_val}})
+        label = "approved" if new_val else "marked pending"
+    else:
+        new_val = not user.get("is_approved", True)
+        await db["users"].update_one({"_id": ObjectId(user_id)}, {"$set": {"is_approved": new_val}})
+        label = "verified" if new_val else "unverified"
+
+    await log_activity(
+        user_id=admin.get("sub", "admin"),
+        user_name="Super Admin",
+        role="super_admin",
+        action_type="governance",
+        details=f"Admin {label} {role}: {user.get('name') or user.get('email')}",
+    )
+    return {"message": f"User {label} successfully", "approved": new_val}
+
+
+@router.delete("/users/{user_id}")
+async def admin_delete_user(user_id: str, admin=Depends(get_current_admin)):
+    if admin.get("sub") == user_id:
+        raise HTTPException(status_code=400, detail="You cannot delete your own active admin account")
+
+    db = get_database()
+    user = await db["users"].find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    await db["users"].delete_one({"_id": ObjectId(user_id)})
+    await log_activity(
+        user_id=admin.get("sub", "admin"),
+        user_name="Super Admin",
+        role="super_admin",
+        action_type="governance",
+        details=f"Deleted {user.get('role', 'user')} account: {user.get('name') or user.get('email')}",
+    )
+    return {"message": "User deleted successfully"}
+
+
+# =====================================================================
+# 2. GLOBAL PLACEMENT & APPLICATIONS OVERSIGHT TRACKER
+# =====================================================================
+
+class AdminApplicationStatusRequest(BaseModel):
+    status: str
+
+
+@router.get("/applications")
+async def get_all_platform_applications(
+    status_filter: Optional[str] = Query(None, alias="status"),
+    admin=Depends(get_current_admin),
+):
+    db = get_database()
+    apps_col = db["applications"]
+
+    college_names: Dict[str, str] = {}
+    async for c in db["users"].find({"role": "college"}, {"name": 1, "email": 1}):
+        college_names[str(c["_id"])] = c.get("name") or c.get("email") or "College"
+
+    query: dict = {}
+    if status_filter and status_filter != "all":
+        query["status"] = status_filter
+
+    cursor = apps_col.find(query).sort("created_at", -1).limit(200)
+    applications = []
+    async for app in cursor:
+        cid = app.get("college_id")
+        applications.append({
+            "id": str(app["_id"]),
+            "job_id": app.get("job_id", ""),
+            "job_title": app.get("job_title", "Untitled Job"),
+            "company_id": app.get("company_id", ""),
+            "company_name": app.get("company_name", "Company"),
+            "student_id": app.get("student_id", ""),
+            "student_name": app.get("student_name", "Student"),
+            "student_email": app.get("student_email", ""),
+            "college_id": cid or "",
+            "college_name": college_names.get(cid, "Unassigned") if cid else "Unassigned",
+            "status": app.get("status", "In Review"),
+            "created_at": _safe_iso(app.get("created_at") or app.get("applied_at")),
+        })
+
+    summary = {
+        "total": await apps_col.count_documents({}),
+        "in_review": await apps_col.count_documents({"status": "In Review"}),
+        "shortlisted": await apps_col.count_documents({"status": "Shortlisted"}),
+        "offer_sent": await apps_col.count_documents({"status": "Offer Sent"}),
+        "hired": await apps_col.count_documents({"status": {"$in": ["Hired", "Accepted"]}}),
+        "rejected": await apps_col.count_documents({"status": "Rejected"}),
+    }
+    return {"summary": summary, "applications": applications}
+
+
+@router.patch("/applications/{application_id}/status")
+async def admin_override_application_status(
+    application_id: str,
+    req: AdminApplicationStatusRequest,
+    admin=Depends(get_current_admin),
+):
+    allowed = ("In Review", "Shortlisted", "Offer Sent", "Hired", "Rejected")
+    if req.status not in allowed:
+        raise HTTPException(status_code=400, detail=f"Status must be one of: {', '.join(allowed)}")
+
+    db = get_database()
+    app_doc = await db["applications"].find_one({"_id": ObjectId(application_id)})
+    if not app_doc:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    await db["applications"].update_one(
+        {"_id": ObjectId(application_id)},
+        {"$set": {"status": req.status, "admin_updated_at": datetime.utcnow()}},
+    )
+
+    await log_activity(
+        user_id=admin.get("sub", "admin"),
+        user_name="Super Admin",
+        role="super_admin",
+        action_type="placement",
+        details=f"Updated application for {app_doc.get('student_name')} ({app_doc.get('job_title')}) to {req.status}",
+    )
+    return {"message": f"Application status updated to {req.status}"}
+
+
+# =====================================================================
+# 3. SKILLS & ELIGIBILITY PREREQUISITES CATALOG
+# =====================================================================
+
+class AddSkillRequest(BaseModel):
+    names: str  # single skill or comma-separated list
+
+
+@router.get("/skills")
+async def get_skills_catalog(admin=Depends(get_current_admin)):
+    db = get_database()
+    prereq_col = db["prerequisites"]
+    jobs_col = db["jobs"]
+
+    # Seed defaults if empty (matching company.py)
+    if await prereq_col.count_documents({}) == 0:
+        defaults = [
+            "B.Tech / B.E.", "M.Tech / M.E.", "MCA / MSc IT", "BSc / BCA", "MBA / PGDM",
+            "Final Year Student", "Pre-final Year Student", "No Active Backlogs",
+            "Min 7.0 CGPA / 70%", "Min 8.0 CGPA / 80%",
+            "Python", "Java", "C++", "React.js", "Node.js", "JavaScript", "TypeScript",
+            "SQL / MongoDB", "Machine Learning / AI", "Data Structures & Algorithms", "Cloud / DevOps",
+        ]
+        for s in defaults:
+            await prereq_col.update_one({"name": s}, {"$set": {"name": s}}, upsert=True)
+
+    # Calculate real job demand per skill/prerequisite
+    demand_counts: Dict[str, int] = {}
+    async for job in jobs_col.find({}, {"prerequisites": 1}):
+        prereqs = job.get("prerequisites")
+        if not prereqs:
+            continue
+        items = prereqs if isinstance(prereqs, list) else [prereqs]
+        for item in items:
+            if isinstance(item, str) and item.strip():
+                key = item.strip().lower()
+                demand_counts[key] = demand_counts.get(key, 0) + 1
+
+    skills = []
+    async for doc in prereq_col.find({}).sort("name", 1):
+        name = doc.get("name", "")
+        if not name:
+            continue
+        skills.append({
+            "id": str(doc["_id"]),
+            "name": name,
+            "demand_count": demand_counts.get(name.strip().lower(), 0),
+        })
+
+    top_demanded = sorted(skills, key=lambda s: (-s["demand_count"], s["name"]))[:10]
+    return {"total": len(skills), "skills": skills, "top_demanded": top_demanded}
+
+
+@router.post("/skills")
+async def add_skills_to_catalog(req: AddSkillRequest, admin=Depends(get_current_admin)):
+    raw_names = [n.strip() for n in req.names.split(",") if n.strip()]
+    if not raw_names:
+        raise HTTPException(status_code=400, detail="Please enter at least one skill or prerequisite")
+
+    db = get_database()
+    prereq_col = db["prerequisites"]
+    added = 0
+    for name in raw_names:
+        res = await prereq_col.update_one({"name": name}, {"$set": {"name": name}}, upsert=True)
+        if res.upserted_id is not None:
+            added += 1
+
+    await log_activity(
+        user_id=admin.get("sub", "admin"),
+        user_name="Super Admin",
+        role="super_admin",
+        action_type="settings",
+        details=f"Added {len(raw_names)} skill/eligibility tag(s) to catalog",
+    )
+    return {"message": f"Added {added} new item(s) to catalog", "added": added}
+
+
+@router.delete("/skills/{skill_id}")
+async def delete_skill_from_catalog(skill_id: str, admin=Depends(get_current_admin)):
+    db = get_database()
+    await db["prerequisites"].delete_one({"_id": ObjectId(skill_id)})
+    return {"message": "Skill removed from catalog"}
+
+
+# =====================================================================
+# 4. PLATFORM GOVERNANCE & POLICY CONTROLS
+# =====================================================================
+
+class PlatformControlsRequest(BaseModel):
+    allow_student_registration: bool = True
+    allow_college_registration: bool = True
+    allow_company_registration: bool = True
+    require_company_approval: bool = True
+    require_student_college_approval: bool = True
+    max_active_applications_per_student: int = 0  # 0 = unlimited
+    maintenance_mode: bool = False
+    maintenance_message: str = "CampusConnect is undergoing scheduled maintenance. Please check back shortly."
+
+
+DEFAULT_PLATFORM_CONTROLS = PlatformControlsRequest().model_dump()
+
+
+@router.get("/controls")
+async def get_platform_controls():
+    db = get_database()
+    doc = await db["settings"].find_one({"type": "platform_controls"})
+    if doc:
+        doc.pop("_id", None)
+        if "updated_at" in doc and doc["updated_at"]:
+            doc["updated_at"] = _safe_iso(doc["updated_at"])
+        return {**DEFAULT_PLATFORM_CONTROLS, **doc}
+    return {**DEFAULT_PLATFORM_CONTROLS, "updated_at": ""}
+
+
+@router.put("/controls")
+async def update_platform_controls(req: PlatformControlsRequest, admin=Depends(get_current_admin)):
+    if req.max_active_applications_per_student < 0:
+        raise HTTPException(status_code=400, detail="Application limit cannot be negative")
+
+    db = get_database()
+    data = req.model_dump()
+    data["type"] = "platform_controls"
+    data["updated_at"] = datetime.utcnow()
+    await db["settings"].update_one(
+        {"type": "platform_controls"},
+        {"$set": data},
+        upsert=True,
+    )
+
+    await log_activity(
+        user_id=admin.get("sub", "admin"),
+        user_name="Super Admin",
+        role="super_admin",
+        action_type="governance",
+        details="Updated platform governance & registration policy controls",
+    )
+    data["updated_at"] = data["updated_at"].isoformat()
+    return {"message": "Platform governance controls saved", "controls": data}

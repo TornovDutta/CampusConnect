@@ -20,6 +20,7 @@ import {
   ArrowRight,
   Radio,
   Sparkles,
+  Sliders,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -359,16 +360,22 @@ export default function AdminDashboard() {
             <Megaphone size={15} /> Send Notification
           </button>
           <button
+            onClick={() => navigate('/dashboard/admin/users')}
+            className="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-brand-400 hover:text-brand-700 rounded-xl flex items-center gap-1.5"
+          >
+            <Users size={15} /> Users
+          </button>
+          <button
             onClick={() => navigate('/dashboard/admin/analytics')}
             className="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-brand-400 hover:text-brand-700 rounded-xl flex items-center gap-1.5"
           >
             <BarChart3 size={15} /> Full Analytics
           </button>
           <button
-            onClick={() => navigate('/dashboard/admin/jobs')}
+            onClick={() => navigate('/dashboard/admin/controls')}
             className="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-brand-400 hover:text-brand-700 rounded-xl flex items-center gap-1.5"
           >
-            <Briefcase size={15} /> Moderate Jobs
+            <Sliders size={15} /> Controls
           </button>
           <button
             onClick={() => navigate('/dashboard/admin/issues')}
@@ -385,7 +392,7 @@ export default function AdminDashboard() {
 
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <div className="card p-5 flex items-center gap-3.5 hover:-translate-y-0.5 transition-transform">
+        <div className="card p-5 flex items-center gap-3.5 hover:-translate-y-0.5 transition-transform cursor-pointer" onClick={() => navigate('/dashboard/admin/users')}>
           <div className="p-3 bg-brand-50 text-brand-600 rounded-xl shrink-0">
             <Users size={22} />
           </div>
@@ -431,7 +438,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="card p-5 flex items-center gap-3.5 hover:-translate-y-0.5 transition-transform cursor-pointer" onClick={() => navigate('/dashboard/admin/analytics')}>
+        <div className="card p-5 flex items-center gap-3.5 hover:-translate-y-0.5 transition-transform cursor-pointer" onClick={() => navigate('/dashboard/admin/placements')}>
           <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
             <CheckCircle2 size={22} />
           </div>
