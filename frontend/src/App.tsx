@@ -13,11 +13,16 @@ import AdminUsers from './pages/dashboards/AdminUsers';
 import AdminPlacements from './pages/dashboards/AdminPlacements';
 import AdminSkills from './pages/dashboards/AdminSkills';
 import AdminControls from './pages/dashboards/AdminControls';
+import AdminCollegeDesk from './pages/dashboards/AdminCollegeDesk';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
 import CollegeStudentsList from './pages/dashboards/CollegeStudentsList';
 import CollegeStudentProfile from './pages/dashboards/CollegeStudentProfile';
 import CollegeSelectedJobs from './pages/dashboards/CollegeSelectedJobs';
+import CollegeAnalytics from './pages/dashboards/CollegeAnalytics';
+import CollegeJobControl from './pages/dashboards/CollegeJobControl';
+import CollegeNotifications from './pages/dashboards/CollegeNotifications';
+import CollegeAdminHub from './pages/dashboards/CollegeAdminHub';
 import CompanyDashboard from './pages/dashboards/CompanyDashboard';
 import CompanyJobs from './pages/dashboards/CompanyJobs';
 import CompanyApplicants from './pages/dashboards/CompanyApplicants';
@@ -67,13 +72,18 @@ function App() {
             <Route path="admin/notifications" element={<AdminNotifications />} />
             <Route path="admin/issues" element={<AdminIssues />} />
             <Route path="admin/controls" element={<AdminControls />} />
+            <Route path="admin/college-desk" element={<AdminCollegeDesk />} />
             <Route path="admin/activity" element={<UserActivity />} />
             <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />
             <Route path="college" element={<CollegeDashboard />} />
+            <Route path="college/analytics" element={<CollegeAnalytics />} />
             <Route path="college/students" element={<CollegeStudentsList />} />
             <Route path="college/students/:id" element={<CollegeStudentProfile />} />
+            <Route path="college/jobs" element={<CollegeJobControl />} />
             <Route path="college/selected-jobs" element={<CollegeSelectedJobs />} />
+            <Route path="college/notifications" element={<CollegeNotifications />} />
+            <Route path="college/admin-hub" element={<CollegeAdminHub />} />
             <Route path="company" element={<CompanyDashboard />} />
             <Route path="company/jobs" element={<CompanyJobs />} />
             <Route path="company/applicants" element={<CompanyApplicants />} />

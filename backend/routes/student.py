@@ -66,13 +66,28 @@ async def get_student_dashboard(student=Depends(get_current_student)):
                 {"visibility": "requested_college", "target_colleges": college_id}
             ]
         }
-        jobs_cursor = db["jobs"].find(query).sort("created_at", -1).limit(20)
+        # Load college-specific job eligibility rules if student belongs to a college
+        college_rules_map = {}
+        if college_id:
+            async for rule in db["college_job_rules"].find({"college_id": college_id}):
+                college_rules_map[rule["job_id"]] = rule
+
+        from routes.college import _student_matches_rule
+
+        jobs_cursor = db["jobs"].find(query).sort("created_at", -1).limit(30)
         async for job in jobs_cursor:
-            job["_id"] = str(job["_id"])
-            job["id"] = str(job["_id"])
+            jid = str(job["_id"])
+            rule = college_rules_map.get(jid)
+            if rule and rule.get("is_open", True) is False:
+                continue
+            is_eligible, reason = _student_matches_rule(user, rule)
+            job["_id"] = jid
+            job["id"] = jid
             if "created_at" in job and job["created_at"]:
                 job["created_at"] = job["created_at"].isoformat() if hasattr(job["created_at"], "isoformat") else str(job["created_at"])
-            job["has_applied"] = str(job["_id"]) in applied_job_ids
+            job["has_applied"] = jid in applied_job_ids
+            job["college_eligible"] = is_eligible
+            job["eligibility_reason"] = reason
             recommended_jobs.append(job)
 
     return {
@@ -106,6 +121,18 @@ async def apply_job(job_id: str, student=Depends(get_current_student)):
         target_colleges = job.get("target_colleges", [])
         if user.get("college_id") not in target_colleges:
             raise HTTPException(status_code=403, detail="This job opportunity is restricted to students of specific invited colleges.")
+
+    # Enforce college-configured eligibility rules (CGPA, batch, branch, backlogs, specific students)
+    if user.get("college_id"):
+        college_rule = await db["college_job_rules"].find_one({
+            "college_id": user.get("college_id"),
+            "job_id": job_id,
+        })
+        if college_rule:
+            from routes.college import _student_matches_rule
+            is_eligible, reason = _student_matches_rule(user, college_rule)
+            if not is_eligible:
+                raise HTTPException(status_code=403, detail=reason or "You do not meet your college's eligibility criteria for this drive.")
             
     existing_app = await db["applications"].find_one({"job_id": job_id, "student_id": student_id})
     if existing_app:

@@ -20,6 +20,8 @@ import {
   Sparkles,
   Tag,
   Sliders,
+  MessageSquare,
+  SlidersHorizontal,
   X
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
@@ -196,6 +198,20 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                   </NavLink>
 
                   <NavLink 
+                    to="/dashboard/admin/college-desk" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <MessageSquare size={18} />
+                    <span className="font-medium text-sm">College Desk & Msg</span>
+                  </NavLink>
+
+                  <NavLink 
                     to="/dashboard/admin/issues" 
                     className={({ isActive }) => 
                       `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
@@ -251,6 +267,20 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                 {user.role === 'college' && (
                   <>
                     <NavLink 
+                      to="/dashboard/college/analytics" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <BarChart3 size={18} />
+                      <span className="font-medium text-sm">Progress & Lag</span>
+                    </NavLink>
+
+                    <NavLink 
                       to="/dashboard/college/students" 
                       className={({ isActive }) => 
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
@@ -261,7 +291,21 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                       }
                     >
                       <Users size={18} />
-                      <span className="font-medium text-sm">Students List</span>
+                      <span className="font-medium text-sm">Students & Excel</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/college/jobs" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <SlidersHorizontal size={18} />
+                      <span className="font-medium text-sm">Job Eligibility</span>
                     </NavLink>
                     
                     <NavLink 
@@ -276,6 +320,34 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                     >
                       <Award size={18} />
                       <span className="font-medium text-sm">Selected Jobs</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/college/notifications" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Megaphone size={18} />
+                      <span className="font-medium text-sm">Notify Students</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/college/admin-hub" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <MessageSquare size={18} />
+                      <span className="font-medium text-sm">Admin Msg & Reports</span>
                     </NavLink>
                   </>
                 )}

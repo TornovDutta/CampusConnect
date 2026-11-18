@@ -1576,3 +1576,201 @@ async def update_platform_controls(req: PlatformControlsRequest, admin=Depends(g
     )
     data["updated_at"] = data["updated_at"].isoformat()
     return {"message": "Platform governance controls saved", "controls": data}
+
+
+# =====================================================================
+# 5. COLLEGE REPORTS REVIEW & ADMIN <-> COLLEGE DIRECT MESSAGING
+# =====================================================================
+
+class CollegeReportReviewRequest(BaseModel):
+    status: str  # "submitted" | "under_review" | "resolved"
+    admin_response: Optional[str] = None
+
+
+class AdminToCollegeMessageRequest(BaseModel):
+    message: str
+
+
+@router.get("/college-reports")
+async def get_all_college_reports(
+    status_filter: Optional[str] = Query(None, alias="status"),
+    admin=Depends(get_current_admin),
+):
+    db = get_database()
+    query: dict = {}
+    if status_filter and status_filter != "all":
+        query["status"] = status_filter
+
+    cursor = db["college_reports"].find(query).sort("created_at", -1).limit(100)
+    reports = []
+    async for r in cursor:
+        reports.append({
+            "id": str(r["_id"]),
+            "college_id": r.get("college_id", ""),
+            "college_name": r.get("college_name", "College"),
+            "college_email": r.get("college_email", ""),
+            "title": r.get("title", ""),
+            "category": r.get("category", "general"),
+            "priority": r.get("priority", "normal"),
+            "description": r.get("description", ""),
+            "stats_snapshot": r.get("stats_snapshot"),
+            "status": r.get("status", "submitted"),
+            "admin_response": r.get("admin_response", ""),
+            "created_at": _safe_iso(r.get("created_at")),
+            "updated_at": _safe_iso(r.get("updated_at")),
+        })
+
+    summary = {
+        "total": await db["college_reports"].count_documents({}),
+        "submitted": await db["college_reports"].count_documents({"status": "submitted"}),
+        "under_review": await db["college_reports"].count_documents({"status": "under_review"}),
+        "resolved": await db["college_reports"].count_documents({"status": "resolved"}),
+    }
+    return {"summary": summary, "reports": reports}
+
+
+@router.patch("/college-reports/{report_id}")
+async def review_college_report(
+    report_id: str,
+    req: CollegeReportReviewRequest,
+    admin=Depends(get_current_admin),
+):
+    if req.status not in ("submitted", "under_review", "resolved"):
+        raise HTTPException(status_code=400, detail="Invalid report status")
+
+    db = get_database()
+    report = await db["college_reports"].find_one({"_id": ObjectId(report_id)})
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    update_fields: dict = {"status": req.status, "updated_at": datetime.utcnow()}
+    if req.admin_response is not None:
+        update_fields["admin_response"] = req.admin_response.strip()
+
+    await db["college_reports"].update_one({"_id": ObjectId(report_id)}, {"$set": update_fields})
+
+    # Notify the college
+    if report.get("college_id"):
+        try:
+            await db["notifications"].insert_one({
+                "recipient_id": report["college_id"],
+                "title": f"Admin Updated Your Report: {report.get('title', 'Report')}",
+                "message": (
+                    f"Status: {req.status.replace('_', ' ').title()}."
+                    + (f" Response: {req.admin_response.strip()}" if req.admin_response and req.admin_response.strip() else "")
+                ),
+                "type": "update",
+                "priority": "high",
+                "sent_by_admin": True,
+                "sender_name": "Super Admin",
+                "read_by": [],
+                "dismissed_by": [],
+                "is_read": False,
+                "created_at": datetime.utcnow(),
+            })
+        except Exception:
+            pass
+
+    return {"message": "Report updated"}
+
+
+@router.get("/college-messages")
+async def get_college_message_threads(admin=Depends(get_current_admin)):
+    db = get_database()
+    colleges = []
+    async for c in db["users"].find({"role": "college"}, {"name": 1, "email": 1}).sort("name", 1):
+        cid = str(c["_id"])
+        last_msg = await db["admin_college_messages"].find_one(
+            {"college_id": cid}, sort=[("created_at", -1)]
+        )
+        unread = await db["admin_college_messages"].count_documents({
+            "college_id": cid, "sender_role": "college", "read_by_admin": {"$ne": True}
+        })
+        colleges.append({
+            "college_id": cid,
+            "college_name": c.get("name") or c.get("email") or "College",
+            "college_email": c.get("email", ""),
+            "unread_count": unread,
+            "last_message": last_msg.get("message", "") if last_msg else "",
+            "last_sender": last_msg.get("sender_role", "") if last_msg else "",
+            "last_at": _safe_iso(last_msg.get("created_at")) if last_msg else "",
+        })
+
+    colleges.sort(key=lambda x: (x["unread_count"] > 0, x["last_at"]), reverse=True)
+    return colleges
+
+
+@router.get("/college-messages/{college_id}")
+async def get_messages_for_college(college_id: str, admin=Depends(get_current_admin)):
+    db = get_database()
+    await db["admin_college_messages"].update_many(
+        {"college_id": college_id, "sender_role": "college", "read_by_admin": {"$ne": True}},
+        {"$set": {"read_by_admin": True}},
+    )
+    cursor = db["admin_college_messages"].find({"college_id": college_id}).sort("created_at", 1).limit(100)
+    messages = []
+    async for m in cursor:
+        messages.append({
+            "id": str(m["_id"]),
+            "sender_role": m.get("sender_role", "college"),
+            "sender_name": m.get("sender_name", ""),
+            "message": m.get("message", ""),
+            "created_at": _safe_iso(m.get("created_at")),
+        })
+    return messages
+
+
+@router.post("/college-messages/{college_id}")
+async def send_admin_message_to_college(
+    college_id: str,
+    req: AdminToCollegeMessageRequest,
+    admin=Depends(get_current_admin),
+):
+    text = req.message.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    db = get_database()
+    college_doc = await db["users"].find_one({"_id": ObjectId(college_id), "role": "college"})
+    if not college_doc:
+        raise HTTPException(status_code=404, detail="College not found")
+
+    now = datetime.utcnow()
+    msg_doc = {
+        "college_id": college_id,
+        "college_name": college_doc.get("name") or college_doc.get("email"),
+        "sender_role": "super_admin",
+        "sender_id": admin.get("sub", "admin"),
+        "sender_name": "Super Admin",
+        "message": text,
+        "read_by_admin": True,
+        "read_by_college": False,
+        "created_at": now,
+    }
+    res = await db["admin_college_messages"].insert_one(msg_doc)
+
+    # Notify college bell too
+    try:
+        await db["notifications"].insert_one({
+            "recipient_id": college_id,
+            "title": "New Direct Message from Super Admin",
+            "message": text[:160],
+            "type": "announcement",
+            "priority": "high",
+            "sent_by_admin": True,
+            "sender_name": "Super Admin",
+            "read_by": [],
+            "dismissed_by": [],
+            "is_read": False,
+            "created_at": now,
+        })
+    except Exception:
+        pass
+
+    return {
+        "id": str(res.inserted_id),
+        "sender_role": "super_admin",
+        "sender_name": "Super Admin",
+        "message": text,
+        "created_at": now.isoformat(),
+    }

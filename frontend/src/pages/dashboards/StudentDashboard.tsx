@@ -273,6 +273,12 @@ export default function StudentDashboard() {
               </div>
             </div>
 
+            {selectedJob.college_eligible === false && (
+              <div className="mb-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium">
+                <strong>Not Eligible:</strong> {selectedJob.eligibility_reason || 'This drive is restricted by your college placement cell.'}
+              </div>
+            )}
+
             <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
               <button 
                 onClick={() => setSelectedJob(null)}
@@ -283,6 +289,10 @@ export default function StudentDashboard() {
               {selectedJob.has_applied ? (
                 <button disabled className="px-6 py-2 bg-green-100 text-green-700 font-bold rounded-xl flex items-center gap-2 cursor-not-allowed">
                   <Check size={18} /> Already Applied
+                </button>
+              ) : selectedJob.college_eligible === false ? (
+                <button disabled className="px-6 py-2 bg-slate-100 text-slate-400 font-bold rounded-xl cursor-not-allowed">
+                  Restricted by College Criteria
                 </button>
               ) : selectedJob.apply_type === 'external_link' ? (
                 <a 
