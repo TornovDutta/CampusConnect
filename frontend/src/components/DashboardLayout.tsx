@@ -22,7 +22,11 @@ import {
   Sliders,
   MessageSquare,
   SlidersHorizontal,
-  X
+  X,
+  Video,
+  FileText,
+  Calendar,
+  Bell
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import { api } from '../services/api';
@@ -255,6 +259,100 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                 </div>
               </div>
             </>
+          )}
+
+          {/* Student Placement Services Section */}
+          {user.role === 'student' && (
+            <div className="mb-6">
+              <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+                Placement Services
+              </h3>
+              <div className="space-y-1">
+                <NavLink 
+                  to="/dashboard/student/applications" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`
+                  }
+                >
+                  <Briefcase size={18} />
+                  <span className="font-medium text-sm">My Applications</span>
+                </NavLink>
+
+                <NavLink 
+                  to="/dashboard/student/interviews" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`
+                  }
+                >
+                  <Video size={18} />
+                  <span className="font-medium text-sm">Interview Center</span>
+                </NavLink>
+
+                <NavLink 
+                  to="/dashboard/student/resume" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`
+                  }
+                >
+                  <FileText size={18} />
+                  <span className="font-medium text-sm">Resume & ATS</span>
+                </NavLink>
+
+                <NavLink 
+                  to="/dashboard/student/calendar" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`
+                  }
+                >
+                  <Calendar size={18} />
+                  <span className="font-medium text-sm">Placement Calendar</span>
+                </NavLink>
+
+                <NavLink 
+                  to="/dashboard/student/messages" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`
+                  }
+                >
+                  <MessageSquare size={18} />
+                  <span className="font-medium text-sm">Message College</span>
+                </NavLink>
+
+                <NavLink 
+                  to="/dashboard/student/notifications" 
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                      isActive 
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`
+                  }
+                >
+                  <Bell size={18} />
+                  <span className="font-medium text-sm">Notifications</span>
+                </NavLink>
+              </div>
+            </div>
           )}
 
           {/* Role-Specific Sections */}

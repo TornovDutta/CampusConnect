@@ -15,6 +15,12 @@ import AdminSkills from './pages/dashboards/AdminSkills';
 import AdminControls from './pages/dashboards/AdminControls';
 import AdminCollegeDesk from './pages/dashboards/AdminCollegeDesk';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
+import StudentApplications from './pages/dashboards/StudentApplications';
+import StudentInterviews from './pages/dashboards/StudentInterviews';
+import StudentResume from './pages/dashboards/StudentResume';
+import StudentCalendar from './pages/dashboards/StudentCalendar';
+import StudentMessages from './pages/dashboards/StudentMessages';
+import StudentNotifications from './pages/dashboards/StudentNotifications';
 import CollegeDashboard from './pages/dashboards/CollegeDashboard';
 import CollegeStudentsList from './pages/dashboards/CollegeStudentsList';
 import CollegeStudentProfile from './pages/dashboards/CollegeStudentProfile';
@@ -76,6 +82,12 @@ function App() {
             <Route path="admin/activity" element={<UserActivity />} />
             <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />
+            <Route path="student/applications" element={<StudentApplications />} />
+            <Route path="student/interviews" element={<StudentInterviews />} />
+            <Route path="student/resume" element={<StudentResume />} />
+            <Route path="student/calendar" element={<StudentCalendar />} />
+            <Route path="student/messages" element={<StudentMessages />} />
+            <Route path="student/notifications" element={<StudentNotifications />} />
             <Route path="college" element={<CollegeDashboard />} />
             <Route path="college/analytics" element={<CollegeAnalytics />} />
             <Route path="college/students" element={<CollegeStudentsList />} />

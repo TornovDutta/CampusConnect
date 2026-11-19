@@ -338,17 +338,89 @@ async def get_all_applications(company=Depends(get_current_company)):
 
 class UpdateStatusRequest(BaseModel):
     status: str
+    interview_date: Optional[str] = None
+    interview_time: Optional[str] = None
+    interview_link: Optional[str] = None
+    interview_mode: Optional[str] = None
+    interview_instructions: Optional[str] = None
+    feedback: Optional[str] = None
 
 @router.patch("/applications/{application_id}/status")
 async def update_application_status(application_id: str, status_in: UpdateStatusRequest, company=Depends(get_current_company)):
     db = get_database()
     company_id = company.get("sub")
     
+    app = await db["applications"].find_one({"_id": ObjectId(application_id), "company_id": company_id})
+    if not app:
+        raise HTTPException(status_code=404, detail="Application not found or unauthorized")
+        
+    now = datetime.utcnow()
+    update_data: dict = {
+        "status": status_in.status,
+        "updated_at": now
+    }
+    
+    if status_in.interview_date is not None:
+        update_data["interview_date"] = status_in.interview_date
+    if status_in.interview_time is not None:
+        update_data["interview_time"] = status_in.interview_time
+    if status_in.interview_link is not None:
+        update_data["interview_link"] = status_in.interview_link
+    if status_in.interview_mode is not None:
+        update_data["interview_mode"] = status_in.interview_mode
+    if status_in.interview_instructions is not None:
+        update_data["interview_instructions"] = status_in.interview_instructions
+    if status_in.feedback is not None:
+        update_data["feedback"] = status_in.feedback
+
+    timeline_entry = {
+        "status": status_in.status,
+        "title": f"Status updated to {status_in.status}",
+        "description": status_in.feedback or f"Candidate application status progressed to {status_in.status}.",
+        "interview_date": status_in.interview_date,
+        "interview_time": status_in.interview_time,
+        "interview_link": status_in.interview_link,
+        "timestamp": now.isoformat()
+    }
+    
     result = await db["applications"].update_one(
         {"_id": ObjectId(application_id), "company_id": company_id},
-        {"$set": {"status": status_in.status}}
+        {
+            "$set": update_data,
+            "$push": {"timeline": timeline_entry}
+        }
     )
     if result.modified_count == 0:
-        raise HTTPException(status_code=404, detail="Application not found or unauthorized")
+        raise HTTPException(status_code=404, detail="Application update failed")
+
+    # Send direct notification to candidate
+    student_id = app.get("student_id")
+    if student_id:
+        notif_title = f"Application Update: {app.get('job_title', 'Job')}"
+        notif_msg = f"Your application for {app.get('job_title')} at {app.get('company_name', 'Company')} has been updated to '{status_in.status}'."
+        if status_in.status.lower() in ["interview scheduled", "interview"]:
+            notif_title = f"Interview Scheduled: {app.get('job_title')}"
+            notif_msg = f"An interview has been scheduled on {status_in.interview_date or 'TBD'} at {status_in.interview_time or 'TBD'}. Mode: {status_in.interview_mode or 'Online'}."
+        elif status_in.status.lower() in ["offer sent", "selected", "hired"]:
+            notif_title = f"Job Offer: {app.get('job_title')}"
+            notif_msg = f"Congratulations! {app.get('company_name', 'Company')} has extended an offer for {app.get('job_title')}!"
+
+        try:
+            await db["notifications"].insert_one({
+                "recipient_id": student_id,
+                "title": notif_title,
+                "message": notif_msg,
+                "type": "application",
+                "priority": "high",
+                "job_id": app.get("job_id"),
+                "application_id": str(app["_id"]),
+                "read_by": [],
+                "dismissed_by": [],
+                "is_read": False,
+                "created_at": now
+            })
+        except Exception:
+            pass
+
     return {"message": "Status updated successfully"}
 

@@ -1557,3 +1557,146 @@ async def send_message_to_admin(req: CollegeMessageRequest, college=Depends(get_
         "message": text,
         "created_at": now.isoformat(),
     }
+
+
+# =====================================================================
+# DIRECT MESSAGING: COLLEGE <-> STUDENT
+# =====================================================================
+
+@router.get("/student-threads")
+async def get_college_student_threads(college=Depends(get_current_college)):
+    db = get_database()
+    college_id = college["sub"]
+
+    # Aggregate latest message and unread count per student
+    pipeline = [
+        {"$match": {"college_id": college_id}},
+        {"$sort": {"created_at": -1}},
+        {
+            "$group": {
+                "_id": "$student_id",
+                "student_name": {"$first": "$student_name"},
+                "student_email": {"$first": "$student_email"},
+                "last_message": {"$first": "$message"},
+                "last_message_time": {"$first": "$created_at"},
+                "last_sender_role": {"$first": "$sender_role"},
+                "unread_count": {
+                    "$sum": {
+                        "$cond": [
+                            {"$and": [{"$eq": ["$sender_role", "student"]}, {"$ne": ["$read_by_college", True]}]},
+                            1,
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        {"$sort": {"last_message_time": -1}}
+    ]
+
+    threads = []
+    async for doc in db["college_student_messages"].aggregate(pipeline):
+        student_id = doc["_id"]
+        # Fetch branch / roll number
+        user_info = await db["users"].find_one({"_id": ObjectId(student_id)}, {"roll_number": 1, "branch": 1, "batch": 1, "cgpa": 1}) or {}
+        threads.append({
+            "student_id": student_id,
+            "student_name": doc.get("student_name") or "Student",
+            "student_email": doc.get("student_email") or "",
+            "roll_number": user_info.get("roll_number", ""),
+            "branch": user_info.get("branch", ""),
+            "batch": user_info.get("batch", ""),
+            "cgpa": user_info.get("cgpa"),
+            "last_message": doc.get("last_message", ""),
+            "last_message_time": _safe_iso(doc.get("last_message_time")),
+            "last_sender_role": doc.get("last_sender_role", "student"),
+            "unread_count": doc.get("unread_count", 0),
+        })
+
+    return threads
+
+
+@router.get("/student-messages/{student_id}")
+async def get_college_student_messages(student_id: str, college=Depends(get_current_college)):
+    db = get_database()
+    college_id = college["sub"]
+
+    # Mark student's messages as read by college
+    await db["college_student_messages"].update_many(
+        {"college_id": college_id, "student_id": student_id, "sender_role": "student", "read_by_college": {"$ne": True}},
+        {"$set": {"read_by_college": True}},
+    )
+
+    cursor = db["college_student_messages"].find(
+        {"college_id": college_id, "student_id": student_id}
+    ).sort("created_at", 1).limit(200)
+
+    messages = []
+    async for m in cursor:
+        messages.append({
+            "id": str(m["_id"]),
+            "sender_role": m.get("sender_role", "college"),
+            "sender_name": m.get("sender_name", ""),
+            "message": m.get("message", ""),
+            "category": m.get("category", "general"),
+            "created_at": _safe_iso(m.get("created_at")),
+        })
+    return messages
+
+
+@router.post("/student-messages/{student_id}")
+async def send_message_to_student(student_id: str, req: CollegeMessageRequest, college=Depends(get_current_college)):
+    text = req.message.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    db = get_database()
+    college_id = college["sub"]
+    college_doc = await db["users"].find_one({"_id": ObjectId(college_id)}, {"name": 1, "email": 1})
+    college_name = (college_doc.get("name") if college_doc else None) or "Placement Cell"
+
+    student_doc = await db["users"].find_one({"_id": ObjectId(student_id), "college_id": college_id})
+    if not student_doc:
+        raise HTTPException(status_code=404, detail="Student not found in your college")
+
+    now = datetime.utcnow()
+    msg_doc = {
+        "college_id": college_id,
+        "college_name": college_name,
+        "student_id": student_id,
+        "student_name": student_doc.get("name", "Student"),
+        "student_email": student_doc.get("email", ""),
+        "sender_role": "college",
+        "sender_id": college_id,
+        "sender_name": college_name,
+        "message": text,
+        "read_by_student": False,
+        "read_by_college": True,
+        "created_at": now,
+    }
+    res = await db["college_student_messages"].insert_one(msg_doc)
+
+    # Notify student directly
+    try:
+        await db["notifications"].insert_one({
+            "recipient_id": student_id,
+            "title": f"Message from Placement Cell ({college_name})",
+            "message": text[:160],
+            "type": "college_message",
+            "priority": "normal",
+            "sender_name": college_name,
+            "read_by": [],
+            "dismissed_by": [],
+            "is_read": False,
+            "created_at": now,
+        })
+    except Exception:
+        pass
+
+    return {
+        "id": str(res.inserted_id),
+        "sender_role": "college",
+        "sender_name": college_name,
+        "message": text,
+        "created_at": now.isoformat(),
+    }

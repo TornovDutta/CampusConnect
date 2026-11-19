@@ -10,18 +10,26 @@ import {
   Clock,
   ShieldCheck,
   AlertTriangle,
+  Users,
+  Search,
 } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function CollegeAdminHub() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') === 'reports' ? 'reports' : 'messages';
-  const [activeTab, setActiveTab] = useState<'messages' | 'reports'>(initialTab);
+  const initialTab = searchParams.get('tab') === 'reports' ? 'reports' : searchParams.get('tab') === 'students' ? 'students' : 'messages';
+  const [activeTab, setActiveTab] = useState<'messages' | 'reports' | 'students'>(initialTab);
 
   // Messaging state
   const [msgText, setMsgText] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Student chat state
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [studentReplyText, setStudentReplyText] = useState('');
+  const [studentSearch, setStudentSearch] = useState('');
+  const studentChatEndRef = useRef<HTMLDivElement>(null);
 
   // Report state
   const [reportTitle, setReportTitle] = useState('');
@@ -54,11 +62,54 @@ export default function CollegeAdminHub() {
     },
   });
 
+  // Student threads & chat query
+  const { data: studentThreads = [], isLoading: loadingThreads } = useQuery({
+    queryKey: ['collegeStudentThreads'],
+    queryFn: async () => {
+      const res = await api.get('/college/student-threads');
+      return res.data as any[];
+    },
+    refetchInterval: 8000,
+  });
+
+  const { data: studentMessages = [], isLoading: loadingStudentMsgs } = useQuery({
+    queryKey: ['collegeStudentMessages', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return [];
+      const res = await api.get(`/college/student-messages/${selectedStudentId}`);
+      return res.data as any[];
+    },
+    enabled: !!selectedStudentId,
+    refetchInterval: 5000,
+  });
+
   useEffect(() => {
     if (activeTab === 'messages') {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else if (activeTab === 'students') {
+      studentChatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length, activeTab]);
+  }, [messages.length, studentMessages.length, activeTab]);
+
+  const replyStudentMutation = useMutation({
+    mutationFn: async ({ studentId, message }: { studentId: string; message: string }) => {
+      await api.post(`/college/student-messages/${studentId}`, { message });
+    },
+    onSuccess: () => {
+      setStudentReplyText('');
+      queryClient.invalidateQueries({ queryKey: ['collegeStudentMessages', selectedStudentId] });
+      queryClient.invalidateQueries({ queryKey: ['collegeStudentThreads'] });
+    },
+    onError: (err: any) => {
+      alert(err.response?.data?.detail || 'Failed to send reply');
+    }
+  });
+
+  const handleReplyStudent = (e: FormEvent) => {
+    e.preventDefault();
+    if (!studentReplyText.trim() || !selectedStudentId) return;
+    replyStudentMutation.mutate({ studentId: selectedStudentId, message: studentReplyText });
+  };
 
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
@@ -142,9 +193,22 @@ export default function CollegeAdminHub() {
         >
           <FileBarChart2 size={16} /> Reports to Admin ({reports.length})
         </button>
+        <button
+          onClick={() => setActiveTab('students')}
+          className={`py-3 px-4 border-b-2 text-sm font-semibold inline-flex items-center gap-2 transition-colors ${
+            activeTab === 'students'
+              ? 'border-brand-500 text-brand-600'
+              : 'border-transparent text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <Users size={16} /> Student Inquiries Desk
+          {studentThreads.some((t: any) => t.unread_count > 0) && (
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+          )}
+        </button>
       </div>
 
-      {activeTab === 'messages' ? (
+      {activeTab === 'messages' && (
         <div className="card flex flex-col h-[560px] overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
             <div>
@@ -212,7 +276,9 @@ export default function CollegeAdminHub() {
             </button>
           </form>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'reports' && (
         <div className="space-y-6">
           {/* Submit New Report */}
           <div className="card p-6">
@@ -355,6 +421,191 @@ export default function CollegeAdminHub() {
                 ))
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: STUDENT INQUIRIES DESK */}
+      {activeTab === 'students' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left: Student Threads List */}
+          <div className="card flex flex-col h-[600px] overflow-hidden">
+            <div className="p-4 border-b border-slate-100 bg-slate-50/70 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-slate-800 text-sm">Student Inquiries</h3>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">
+                  {studentThreads.length} Thread(s)
+                </span>
+              </div>
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Filter student by name or branch..."
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+              {loadingThreads ? (
+                <div className="p-8 text-center text-slate-400">
+                  <Loader2 className="animate-spin text-brand-600 mx-auto mb-2" size={24} />
+                  Loading threads...
+                </div>
+              ) : studentThreads.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 text-xs">
+                  No students have sent messages to the placement desk yet.
+                </div>
+              ) : (
+                studentThreads
+                  .filter((st: any) => {
+                    if (!studentSearch.trim()) return true;
+                    const q = studentSearch.toLowerCase();
+                    return (
+                      (st.student_name || '').toLowerCase().includes(q) ||
+                      (st.branch || '').toLowerCase().includes(q) ||
+                      (st.roll_number || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .map((st: any) => {
+                    const isSelected = selectedStudentId === st.student_id;
+                    return (
+                      <button
+                        key={st.student_id}
+                        onClick={() => setSelectedStudentId(st.student_id)}
+                        className={`w-full text-left p-3.5 transition-colors flex items-start justify-between gap-2 ${
+                          isSelected
+                            ? 'bg-brand-50/60 border-l-4 border-brand-600'
+                            : 'hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-xs text-slate-800 truncate">{st.student_name}</span>
+                            {st.unread_count > 0 && (
+                              <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[9px] font-bold">
+                                {st.unread_count}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-500">
+                            {st.branch || 'Student'} {st.batch ? `• ${st.batch}` : ''} {st.cgpa ? `(CGPA ${st.cgpa})` : ''}
+                          </p>
+                          <p className="text-[11px] text-slate-600 truncate mt-1 italic">
+                            "{st.last_message}"
+                          </p>
+                        </div>
+                        <span className="text-[10px] text-slate-400 shrink-0">
+                          {st.last_message_time ? new Date(st.last_message_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                        </span>
+                      </button>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+
+          {/* Right: Selected Student Chat Thread */}
+          <div className="lg:col-span-2 card flex flex-col h-[600px] overflow-hidden">
+            {selectedStudentId ? (
+              <>
+                {/* Chat Header */}
+                <div className="p-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm">
+                      {studentThreads.find((t: any) => t.student_id === selectedStudentId)?.student_name || 'Student Chat'}
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      {studentThreads.find((t: any) => t.student_id === selectedStudentId)?.student_email} • Roll: {studentThreads.find((t: any) => t.student_id === selectedStudentId)?.roll_number || 'N/A'}
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                    Live Channel
+                  </span>
+                </div>
+
+                {/* Messages Body */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-slate-50/30">
+                  {loadingStudentMsgs ? (
+                    <div className="h-full flex items-center justify-center">
+                      <Loader2 className="animate-spin text-brand-500" size={24} />
+                    </div>
+                  ) : studentMessages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center text-slate-400 text-xs">
+                      No messages in this thread yet. Send a message below!
+                    </div>
+                  ) : (
+                    studentMessages.map((m: any) => {
+                      const isCollege = m.sender_role === 'college';
+                      return (
+                        <div
+                          key={m.id}
+                          className={`flex flex-col ${isCollege ? 'items-end' : 'items-start'}`}
+                        >
+                          <div className="flex items-center gap-1.5 mb-1 px-1">
+                            <span className="text-[11px] font-semibold text-slate-400">
+                              {isCollege ? 'Placement Desk (You)' : m.sender_name || 'Student'}
+                            </span>
+                            {m.category && m.category !== 'general' && (
+                              <span className="text-[9px] uppercase font-bold px-1.5 py-0.2 bg-slate-200/70 text-slate-600 rounded">
+                                {m.category.replace('_', ' ')}
+                              </span>
+                            )}
+                          </div>
+                          <div
+                            className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm shadow-sm leading-relaxed ${
+                              isCollege
+                                ? 'bg-brand-600 text-white rounded-br-none'
+                                : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none'
+                            }`}
+                          >
+                            <p className="whitespace-pre-wrap">{m.message}</p>
+                            <span
+                              className={`text-[10px] block mt-1 text-right ${
+                                isCollege ? 'text-brand-100' : 'text-slate-400'
+                              }`}
+                            >
+                              {m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                  <div ref={studentChatEndRef} />
+                </div>
+
+                {/* Reply Form */}
+                <form onSubmit={handleReplyStudent} className="p-4 border-t border-slate-200 bg-white flex gap-2.5">
+                  <input
+                    type="text"
+                    value={studentReplyText}
+                    onChange={(e) => setStudentReplyText(e.target.value)}
+                    placeholder="Reply to student regarding drive eligibility, resume approval, etc..."
+                    className="flex-1 px-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={replyStudentMutation.isPending || !studentReplyText.trim()}
+                    className="btn-primary px-5 py-2 flex items-center gap-2 text-sm disabled:opacity-50"
+                  >
+                    {replyStudentMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={15} />}
+                    Reply
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 space-y-2">
+                <Users size={36} className="text-slate-300" />
+                <h4 className="font-bold text-slate-700 text-sm">Select a Student Inquiry</h4>
+                <p className="text-xs text-slate-500 max-w-sm">
+                  Click on any student from the left panel to review their inquiry and send an official placement desk response.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
