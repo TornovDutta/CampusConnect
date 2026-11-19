@@ -1025,6 +1025,103 @@ async def send_message_to_college(req: StudentCollegeMessageRequest, student=Dep
     }
 
 
+@router.get("/company-messages/{application_id}")
+async def get_student_company_messages(application_id: str, student=Depends(get_current_student)):
+    db = get_database()
+    student_id = student["sub"]
+
+    app = await db["applications"].find_one({"_id": ObjectId(application_id), "student_id": student_id})
+    if not app:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    # Mark recruiter messages as read by student
+    await db["company_student_messages"].update_many(
+        {"application_id": application_id, "sender_role": "company", "read_by_student": {"$ne": True}},
+        {"$set": {"read_by_student": True}}
+    )
+
+    cursor = db["company_student_messages"].find({"application_id": application_id}).sort("created_at", 1).limit(200)
+    messages = []
+    async for m in cursor:
+        messages.append({
+            "id": str(m["_id"]),
+            "sender_role": m.get("sender_role", "company"),
+            "sender_name": m.get("sender_name", ""),
+            "message": m.get("message", ""),
+            "created_at": _safe_iso(m.get("created_at")),
+        })
+
+    return {
+        "application_id": application_id,
+        "company_name": app.get("company_name", "Recruiter"),
+        "job_title": app.get("job_title", ""),
+        "messages": messages
+    }
+
+
+@router.post("/company-messages/{application_id}")
+async def send_message_to_company(application_id: str, req: StudentCollegeMessageRequest, student=Depends(get_current_student)):
+    text = req.message.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    db = get_database()
+    student_id = student["sub"]
+    user = await db["users"].find_one({"_id": ObjectId(student_id)})
+    app = await db["applications"].find_one({"_id": ObjectId(application_id), "student_id": student_id})
+    if not app:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    student_name = user.get("name") or user.get("email")
+    company_id = app.get("company_id")
+    company_name = app.get("company_name", "Company")
+
+    now = datetime.utcnow()
+    msg_doc = {
+        "application_id": application_id,
+        "company_id": str(company_id),
+        "company_name": company_name,
+        "student_id": student_id,
+        "student_name": student_name,
+        "student_email": user.get("email", ""),
+        "job_title": app.get("job_title", ""),
+        "sender_role": "student",
+        "sender_id": student_id,
+        "sender_name": student_name,
+        "message": text,
+        "read_by_company": False,
+        "read_by_student": True,
+        "created_at": now
+    }
+    res = await db["company_student_messages"].insert_one(msg_doc)
+
+    # Notify company
+    if company_id:
+        try:
+            await db["notifications"].insert_one({
+                "recipient_id": str(company_id),
+                "title": f"Candidate Reply: {student_name}",
+                "message": f"[{app.get('job_title')}] {text[:140]}",
+                "type": "candidate_reply",
+                "priority": "normal",
+                "application_id": application_id,
+                "read_by": [],
+                "dismissed_by": [],
+                "is_read": False,
+                "created_at": now
+            })
+        except Exception:
+            pass
+
+    return {
+        "id": str(res.inserted_id),
+        "sender_role": "student",
+        "sender_name": student_name,
+        "message": text,
+        "created_at": now.isoformat()
+    }
+
+
 # -----------------------------------------------------------------------------
 # 8. BOOKMARK / SAVED JOBS
 # -----------------------------------------------------------------------------

@@ -18,7 +18,10 @@ import {
   MapPin,
   XCircle,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  MessageSquare,
+  Send,
+  X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -41,6 +44,8 @@ export default function StudentApplications() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
+  const [messagingApp, setMessagingApp] = useState<any | null>(null);
+  const [recruiterMsgText, setRecruiterMsgText] = useState('');
 
   const { data: applications = [], isLoading, isError } = useQuery({
     queryKey: ['studentApplications', statusFilter],
@@ -49,6 +54,31 @@ export default function StudentApplications() {
         params: { status: statusFilter === 'All' ? undefined : statusFilter }
       });
       return res.data;
+    }
+  });
+
+  // Recruiter messaging query
+  const { data: recruiterThread, isLoading: loadingRecruiterMsgs } = useQuery({
+    queryKey: ['studentRecruiterMessages', messagingApp?.id],
+    queryFn: async () => {
+      if (!messagingApp?.id) return null;
+      const res = await api.get(`/student/company-messages/${messagingApp.id}`);
+      return res.data;
+    },
+    enabled: !!messagingApp?.id,
+    refetchInterval: 6000
+  });
+
+  const sendRecruiterMsgMutation = useMutation({
+    mutationFn: async (text: string) => {
+      await api.post(`/student/company-messages/${messagingApp.id}`, { message: text });
+    },
+    onSuccess: () => {
+      setRecruiterMsgText('');
+      queryClient.invalidateQueries({ queryKey: ['studentRecruiterMessages', messagingApp?.id] });
+    },
+    onError: (err: any) => {
+      alert(err.response?.data?.detail || 'Failed to send message.');
     }
   });
 
@@ -288,6 +318,16 @@ export default function StudentApplications() {
                         Prep Tips
                       </Link>
 
+                      <button
+                        type="button"
+                        onClick={() => setMessagingApp(app)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-semibold rounded-lg border border-brand-200"
+                        title="Direct message company recruiter"
+                      >
+                        <MessageSquare size={13} />
+                        Message Recruiter
+                      </button>
+
                       {app.can_withdraw && (
                         <button
                           onClick={() => setWithdrawingId(app.id)}
@@ -428,6 +468,89 @@ export default function StudentApplications() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Direct Recruiter Chat Modal */}
+      {messagingApp && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="card max-w-xl w-full p-6 space-y-4 shadow-2xl flex flex-col h-[520px]">
+            <div className="flex justify-between items-start pb-3 border-b border-slate-100">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600">
+                  Direct Recruiter Channel
+                </span>
+                <h3 className="text-lg font-bold text-slate-900">{messagingApp.company_name}</h3>
+                <p className="text-xs text-slate-500">Position: {messagingApp.job_title}</p>
+              </div>
+              <button onClick={() => setMessagingApp(null)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Messages Feed */}
+            <div className="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50/70 rounded-xl">
+              {loadingRecruiterMsgs ? (
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="animate-spin text-brand-600" size={24} />
+                </div>
+              ) : (recruiterThread?.messages || []).length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center text-slate-400 text-xs">
+                  <MessageSquare size={32} className="text-slate-300 mb-1" />
+                  No messages yet. Send a query regarding your application or interview schedule!
+                </div>
+              ) : (
+                recruiterThread.messages.map((m: any) => {
+                  const isMe = m.sender_role === 'student';
+                  return (
+                    <div key={m.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                      <span className="text-[10px] font-semibold text-slate-400 mb-0.5 px-1">
+                        {isMe ? 'You' : m.sender_name || 'Recruiter'}
+                      </span>
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-xs shadow-sm ${
+                          isMe
+                            ? 'bg-brand-600 text-white rounded-br-none'
+                            : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none'
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap">{m.message}</p>
+                        <span className={`text-[9px] block mt-1 text-right ${isMe ? 'text-brand-100' : 'text-slate-400'}`}>
+                          {m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Input Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!recruiterMsgText.trim()) return;
+                sendRecruiterMsgMutation.mutate(recruiterMsgText.trim());
+              }}
+              className="flex gap-2 pt-2 border-t border-slate-100"
+            >
+              <input
+                type="text"
+                placeholder="Write a message to the hiring team..."
+                value={recruiterMsgText}
+                onChange={(e) => setRecruiterMsgText(e.target.value)}
+                className="flex-1 px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+              <button
+                type="submit"
+                disabled={sendRecruiterMsgMutation.isPending || !recruiterMsgText.trim()}
+                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5"
+              >
+                {sendRecruiterMsgMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                Send
+              </button>
+            </form>
+          </div>
         </div>
       )}
 

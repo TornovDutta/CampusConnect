@@ -477,7 +477,63 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                       }
                     >
                       <Users size={18} />
-                      <span className="font-medium text-sm">Applicants</span>
+                      <span className="font-medium text-sm">Monitor Applicants</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/company/interviews" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Video size={18} />
+                      <span className="font-medium text-sm">Live Interview Suite</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/company/messages" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <MessageSquare size={18} />
+                      <span className="font-medium text-sm">Candidate Messages</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/company/talent-pool" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Sparkles size={18} />
+                      <span className="font-medium text-sm">Talent Pool Search</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/company/analytics" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <BarChart3 size={18} />
+                      <span className="font-medium text-sm">Funnel Analytics</span>
                     </NavLink>
                     
                     <NavLink 

@@ -32,6 +32,10 @@ import CollegeAdminHub from './pages/dashboards/CollegeAdminHub';
 import CompanyDashboard from './pages/dashboards/CompanyDashboard';
 import CompanyJobs from './pages/dashboards/CompanyJobs';
 import CompanyApplicants from './pages/dashboards/CompanyApplicants';
+import CompanyInterviewRoom from './pages/dashboards/CompanyInterviewRoom';
+import CompanyMessages from './pages/dashboards/CompanyMessages';
+import CompanyTalentPool from './pages/dashboards/CompanyTalentPool';
+import CompanyAnalytics from './pages/dashboards/CompanyAnalytics';
 import OrganizationDetails from './pages/dashboards/OrganizationDetails';
 import Profile from './pages/dashboards/Profile';
 import Settings from './pages/dashboards/Settings';
@@ -99,6 +103,10 @@ function App() {
             <Route path="company" element={<CompanyDashboard />} />
             <Route path="company/jobs" element={<CompanyJobs />} />
             <Route path="company/applicants" element={<CompanyApplicants />} />
+            <Route path="company/interviews" element={<CompanyInterviewRoom />} />
+            <Route path="company/messages" element={<CompanyMessages />} />
+            <Route path="company/talent-pool" element={<CompanyTalentPool />} />
+            <Route path="company/analytics" element={<CompanyAnalytics />} />
             <Route path="company/post-job" element={<PostJob />} />
             <Route path="company/edit-job/:id" element={<EditJob />} />
           </Route>
