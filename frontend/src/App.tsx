@@ -36,6 +36,7 @@ import CompanyInterviewRoom from './pages/dashboards/CompanyInterviewRoom';
 import CompanyMessages from './pages/dashboards/CompanyMessages';
 import CompanyTalentPool from './pages/dashboards/CompanyTalentPool';
 import CompanyAnalytics from './pages/dashboards/CompanyAnalytics';
+import CompanyDriveSlots from './pages/dashboards/CompanyDriveSlots';
 import OrganizationDetails from './pages/dashboards/OrganizationDetails';
 import Profile from './pages/dashboards/Profile';
 import Settings from './pages/dashboards/Settings';
@@ -107,6 +108,7 @@ function App() {
             <Route path="company/messages" element={<CompanyMessages />} />
             <Route path="company/talent-pool" element={<CompanyTalentPool />} />
             <Route path="company/analytics" element={<CompanyAnalytics />} />
+            <Route path="company/drive-slots" element={<CompanyDriveSlots />} />
             <Route path="company/post-job" element={<PostJob />} />
             <Route path="company/edit-job/:id" element={<EditJob />} />
           </Route>

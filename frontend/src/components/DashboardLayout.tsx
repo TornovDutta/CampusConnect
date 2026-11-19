@@ -495,6 +495,20 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                     </NavLink>
 
                     <NavLink 
+                      to="/dashboard/company/drive-slots" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Calendar size={18} />
+                      <span className="font-medium text-sm">Drive Day Slots</span>
+                    </NavLink>
+
+                    <NavLink 
                       to="/dashboard/company/messages" 
                       className={({ isActive }) => 
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
