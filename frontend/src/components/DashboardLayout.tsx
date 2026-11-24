@@ -26,7 +26,8 @@ import {
   Video,
   FileText,
   Calendar,
-  Bell
+  Bell,
+  Building2
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import { api } from '../services/api';
@@ -100,6 +101,20 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
               >
                 <LayoutDashboard size={18} />
                 <span className="font-medium text-sm">Dashboard</span>
+              </NavLink>
+
+              <NavLink 
+                to="/colleges" 
+                className={({ isActive }) => 
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`
+                }
+              >
+                <Building2 size={18} />
+                <span className="font-medium text-sm">College Directory</span>
               </NavLink>
               
               {user.role === 'super_admin' && (

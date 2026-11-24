@@ -25,7 +25,8 @@ import {
   TrendingUp,
   SlidersHorizontal,
   FileText,
-  Calendar
+  Calendar,
+  Search
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
@@ -124,6 +125,10 @@ export default function LandingPage() {
             </Link>
 
             <nav className="hidden md:flex gap-1 items-center bg-black/[0.03] p-1 rounded-full border border-black/[0.03]">
+              <Link to="/colleges" className="text-xs lg:text-sm text-brand-700 hover:text-brand-900 hover:bg-white/90 px-4 py-2 rounded-full font-bold transition-all flex items-center gap-1.5">
+                <Search size={13} />
+                <span>Colleges & Placements</span>
+              </Link>
               <a href="#features" className="text-xs lg:text-sm text-slate-700 hover:text-slate-900 hover:bg-white/90 px-4 py-2 rounded-full font-medium transition-all">Features</a>
               <a href="#workflow" className="text-xs lg:text-sm text-slate-700 hover:text-slate-900 hover:bg-white/90 px-4 py-2 rounded-full font-medium transition-all">Platform Tour</a>
               <a href="#how-it-works" className="text-xs lg:text-sm text-slate-700 hover:text-slate-900 hover:bg-white/90 px-4 py-2 rounded-full font-medium transition-all">How it Works</a>
@@ -261,6 +266,22 @@ export default function LandingPage() {
                   Hire Talent
                 </Link>
               </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.45 }}
+              className="mt-6 flex justify-center"
+            >
+              <Link
+                to="/colleges"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/90 hover:bg-brand-50 border border-slate-200/90 hover:border-brand-300 text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-700 transition-all shadow-sm hover:shadow-md"
+              >
+                <Search size={15} className="text-brand-600" />
+                <span>Looking for a college? Search & inspect placement performance</span>
+                <ArrowRight size={14} className="text-brand-600" />
+              </Link>
             </motion.div>
 
             {/* ================= MOTIONSITES INFINITE MARQUEE TICKER ================= */}

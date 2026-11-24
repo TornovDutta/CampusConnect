@@ -43,6 +43,7 @@ import Settings from './pages/dashboards/Settings';
 import UserActivity from './pages/dashboards/UserActivity';
 import PostJob from './pages/dashboards/PostJob';
 import EditJob from './pages/dashboards/EditJob';
+import CollegeDirectory from './pages/CollegeDirectory';
 
 function DashboardIndexRedirect() {
   const { user } = useAuth();
@@ -67,6 +68,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/colleges" element={<CollegeDirectory />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           

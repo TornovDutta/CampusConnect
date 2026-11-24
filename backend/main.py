@@ -7,7 +7,7 @@ from core.security import get_password_hash
 from models.user import RoleEnum
 from datetime import datetime
 from jose import jwt
-from routes import auth, admin, student, college, company, notifications
+from routes import auth, admin, student, college, company, notifications, public_colleges
 import traceback
 
 app = FastAPI(
@@ -90,6 +90,7 @@ app.include_router(student.router)
 app.include_router(college.router)
 app.include_router(company.router)
 app.include_router(notifications.router)
+app.include_router(public_colleges.router)
 
 # Configure CORS origins dynamically from environment variables
 default_origins = [
