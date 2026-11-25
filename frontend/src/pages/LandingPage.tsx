@@ -108,27 +108,27 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans selection:bg-brand-500/30 overflow-x-hidden">
       {/* ================= STICKY GLASS HEADER ================= */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-5 pointer-events-none">
+      <div className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 lg:px-8 pt-3 sm:pt-5 pointer-events-none">
         <motion.header
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="max-w-6xl mx-auto bg-white/70 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full pointer-events-auto transition-all"
+          className="max-w-6xl mx-auto bg-white/85 backdrop-blur-2xl backdrop-saturate-150 border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full pointer-events-auto transition-all"
         >
-          <div className="flex justify-between h-16 items-center px-4 sm:px-6">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="bg-gradient-to-br from-brand-500 to-teal-600 p-2 rounded-xl text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300">
+          <div className="flex justify-between h-14 sm:h-16 items-center px-3.5 sm:px-6">
+            <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+              <div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2 rounded-xl text-white shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-300">
                 <motion.div animate={{ rotate: [0, -8, 8, -8, 0] }} transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}>
-                  <GraduationCap size={22} strokeWidth={2.5} />
+                  <GraduationCap size={20} strokeWidth={2.5} />
                 </motion.div>
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight hidden sm:block">
+              <span className="text-base sm:text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight">
                 CampusConnect
               </span>
             </Link>
 
             <nav className="hidden md:flex gap-1 items-center bg-black/[0.03] p-1 rounded-full border border-black/[0.03]">
-              <Link to="/colleges" className="text-xs lg:text-sm text-brand-700 hover:text-brand-900 hover:bg-white/90 px-4 py-2 rounded-full font-bold transition-all flex items-center gap-1.5">
+              <Link to="/colleges" className="text-xs lg:text-sm text-indigo-700 hover:text-indigo-900 hover:bg-white/90 px-4 py-2 rounded-full font-bold transition-all flex items-center gap-1.5">
                 <Search size={13} />
                 <span>Colleges & Placements</span>
               </Link>
@@ -138,12 +138,12 @@ export default function LandingPage() {
               <a href="#stats" className="text-xs lg:text-sm text-slate-700 hover:text-slate-900 hover:bg-white/90 px-4 py-2 rounded-full font-medium transition-all">Impact</a>
             </nav>
 
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Link to="/login" className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors px-2.5 sm:px-3 py-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <Link to="/login" className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors px-2.5 sm:px-3 py-1.5">
                 Log in
               </Link>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block">
-                <Link to="/register" className="bg-slate-900 hover:bg-brand-600 text-white text-xs sm:text-sm font-semibold px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all shadow-sm hover:shadow-md hover:shadow-brand-500/20">
+                <Link to="/register" className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all shadow-sm hover:shadow-md hover:shadow-indigo-500/25">
                   Get Started
                 </Link>
               </motion.div>
@@ -159,71 +159,80 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Animated Mobile Dropdown Menu */}
+          {/* Animated Mobile Dropdown Menu with Backdrop */}
           <AnimatePresence>
             {mobileNavOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                transition={{ duration: 0.2 }}
-                className="md:hidden mt-2 p-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-2xl space-y-2 pointer-events-auto"
-              >
-                <Link
-                  to="/colleges"
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   onClick={() => setMobileNavOpen(false)}
-                  className="flex items-center justify-between p-3 rounded-2xl bg-brand-50/90 border border-brand-200 text-brand-800 font-bold text-xs sm:text-sm shadow-xs"
+                  className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-30 md:hidden pointer-events-auto"
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative z-40 md:hidden mt-2 p-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-2xl space-y-2 pointer-events-auto"
                 >
-                  <div className="flex items-center gap-2">
-                    <Search size={16} className="text-brand-600" />
-                    <span>Colleges & Placements</span>
-                  </div>
-                  <span className="text-[10px] uppercase font-extrabold bg-brand-600 text-white px-2 py-0.5 rounded-full">
-                    Directory
-                  </span>
-                </Link>
-
-                <div className="space-y-0.5 pt-1">
-                  <a
-                    href="#features"
-                    onClick={() => setMobileNavOpen(false)}
-                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                  >
-                    Features
-                  </a>
-                  <a
-                    href="#workflow"
-                    onClick={() => setMobileNavOpen(false)}
-                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                  >
-                    Platform Tour
-                  </a>
-                  <a
-                    href="#how-it-works"
-                    onClick={() => setMobileNavOpen(false)}
-                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                  >
-                    How it Works
-                  </a>
-                  <a
-                    href="#stats"
-                    onClick={() => setMobileNavOpen(false)}
-                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                  >
-                    Impact & Metrics
-                  </a>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
                   <Link
-                    to="/register"
+                    to="/colleges"
                     onClick={() => setMobileNavOpen(false)}
-                    className="w-full text-center py-2.5 bg-slate-900 hover:bg-brand-600 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-sm transition-colors"
+                    className="flex items-center justify-between p-3 rounded-2xl bg-indigo-50/90 border border-indigo-200 text-indigo-900 font-bold text-xs sm:text-sm shadow-xs"
                   >
-                    Get Started Free
+                    <div className="flex items-center gap-2">
+                      <Search size={16} className="text-indigo-600" />
+                      <span>Colleges & Placements</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-extrabold bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-2 py-0.5 rounded-full">
+                      Directory
+                    </span>
                   </Link>
-                </div>
-              </motion.div>
+
+                  <div className="space-y-0.5 pt-1">
+                    <a
+                      href="#features"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                    >
+                      Features
+                    </a>
+                    <a
+                      href="#workflow"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                    >
+                      Platform Tour
+                    </a>
+                    <a
+                      href="#how-it-works"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                    >
+                      How it Works
+                    </a>
+                    <a
+                      href="#stats"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                    >
+                      Impact & Metrics
+                    </a>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+                    <Link
+                      to="/register"
+                      onClick={() => setMobileNavOpen(false)}
+                      className="w-full text-center py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/25 transition-colors"
+                    >
+                      Get Started Free
+                    </Link>
+                  </div>
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
         </motion.header>
@@ -231,52 +240,52 @@ export default function LandingPage() {
 
       <main className="flex-grow">
         {/* ================= HERO SECTION (MotionSites Style) ================= */}
-        <section className="relative pt-32 md:pt-44 pb-20 md:pb-32 overflow-hidden flex items-center justify-center min-h-[92vh]">
-          {/* Animated Ambient Blobs */}
-          <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-brand-400/20 blur-[120px] mix-blend-multiply animate-blob pointer-events-none" />
-          <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-teal-400/20 blur-[120px] mix-blend-multiply animate-blob animation-delay-2000 pointer-events-none" />
-          <div className="absolute bottom-[-10%] left-[20%] w-[40%] h-[40%] rounded-full bg-blue-400/15 blur-[120px] mix-blend-multiply animate-blob animation-delay-4000 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.05] pointer-events-none" />
+        <section className="relative pt-28 sm:pt-36 md:pt-44 pb-16 sm:pb-20 md:pb-32 overflow-hidden flex items-center justify-center min-h-[85vh] sm:min-h-[92vh]">
+          {/* Animated Ambient Blobs (No mix-blend-multiply to avoid iOS Safari gray boxes) */}
+          <div className="absolute top-[-5%] left-[-5%] w-[55%] h-[55%] rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
+          <div className="absolute top-[20%] right-[-5%] w-[55%] h-[55%] rounded-full bg-violet-500/15 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-[-5%] left-[20%] w-[45%] h-[45%] rounded-full bg-cyan-400/10 blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.06] pointer-events-none" />
 
-          {/* MotionSites Floating Micro-UI Cards Around Hero */}
+          {/* Floating Micro-UI Cards Around Hero (Desktop only) */}
           <motion.div
             animate={{ y: [0, -12, 0], x: [0, 4, 0] }}
             transition={{ repeat: Infinity, duration: 5.5, ease: 'easeInOut' }}
-            className="hidden xl:flex items-center gap-3 absolute top-36 left-12 bg-white/85 backdrop-blur-xl border border-white/80 p-3 rounded-2xl shadow-xl shadow-slate-200/50 z-20 pointer-events-none"
+            className="hidden xl:flex items-center gap-3 absolute top-36 left-12 bg-white/90 backdrop-blur-xl border border-white/80 p-3.5 rounded-2xl shadow-xl shadow-indigo-200/40 z-20 pointer-events-none"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold shadow-xs">
               <Award size={20} />
             </div>
             <div className="text-left">
-              <div className="text-xs font-bold text-slate-900">Job Offer Extended</div>
-              <div className="text-[11px] text-emerald-600 font-semibold">₹18.5 LPA Package • Google</div>
+              <div className="text-xs font-bold text-slate-900">Job Offer Dispatched</div>
+              <div className="text-[11px] text-emerald-600 font-bold">₹24.5 LPA Package • Google</div>
             </div>
           </motion.div>
 
           <motion.div
             animate={{ y: [0, 14, 0], x: [0, -5, 0] }}
             transition={{ repeat: Infinity, duration: 6.5, ease: 'easeInOut', delay: 0.6 }}
-            className="hidden xl:flex items-center gap-3 absolute top-44 right-12 bg-white/85 backdrop-blur-xl border border-white/80 p-3 rounded-2xl shadow-xl shadow-purple-200/50 z-20 pointer-events-none"
+            className="hidden xl:flex items-center gap-3 absolute top-44 right-12 bg-white/90 backdrop-blur-xl border border-white/80 p-3.5 rounded-2xl shadow-xl shadow-violet-200/40 z-20 pointer-events-none"
           >
-            <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center font-bold shadow-xs">
               <Video size={20} />
             </div>
             <div className="text-left">
-              <div className="text-xs font-bold text-slate-900">Live Technical Suite</div>
-              <div className="text-[11px] text-purple-600 font-semibold">10:30 AM • In-Portal IDE</div>
+              <div className="text-xs font-bold text-slate-900">In-Portal Technical IDE</div>
+              <div className="text-[11px] text-violet-600 font-bold">Live Python & JS Runner</div>
             </div>
           </motion.div>
 
           <motion.div
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 4.8, ease: 'easeInOut', delay: 1.2 }}
-            className="hidden xl:flex items-center gap-2.5 absolute bottom-24 right-20 bg-white/90 backdrop-blur-xl border border-white/80 px-4 py-2.5 rounded-2xl shadow-xl shadow-slate-200/60 z-20 pointer-events-none"
+            className="hidden xl:flex items-center gap-2.5 absolute bottom-24 right-20 bg-white/95 backdrop-blur-xl border border-white/80 px-4 py-2.5 rounded-2xl shadow-xl shadow-slate-200/70 z-20 pointer-events-none"
           >
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <span className="text-xs font-bold text-slate-800">96% ATS Qualification Match</span>
+            <span className="text-xs font-bold text-slate-800">97.8% ATS Verification Score</span>
           </motion.div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -285,10 +294,10 @@ export default function LandingPage() {
               initial="hidden"
               animate="visible"
               variants={fadeIn}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-brand-200/80 text-brand-700 font-semibold text-xs mb-8 shadow-sm backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-white/90 border border-indigo-200 text-indigo-700 font-bold text-[11px] sm:text-xs mb-6 sm:mb-8 shadow-xs backdrop-blur-md max-w-full truncate"
             >
-              <Sparkles size={14} className="text-brand-500" />
-              <span>Next-Gen Campus Placement Ecosystem</span>
+              <Sparkles size={14} className="text-indigo-600 animate-pulse shrink-0" />
+              <span className="truncate">Next-Gen Campus Placement Ecosystem 2.0</span>
             </motion.div>
 
             {/* Main Headline */}
@@ -296,11 +305,11 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1, type: 'spring', bounce: 0.3 }}
-              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-6 leading-[1.1]"
+              className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-5 sm:mb-6 leading-[1.15] break-words"
             >
-              Bridge the gap between <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 via-teal-600 to-blue-600 animate-gradient-x inline-block">
-                Talent and Opportunity
+              Where campus ambition meets <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 animate-gradient-x inline-block">
+                Elite Career Opportunities
               </span>
             </motion.h1>
 
@@ -308,9 +317,9 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.25 }}
-              className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10"
+              className="text-sm sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10 px-2"
             >
-              The unified, transparent platform connecting students, college placement cells, and corporate recruiters for seamless campus recruitment.
+              The unified, transparent platform connecting university students, college placement cells, and corporate recruiters for seamless campus recruitment.
             </motion.p>
 
             {/* Action Buttons */}
@@ -318,21 +327,21 @@ export default function LandingPage() {
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.35 }}
-              className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-5"
+              className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-5 w-full max-w-xs sm:max-w-none mx-auto"
             >
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="w-full sm:w-auto">
                 <Link
                   to="/register?role=student"
-                  className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-3.5 rounded-2xl text-base font-bold flex items-center justify-center gap-2.5 w-full shadow-lg shadow-brand-500/25 transition-all"
+                  className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white px-7 sm:px-8 py-3 sm:py-3.5 rounded-2xl text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 w-full shadow-lg shadow-indigo-500/25 transition-all"
                 >
-                  <GraduationCap size={20} />
+                  <GraduationCap size={18} />
                   Join as Student
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="w-full sm:w-auto">
                 <Link
                   to="/register?role=college"
-                  className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-8 py-3.5 rounded-2xl text-base font-semibold flex items-center justify-center gap-2.5 w-full shadow-sm hover:border-brand-300 transition-all"
+                  className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 px-7 sm:px-8 py-3 sm:py-3.5 rounded-2xl text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 w-full shadow-xs hover:border-indigo-300 transition-all"
                 >
                   Register College
                 </Link>
@@ -340,9 +349,9 @@ export default function LandingPage() {
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="w-full sm:w-auto">
                 <Link
                   to="/register?role=company"
-                  className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl text-base font-bold flex items-center justify-center gap-2.5 w-full shadow-md shadow-slate-900/20 transition-all"
+                  className="bg-slate-900 hover:bg-slate-800 text-white px-7 sm:px-8 py-3 sm:py-3.5 rounded-2xl text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 w-full shadow-md shadow-slate-900/20 transition-all"
                 >
-                  <Building2 size={20} />
+                  <Building2 size={18} />
                   Hire Talent
                 </Link>
               </motion.div>
@@ -352,16 +361,16 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              className="mt-6 flex justify-center"
+              className="mt-6 sm:mt-7 flex justify-center px-2"
             >
               <Link
                 to="/colleges"
-                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-white/90 hover:bg-brand-50 border border-slate-200/90 hover:border-brand-300 text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-700 transition-all shadow-sm hover:shadow-md"
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-white/95 hover:bg-indigo-50/70 border border-slate-200/90 hover:border-indigo-300 text-xs sm:text-sm font-bold text-slate-800 hover:text-indigo-700 transition-all shadow-xs hover:shadow-md max-w-full"
               >
-                <Search size={15} className="text-brand-600 shrink-0" />
-                <span className="hidden sm:inline">Looking for a college? Search & inspect placement performance</span>
-                <span className="sm:hidden font-medium">Search & inspect college placements</span>
-                <ArrowRight size={14} className="text-brand-600 shrink-0" />
+                <Search size={15} className="text-indigo-600 shrink-0" />
+                <span className="hidden sm:inline">Search & inspect placement performance across partner colleges</span>
+                <span className="sm:hidden font-semibold truncate">Search college placements</span>
+                <ArrowRight size={14} className="text-indigo-600 shrink-0" />
               </Link>
             </motion.div>
 
@@ -370,29 +379,29 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
-              className="mt-20 pt-10 border-t border-slate-200/70 max-w-5xl mx-auto"
+              className="mt-14 sm:mt-20 pt-8 sm:pt-10 border-t border-slate-200/70 max-w-5xl mx-auto"
             >
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
+              <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 sm:mb-6">
                 Trusted by 500+ Top Campuses & Global Hiring Partners
               </p>
 
-              {/* Continuous Infinite Loop */}
+              {/* Continuous Infinite Loop with narrow mobile fade gradients */}
               <div className="relative w-full overflow-hidden py-2">
-                <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
-                <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
+                <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
                 <motion.div
                   animate={{ x: ['0%', '-50%'] }}
                   transition={{ repeat: Infinity, ease: 'linear', duration: 24 }}
-                  className="flex gap-4 items-center whitespace-nowrap w-max"
+                  className="flex gap-3 sm:gap-4 items-center whitespace-nowrap w-max"
                 >
                   {[...MARQUEE_PARTNERS, ...MARQUEE_PARTNERS].map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200/80 shadow-sm text-slate-800 font-bold text-xs hover:border-brand-300 hover:text-brand-600 transition-colors"
+                      className="flex items-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white/80 backdrop-blur-xs border border-slate-200/80 shadow-xs text-slate-800 font-bold text-xs hover:border-indigo-300 hover:text-indigo-600 transition-colors"
                     >
-                      <Building2 size={15} className="text-brand-500" />
+                      <Building2 size={14} className="text-indigo-600 shrink-0" />
                       <span>{item.name}</span>
-                      <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider pl-1">• {item.category}</span>
+                      <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider pl-0.5">• {item.category}</span>
                     </div>
                   ))}
                 </motion.div>
@@ -402,50 +411,50 @@ export default function LandingPage() {
         </section>
 
         {/* ================= MOTIONSITES INTERACTIVE PLATFORM SPOTLIGHT ================= */}
-        <section id="workflow" className="py-20 md:py-28 bg-white border-y border-slate-200/80 relative overflow-hidden">
+        <section id="workflow" className="py-16 sm:py-24 md:py-28 bg-white border-y border-slate-200/80 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center mb-12"
+              className="text-center mb-10 sm:mb-12"
             >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 font-semibold text-xs mb-3">
-                <Sparkles size={13} className="text-brand-500" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 font-semibold text-xs mb-3">
+                <Sparkles size={13} className="text-indigo-500" />
                 <span>Interactive Experience</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
                 Designed for every role in the hiring cycle
               </h2>
-              <p className="mt-3 text-base text-slate-500 max-w-xl mx-auto">
+              <p className="mt-2.5 sm:mt-3 text-sm sm:text-base text-slate-500 max-w-xl mx-auto px-2">
                 Explore the custom toolsets built directly into CampusConnect for each user role.
               </p>
 
-              {/* Animated Tab Switcher */}
-              <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1.5 sm:gap-2 mt-8 p-1 bg-slate-100 rounded-2xl max-w-full mx-auto border border-slate-200">
+              {/* Responsive 3-Column Tab Switcher */}
+              <div className="grid grid-cols-3 sm:flex sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 mt-6 sm:mt-8 p-1 sm:p-1.5 bg-slate-100 rounded-2xl max-w-md sm:max-w-none mx-auto border border-slate-200">
                 <button
                   onClick={() => setActiveWorkflowTab('student')}
-                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
-                    activeWorkflowTab === 'student' ? 'text-brand-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center truncate ${
+                    activeWorkflowTab === 'student' ? 'text-indigo-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  🎓 For Students
+                  🎓 Students
                 </button>
                 <button
                   onClick={() => setActiveWorkflowTab('college')}
-                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
-                    activeWorkflowTab === 'college' ? 'text-brand-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center truncate ${
+                    activeWorkflowTab === 'college' ? 'text-indigo-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  🏛️ For Colleges
+                  🏛️ Colleges
                 </button>
                 <button
                   onClick={() => setActiveWorkflowTab('company')}
-                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
-                    activeWorkflowTab === 'company' ? 'text-brand-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center truncate ${
+                    activeWorkflowTab === 'company' ? 'text-indigo-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  💼 For Recruiters
+                  💼 Recruiters
                 </button>
               </div>
             </motion.div>
@@ -459,10 +468,10 @@ export default function LandingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.35 }}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
                 >
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 transition-all shadow-sm">
-                    <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
                       <FileText size={22} />
                     </div>
                     <h3 className="text-base font-bold text-slate-900 mb-1">ATS Resume & Skill Match</h3>
@@ -471,8 +480,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 transition-all shadow-sm">
-                    <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center mb-4">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mb-4">
                       <Video size={22} />
                     </div>
                     <h3 className="text-base font-bold text-slate-900 mb-1">In-Portal Interview Suite</h3>
@@ -481,8 +490,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 transition-all shadow-sm">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center mb-4">
                       <Mail size={22} />
                     </div>
                     <h3 className="text-base font-bold text-slate-900 mb-1">2-Way Recruiter & College Chat</h3>
@@ -500,9 +509,9 @@ export default function LandingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.35 }}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
                 >
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-blue-300 transition-all shadow-sm">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
                     <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
                       <Users size={22} />
                     </div>
@@ -512,7 +521,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-blue-300 transition-all shadow-sm">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
                       <SlidersHorizontal size={22} />
                     </div>
@@ -522,7 +531,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-blue-300 transition-all shadow-sm">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
                     <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mb-4">
                       <BarChart3 size={22} />
                     </div>
@@ -541,9 +550,9 @@ export default function LandingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.35 }}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
                 >
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-purple-300 transition-all shadow-sm">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
                     <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mb-4">
                       <Code2 size={22} />
                     </div>
@@ -553,8 +562,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-purple-300 transition-all shadow-sm">
-                    <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
                       <Calendar size={22} />
                     </div>
                     <h3 className="text-base font-bold text-slate-900 mb-1">Drive Days & Batch Slots</h3>
@@ -563,7 +572,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-purple-300 transition-all shadow-sm">
+                  <div className="p-5 sm:p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:border-indigo-300 transition-all shadow-xs">
                     <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
                       <Award size={22} />
                     </div>
@@ -579,48 +588,59 @@ export default function LandingPage() {
         </section>
 
         {/* ================= STATS SECTION ================= */}
-        <section id="stats" className="py-20 bg-brand-600 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+        <section id="stats" className="py-16 sm:py-20 bg-gradient-to-br from-slate-950 via-[#0a0e1a] to-[#1e1b4b] text-white relative overflow-hidden border-y border-indigo-900/40">
+          <div className="absolute inset-0 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: '-100px' }}
+              viewport={{ once: true, margin: '-50px' }}
               variants={staggerContainer}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 sm:gap-8 text-center"
+              className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 text-center"
             >
-              <motion.div variants={fadeIn} className="flex flex-col items-center">
-                <div className="text-3xl md:text-4xl font-extrabold mb-2"><AnimatedCounter to={500} suffix="+" /></div>
-                <div className="text-brand-100 font-medium text-sm md:text-base">Partner Colleges</div>
+              <motion.div variants={fadeIn} className="flex flex-col items-center p-3.5 sm:p-5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xs min-w-0">
+                <div className="text-2xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-300 to-violet-300 truncate w-full">
+                  <AnimatedCounter to={500} suffix="+" />
+                </div>
+                <div className="text-indigo-200 font-semibold text-[11px] sm:text-sm">Partner Colleges</div>
               </motion.div>
-              <motion.div variants={fadeIn} className="flex flex-col items-center">
-                <div className="text-3xl md:text-4xl font-extrabold mb-2"><AnimatedCounter to={10000} suffix="+" /></div>
-                <div className="text-brand-100 font-medium text-sm md:text-base">Active Students</div>
+
+              <motion.div variants={fadeIn} className="flex flex-col items-center p-3.5 sm:p-5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xs min-w-0">
+                <div className="text-2xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-300 truncate w-full">
+                  <AnimatedCounter to={10000} suffix="+" />
+                </div>
+                <div className="text-indigo-200 font-semibold text-[11px] sm:text-sm">Active Students</div>
               </motion.div>
-              <motion.div variants={fadeIn} className="flex flex-col items-center">
-                <div className="text-3xl md:text-4xl font-extrabold mb-2"><AnimatedCounter to={1200} suffix="+" /></div>
-                <div className="text-brand-100 font-medium text-sm md:text-base">Hiring Companies</div>
+
+              <motion.div variants={fadeIn} className="flex flex-col items-center p-3.5 sm:p-5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xs min-w-0">
+                <div className="text-2xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-300 to-pink-300 truncate w-full">
+                  <AnimatedCounter to={1200} suffix="+" />
+                </div>
+                <div className="text-indigo-200 font-semibold text-[11px] sm:text-sm">Hiring Companies</div>
               </motion.div>
-              <motion.div variants={fadeIn} className="flex flex-col items-center">
-                <div className="text-3xl md:text-4xl font-extrabold mb-2"><AnimatedCounter to={95} suffix="%" /></div>
-                <div className="text-brand-100 font-medium text-sm md:text-base">Placement Rate</div>
+
+              <motion.div variants={fadeIn} className="flex flex-col items-center p-3.5 sm:p-5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xs min-w-0">
+                <div className="text-2xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300 truncate w-full">
+                  <AnimatedCounter to={95} suffix="%" />
+                </div>
+                <div className="text-indigo-200 font-semibold text-[11px] sm:text-sm">Placement Rate</div>
               </motion.div>
             </motion.div>
           </div>
         </section>
 
         {/* ================= FEATURES SECTION ================= */}
-        <section className="py-20 md:py-32 bg-white" id="features">
+        <section className="py-16 sm:py-24 md:py-32 bg-white" id="features">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeIn}
-              className="text-center mb-20"
+              className="text-center mb-12 sm:mb-20"
             >
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Built for Everyone</h2>
-              <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Built for Everyone</h2>
+              <p className="mt-2.5 sm:mt-4 text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto px-2">
                 A unified, seamless experience tailored for each participant in the recruitment journey.
               </p>
             </motion.div>
@@ -630,62 +650,62 @@ export default function LandingPage() {
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               variants={staggerContainer}
-              className="grid md:grid-cols-3 gap-10"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10"
             >
               {/* Feature 1: Colleges */}
-              <motion.div variants={fadeIn} whileHover={{ y: -8 }} className="group relative bg-slate-50 rounded-3xl p-8 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 border border-slate-100 flex flex-col h-full">
-                <motion.div whileHover={{ rotate: 12, scale: 1.05 }} className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-500 shadow-sm">
-                  <GraduationCap size={28} />
+              <motion.div variants={fadeIn} whileHover={{ y: -8 }} className="group relative bg-slate-50 rounded-3xl p-6 sm:p-8 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 border border-slate-100 flex flex-col h-full">
+                <motion.div whileHover={{ rotate: 12, scale: 1.05 }} className="w-12 sm:w-14 h-12 sm:h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-5 sm:mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-500 shadow-xs">
+                  <GraduationCap size={26} />
                 </motion.div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">For Colleges</h3>
-                <p className="text-slate-600 leading-relaxed mb-6 text-sm flex-grow">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">For Colleges</h3>
+                <p className="text-slate-600 leading-relaxed mb-5 sm:mb-6 text-xs sm:text-sm flex-grow">
                   Manage student records, set eligibility criteria, receive drive invitations, and track placement throughput effortlessly.
                 </p>
-                <motion.ul variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3 mb-8">
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-blue-500" /> Excel Student Import</motion.li>
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-blue-500" /> Criteria Verification Gates</motion.li>
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-blue-500" /> Placement Analytics & Lag</motion.li>
+                <motion.ul variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-blue-500 shrink-0" /> Excel Student Import</motion.li>
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-blue-500 shrink-0" /> Criteria Verification Gates</motion.li>
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-blue-500 shrink-0" /> Placement Analytics & Lag</motion.li>
                 </motion.ul>
-                <Link to="/register?role=college" className="inline-flex items-center font-semibold text-blue-600 hover:text-blue-700 group/link text-sm mt-auto">
-                  Register Institution <ArrowRight size={16} className="ml-2 group-hover/link:translate-x-1 transition-transform" />
+                <Link to="/register?role=college" className="inline-flex items-center font-bold text-blue-600 hover:text-blue-700 group/link text-xs sm:text-sm mt-auto">
+                  Register Institution <ArrowRight size={15} className="ml-1.5 group-hover/link:translate-x-1 transition-transform" />
                 </Link>
               </motion.div>
 
               {/* Feature 2: Students */}
-              <motion.div variants={fadeIn} whileHover={{ y: -8 }} className="group relative bg-brand-50/50 rounded-3xl p-8 hover:bg-white hover:shadow-2xl hover:shadow-brand-200/50 transition-all duration-500 border border-brand-100/50 flex flex-col h-full">
-                <motion.div whileHover={{ rotate: 12, scale: 1.05 }} className="w-14 h-14 bg-brand-100 text-brand-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-brand-600 group-hover:text-white transition-colors duration-500 shadow-sm">
-                  <Briefcase size={28} />
+              <motion.div variants={fadeIn} whileHover={{ y: -8 }} className="group relative bg-indigo-50/40 rounded-3xl p-6 sm:p-8 hover:bg-white hover:shadow-2xl hover:shadow-indigo-200/50 transition-all duration-500 border border-indigo-100/60 flex flex-col h-full">
+                <motion.div whileHover={{ rotate: 12, scale: 1.05 }} className="w-12 sm:w-14 h-12 sm:h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-5 sm:mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-500 shadow-xs">
+                  <Briefcase size={26} />
                 </motion.div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">For Students</h3>
-                <p className="text-slate-600 leading-relaxed mb-6 text-sm flex-grow">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">For Students</h3>
+                <p className="text-slate-600 leading-relaxed mb-5 sm:mb-6 text-xs sm:text-sm flex-grow">
                   Build verified ATS resumes, browse open campus drives, practice mock interviews, and land top opportunities.
                 </p>
-                <motion.ul variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3 mb-8">
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-brand-500" /> ATS Resume Matcher</motion.li>
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-brand-500" /> 1-Click Drive Application</motion.li>
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-brand-500" /> Direct Recruiter Messaging</motion.li>
+                <motion.ul variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-indigo-500 shrink-0" /> ATS Resume Matcher</motion.li>
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-indigo-500 shrink-0" /> 1-Click Drive Application</motion.li>
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-indigo-500 shrink-0" /> Direct Recruiter Messaging</motion.li>
                 </motion.ul>
-                <Link to="/register?role=student" className="inline-flex items-center font-semibold text-brand-600 hover:text-brand-700 group/link text-sm mt-auto">
-                  Start your Journey <ArrowRight size={16} className="ml-2 group-hover/link:translate-x-1 transition-transform" />
+                <Link to="/register?role=student" className="inline-flex items-center font-bold text-indigo-600 hover:text-indigo-700 group/link text-xs sm:text-sm mt-auto">
+                  Start your Journey <ArrowRight size={15} className="ml-1.5 group-hover/link:translate-x-1 transition-transform" />
                 </Link>
               </motion.div>
 
               {/* Feature 3: Companies */}
-              <motion.div variants={fadeIn} whileHover={{ y: -8 }} className="group relative bg-slate-50 rounded-3xl p-8 hover:bg-white hover:shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 border border-slate-100 flex flex-col h-full">
-                <motion.div whileHover={{ rotate: 12, scale: 1.05 }} className="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-500 shadow-sm">
-                  <Building2 size={28} />
+              <motion.div variants={fadeIn} whileHover={{ y: -8 }} className="group relative bg-slate-50 rounded-3xl p-6 sm:p-8 hover:bg-white hover:shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 border border-slate-100 flex flex-col h-full">
+                <motion.div whileHover={{ rotate: 12, scale: 1.05 }} className="w-12 sm:w-14 h-12 sm:h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-5 sm:mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-500 shadow-xs">
+                  <Building2 size={26} />
                 </motion.div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">For Companies</h3>
-                <p className="text-slate-600 leading-relaxed mb-6 text-sm flex-grow">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">For Companies</h3>
+                <p className="text-slate-600 leading-relaxed mb-5 sm:mb-6 text-xs sm:text-sm flex-grow">
                   Post jobs, conduct live coding assessments in Python & JS, coordinate drive batches, and dispatch offer letters.
                 </p>
-                <motion.ul variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3 mb-8">
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-purple-500" /> Live In-Portal IDE & Code Runner</motion.li>
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-purple-500" /> STAR Behavioral Scoring Rubrics</motion.li>
-                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-sm"><CheckCircle2 size={16} className="text-purple-500" /> Automated Offer Dispatcher</motion.li>
+                <motion.ul variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-purple-500 shrink-0" /> Live In-Portal IDE & Code Runner</motion.li>
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-purple-500 shrink-0" /> STAR Behavioral Scoring Rubrics</motion.li>
+                  <motion.li variants={fadeIn} className="flex items-center text-slate-700 gap-2 text-xs sm:text-sm"><CheckCircle2 size={16} className="text-purple-500 shrink-0" /> Automated Offer Dispatcher</motion.li>
                 </motion.ul>
-                <Link to="/register?role=company" className="inline-flex items-center font-semibold text-purple-600 hover:text-purple-700 group/link text-sm mt-auto">
-                  Hire Top Talent <ArrowRight size={16} className="ml-2 group-hover/link:translate-x-1 transition-transform" />
+                <Link to="/register?role=company" className="inline-flex items-center font-bold text-purple-600 hover:text-purple-700 group/link text-xs sm:text-sm mt-auto">
+                  Hire Top Talent <ArrowRight size={15} className="ml-1.5 group-hover/link:translate-x-1 transition-transform" />
                 </Link>
               </motion.div>
             </motion.div>
@@ -693,11 +713,11 @@ export default function LandingPage() {
         </section>
 
         {/* ================= HOW IT WORKS ================= */}
-        <section id="how-it-works" className="py-20 md:py-32 bg-slate-50 border-y border-slate-200 overflow-hidden">
+        <section id="how-it-works" className="py-16 sm:py-24 md:py-32 bg-slate-50 border-y border-slate-200 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-20">
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">How it Works</h2>
-              <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">A simple, transparent process to get you from registration to hired.</p>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12 sm:mb-20">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">How it Works</h2>
+              <p className="mt-2.5 sm:mt-4 text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto px-2">A simple, transparent process to get you from registration to hired.</p>
             </motion.div>
 
             <div className="relative">
@@ -706,10 +726,10 @@ export default function LandingPage() {
                 whileInView={{ scaleX: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1, ease: 'easeInOut' }}
-                className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-brand-200 via-brand-400 to-brand-200 -translate-y-1/2 rounded-full opacity-50 origin-left"
+                className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-indigo-200 via-indigo-400 to-indigo-200 -translate-y-1/2 rounded-full opacity-50 origin-left"
               />
 
-              <div className="grid md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
                 {[
                   { step: '01', title: 'Register', desc: 'Sign up and verify your college or company profile.', icon: <Users size={20} /> },
                   { step: '02', title: 'Connect', desc: 'Colleges verify students, companies broadcast drives.', icon: <Globe size={20} /> },
@@ -722,14 +742,14 @@ export default function LandingPage() {
                     whileInView={{ opacity: 1, x: 0, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.15, type: 'spring' }}
-                    whileHover={{ y: -8 }}
-                    className="relative bg-white p-6 rounded-3xl shadow-lg border border-slate-100 z-10 transition-shadow duration-300 hover:shadow-xl"
+                    whileHover={{ y: -6 }}
+                    className="relative bg-white p-5 sm:p-6 rounded-3xl shadow-md border border-slate-100 z-10 transition-shadow duration-300 hover:shadow-xl"
                   >
-                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="w-12 h-12 bg-brand-600 text-white rounded-full flex items-center justify-center mb-5 shadow-lg shadow-brand-500/40 mx-auto md:mx-0">
+                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="w-11 h-11 sm:w-12 sm:h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 text-white rounded-full flex items-center justify-center mb-4 sm:mb-5 shadow-md shadow-indigo-500/30 mx-auto md:mx-0">
                       {item.icon}
                     </motion.div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2 text-center md:text-left">{item.step}. {item.title}</h4>
-                    <p className="text-slate-600 text-sm text-center md:text-left leading-relaxed">{item.desc}</p>
+                    <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1.5 sm:mb-2 text-center md:text-left">{item.step}. {item.title}</h4>
+                    <p className="text-slate-600 text-xs sm:text-sm text-center md:text-left leading-relaxed">{item.desc}</p>
                   </motion.div>
                 ))}
               </div>
@@ -738,32 +758,34 @@ export default function LandingPage() {
         </section>
 
         {/* ================= TESTIMONIALS ================= */}
-        <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+        <section className="py-16 sm:py-24 md:py-32 bg-white relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-20">
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Success Stories</h2>
-              <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Hear from participants who transformed their campus placement experience.</p>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12 sm:mb-20">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Success Stories</h2>
+              <p className="mt-2.5 sm:mt-4 text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto px-2">Hear from participants who transformed their campus placement experience.</p>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {[
-                { quote: "CampusConnect eliminated hundreds of manual email chains. We managed 500+ candidates and conducted 20 campus drives seamlessly.", author: "Dr. Sarah Jenkins", role: "Placement Director, Tech University", bgIconClass: "text-blue-500/10", avatarClass: "bg-blue-100 text-blue-600" },
-                { quote: "I created my profile, completed the ATS resume review, and received 3 interview invites within a week. The live coding environment was fantastic.", author: "Rahul Sharma", role: "Computer Science Senior", bgIconClass: "text-brand-500/10", avatarClass: "bg-brand-100 text-brand-600" },
-                { quote: "Evaluating student code in Python right inside the portal with instant test runners and star rubrics cut our screening cycle by half.", author: "Emily Chen", role: "Technical Recruiter, Innovate Inc.", bgIconClass: "text-purple-500/10", avatarClass: "bg-purple-100 text-purple-600" },
+                { quote: "CampusConnect eliminated hundreds of manual email chains. We managed 500+ candidates and conducted 20 campus drives seamlessly.", author: "Dr. Sarah Jenkins", role: "Placement Director, Tech University", avatarClass: "bg-blue-100 text-blue-600" },
+                { quote: "I created my profile, completed the ATS resume review, and received 3 interview invites within a week. The live coding environment was fantastic.", author: "Rahul Sharma", role: "Computer Science Senior", avatarClass: "bg-indigo-100 text-indigo-600" },
+                { quote: "Evaluating student code in Python right inside the portal with instant test runners and star rubrics cut our screening cycle by half.", author: "Emily Chen", role: "Technical Recruiter, Innovate Inc.", avatarClass: "bg-purple-100 text-purple-600" },
               ].map((t, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.2 }} whileHover={{ y: -8 }} className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 relative">
-                  <Quote size={80} className={`absolute top-4 right-4 ${t.bgIconClass} rotate-12`} />
-                  <div className="flex gap-1 mb-6">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} size={16} className="text-yellow-400 fill-yellow-400" />
-                    ))}
+                <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.2 }} whileHover={{ y: -6 }} className="bg-slate-50 p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
+                  <Quote size={48} className="absolute top-4 right-4 text-slate-200/50 rotate-12 pointer-events-none" />
+                  <div>
+                    <div className="flex gap-1 mb-4 sm:mb-6">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} size={15} className="text-yellow-400 fill-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-slate-700 leading-relaxed mb-6 sm:mb-8 relative z-10 italic text-xs sm:text-sm">"{t.quote}"</p>
                   </div>
-                  <p className="text-slate-700 leading-relaxed mb-8 relative z-10 italic">"{t.quote}"</p>
-                  <div className="flex items-center gap-4 mt-auto relative z-10">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${t.avatarClass}`}>{t.author.charAt(0)}</div>
+                  <div className="flex items-center gap-3 sm:gap-4 relative z-10 mt-auto">
+                    <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl shrink-0 ${t.avatarClass}`}>{t.author.charAt(0)}</div>
                     <div>
-                      <h4 className="font-bold text-slate-900">{t.author}</h4>
-                      <p className="text-sm text-slate-500">{t.role}</p>
+                      <h4 className="font-bold text-slate-900 text-sm sm:text-base">{t.author}</h4>
+                      <p className="text-xs text-slate-500">{t.role}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -773,26 +795,26 @@ export default function LandingPage() {
         </section>
 
         {/* ================= FAQ SECTION ================= */}
-        <section className="py-20 md:py-32 bg-slate-50 border-t border-slate-200">
+        <section className="py-16 sm:py-24 md:py-32 bg-slate-50 border-t border-slate-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Frequently Asked Questions</h2>
-              <p className="mt-4 text-lg text-slate-600">Got questions? We've got answers.</p>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Frequently Asked Questions</h2>
+              <p className="mt-2 text-sm sm:text-lg text-slate-600">Got questions? We've got answers.</p>
             </motion.div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {[
                 { q: 'Is CampusConnect free for students?', a: 'Yes! CampusConnect is 100% free for students. You can create your profile, build your resume, and apply to unlimited campus drives without any charges.' },
                 { q: 'How do colleges onboard their student batches?', a: 'Colleges can upload student records in bulk via Excel/CSV or invite students to register directly. Placement officers can then verify and approve profiles with a single click.' },
                 { q: 'Can companies conduct live interviews in the portal?', a: 'Yes! The in-portal interview suite includes live code execution in Python & JavaScript, STAR behavioral rubrics, screen-sharing, and formal offer dispatching.' },
                 { q: 'Is candidate data protected and verified?', a: 'Yes, academic scores and college registrations are verified by official placement officers to ensure zero resume inflation and complete hiring transparency.' },
               ].map((faq, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                  <h4 className="text-base font-bold text-slate-900 mb-2 flex items-start gap-2.5">
-                    <div className="mt-0.5 text-brand-500"><ChevronRight size={18} /></div>
-                    {faq.q}
+                <motion.div key={i} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-slate-100 hover:shadow-md transition-shadow">
+                  <h4 className="text-sm sm:text-base font-bold text-slate-900 mb-1.5 flex items-start gap-2.5">
+                    <div className="mt-0.5 text-indigo-600 shrink-0"><ChevronRight size={17} /></div>
+                    <span>{faq.q}</span>
                   </h4>
-                  <p className="text-slate-600 ml-7 text-xs sm:text-sm leading-relaxed">{faq.a}</p>
+                  <p className="text-slate-600 ml-6 sm:ml-7 text-xs sm:text-sm leading-relaxed">{faq.a}</p>
                 </motion.div>
               ))}
             </div>

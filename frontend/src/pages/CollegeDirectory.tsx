@@ -207,50 +207,50 @@ export default function CollegeDirectory() {
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
       {/* ================= TOP NAVIGATION BAR ================= */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
               <GraduationCap size={22} />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-slate-900 leading-none">
+              <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 leading-none">
                 CampusConnect
               </span>
-              <span className="text-[10px] text-brand-600 font-semibold tracking-wider uppercase mt-0.5">
+              <span className="text-[10px] text-indigo-600 font-semibold tracking-wider uppercase mt-0.5">
                 Institutional Directory
               </span>
             </div>
           </Link>
 
           {/* User Status / Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex flex-col text-right">
                   <span className="text-xs font-semibold text-slate-900">{user.name || user.email}</span>
-                  <span className="text-[11px] text-brand-600 font-medium capitalize">
+                  <span className="text-[11px] text-indigo-600 font-medium capitalize">
                     {user.role === 'super_admin' ? 'Super Admin' : `${user.role} Account`}
                   </span>
                 </div>
                 <Link
                   to={`/dashboard/${user.role === 'super_admin' ? 'admin' : user.role}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
                 >
                   <BarChart3 size={15} />
-                  <span>My Dashboard</span>
+                  <span>Dashboard</span>
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-slate-900 hover:bg-brand-600 rounded-xl shadow-sm transition-all"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-xs shadow-indigo-500/20 transition-all"
                 >
                   Get Started
                 </Link>
@@ -261,43 +261,92 @@ export default function CollegeDirectory() {
       </header>
 
       {/* ================= HERO & SEARCH HEADER ================= */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-brand-50/20 to-slate-50 pt-10 pb-12 border-b border-slate-200">
-        {/* Subtle Ambient Blobs */}
-        <div className="absolute -top-16 -left-16 w-80 h-80 bg-brand-300/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-10 right-0 w-96 h-96 bg-teal-300/15 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-indigo-50/25 to-slate-50 pt-8 sm:pt-10 pb-10 sm:pb-12 border-b border-slate-200">
+        {/* Ambient Blobs */}
+        <div className="absolute -top-16 -left-16 w-80 h-80 bg-indigo-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-10 right-0 w-96 h-96 bg-violet-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs font-semibold mb-4 shadow-sm">
-              <Sparkles size={14} className="text-brand-600 animate-pulse" />
+          <div className="max-w-3xl mx-auto text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs font-semibold mb-4 shadow-xs">
+              <Sparkles size={14} className="text-indigo-600 animate-pulse" />
               <span>Public Directory & Audited Placement Intelligence</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
               Explore Campus Placement Performance
             </h1>
-            <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-2.5 sm:mt-3 text-xs sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed px-2">
               Search accredited universities, review public hiring benchmarks, or sign in with your college account to unlock verified student CTC rosters and department breakdowns.
             </p>
           </div>
 
           {/* Search Box */}
           <div className="max-w-2xl mx-auto">
-            <div className="relative flex items-center bg-white rounded-2xl shadow-xl shadow-brand-500/5 border border-slate-200/80 p-2 focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-brand-500 transition-all">
-              <div className="pl-3 text-slate-400">
-                <Search size={22} />
+            <div className="relative flex items-center bg-white rounded-2xl shadow-xl shadow-indigo-500/5 border border-slate-200/80 p-1.5 sm:p-2 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+              <div className="pl-3 text-slate-400 shrink-0">
+                <Search size={20} />
               </div>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search college by name, city, state, or location..."
-                className="w-full px-3 py-2 text-sm sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent"
+                className="w-full px-3 py-2 text-xs sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 mr-2 transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 mr-2 transition-colors shrink-0"
                 >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 mt-3 sm:mt-4 text-xs">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-slate-500 font-medium flex items-center gap-1">
+                  <Filter size={13} /> Tier:
+                </span>
+                {['All', 'Tier 1', 'Tier 2'].map((tier) => (
+                  <button
+                    key={tier}
+                    onClick={() => setSelectedTier(tier)}
+                    className={`px-3 py-1 rounded-full font-semibold transition-all ${
+                      selectedTier === tier
+                        ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {tier}
+                  </button>
+                ))}
+              </div>
+
+              {stateOptions.length > 2 && (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-slate-500 font-medium flex items-center gap-1">
+                    <MapPin size={13} /> Region:
+                  </span>
+                  <select
+                    value={selectedState}
+                    onChange={(e) => setSelectedState(e.target.value)}
+                    className="bg-white border border-slate-200 text-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  >
+                    {stateOptions.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
                   <X size={16} />
                 </button>
               )}
@@ -497,7 +546,7 @@ export default function CollegeDirectory() {
 
                 <button
                   onClick={() => setSelectedCollegeId(college.id)}
-                  className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-brand-600 shadow-sm transition-all"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-xs shadow-indigo-500/25 transition-all"
                 >
                   <span>Inspect Placement</span>
                   <ChevronRight size={14} />
@@ -511,59 +560,59 @@ export default function CollegeDirectory() {
       {/* ================= COLLEGE PERFORMANCE MODAL / DRAWER ================= */}
       <AnimatePresence>
         {selectedCollegeId && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25 }}
-              className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden"
+              className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[94vh] flex flex-col overflow-hidden"
             >
               {/* Modal Top Bar */}
-              <div className="p-5 sm:p-6 border-b border-slate-200 flex items-start justify-between gap-4 bg-gradient-to-r from-slate-50 to-white shrink-0">
-                <div className="flex items-start gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-brand-500/20">
-                    <Building2 size={24} />
+              <div className="p-4 sm:p-6 border-b border-slate-200 flex items-start justify-between gap-3 bg-gradient-to-r from-slate-50 to-white shrink-0">
+                <div className="flex items-start gap-2.5 sm:gap-3.5 min-w-0">
+                  <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25">
+                    <Building2 size={20} />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <h3 className="text-base sm:text-xl font-extrabold text-slate-900 truncate max-w-full">
                         {performanceData?.public_overview?.name || 'Institution Placement Report'}
                       </h3>
                       {performanceData?.can_view_detailed ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                          <Unlock size={12} />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          <Unlock size={11} />
                           Institutional Access Unlocked
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                          <Lock size={12} />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                          <Lock size={11} />
                           Public Benchmark View
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
-                      <MapPin size={12} />
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                      <MapPin size={12} className="shrink-0" />
                       <span>{performanceData?.public_overview?.location || 'India'}</span>
                       <span>•</span>
-                      <span>{performanceData?.public_overview?.accreditation || 'AICTE / UGC Recognized'}</span>
+                      <span className="truncate">{performanceData?.public_overview?.accreditation || 'AICTE / UGC Recognized'}</span>
                     </p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setSelectedCollegeId(null)}
-                  className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+                  className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors shrink-0"
                 >
                   <X size={20} />
                 </button>
               </div>
 
               {/* Modal Body (Scrollable) */}
-              <div className="p-5 sm:p-6 overflow-y-auto custom-scrollbar flex-grow space-y-6">
+              <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-grow space-y-5 sm:space-y-6">
                 {isPerformanceLoading && (
                   <div className="py-16 text-center space-y-3">
-                    <div className="w-10 h-10 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                    <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
                     <p className="text-xs font-semibold text-slate-500">
                       Loading placement records and verifying authorization...
                     </p>
@@ -581,25 +630,25 @@ export default function CollegeDirectory() {
                   <>
                     {/* Access Privilege Banner */}
                     <div
-                      className={`p-4 rounded-2xl border flex items-start gap-3 ${
+                      className={`p-3.5 sm:p-4 rounded-2xl border flex items-start gap-3 ${
                         performanceData.can_view_detailed
                           ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950'
                           : performanceData.user_context?.is_authenticated
                           ? 'bg-amber-50/80 border-amber-200 text-amber-950'
-                          : 'bg-brand-50/80 border-brand-200 text-brand-950'
+                          : 'bg-indigo-50/80 border-indigo-200 text-indigo-950'
                       }`}
                     >
                       <div className="mt-0.5 shrink-0">
                         {performanceData.can_view_detailed ? (
-                          <ShieldCheck size={20} className="text-emerald-600" />
+                          <ShieldCheck size={18} className="text-emerald-600" />
                         ) : (
-                          <Lock size={20} className="text-amber-600" />
+                          <Lock size={18} className="text-amber-600" />
                         )}
                       </div>
                       <div className="flex-1 text-xs">
                         {performanceData.can_view_detailed ? (
                           <>
-                            <span className="font-bold block text-sm text-emerald-900 mb-0.5">
+                            <span className="font-bold block text-xs sm:text-sm text-emerald-900 mb-0.5">
                               Authorized Institutional View
                             </span>
                             <span>
@@ -609,7 +658,7 @@ export default function CollegeDirectory() {
                           </>
                         ) : performanceData.user_context?.is_authenticated ? (
                           <>
-                            <span className="font-bold block text-sm text-amber-900 mb-0.5">
+                            <span className="font-bold block text-xs sm:text-sm text-amber-900 mb-0.5">
                               Restricted to {performanceData.public_overview?.name} Students & Faculty
                             </span>
                             <span>
@@ -621,7 +670,7 @@ export default function CollegeDirectory() {
                           </>
                         ) : (
                           <>
-                            <span className="font-bold block text-sm text-brand-900 mb-0.5">
+                            <span className="font-bold block text-xs sm:text-sm text-indigo-950 mb-0.5">
                               Public Benchmark Mode
                             </span>
                             <span>
@@ -632,7 +681,7 @@ export default function CollegeDirectory() {
                             <div className="mt-2.5">
                               <Link
                                 to={`/login?redirect=/colleges`}
-                                className="inline-flex items-center gap-1 px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg text-xs shadow-sm"
+                                className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg text-xs shadow-xs"
                               >
                                 <span>Sign In to Unlock Institutional Data</span>
                                 <ArrowRight size={13} />
@@ -646,56 +695,56 @@ export default function CollegeDirectory() {
                     {/* SECTION 1: PUBLIC PLACEMENT HIGHLIGHTS (Always Visible) */}
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                          <Award size={16} className="text-brand-600" />
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5 sm:gap-2">
+                          <Award size={16} className="text-indigo-600" />
                           <span>Campus Placement Overview & Benchmarks</span>
                         </h4>
-                        <span className="text-[11px] font-semibold text-slate-500">
+                        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500">
                           Public Benchmarks
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
-                          <span className="text-[11px] text-slate-500 font-medium block">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                        <div className="bg-slate-50 border border-slate-200/80 p-2.5 sm:p-3.5 rounded-2xl">
+                          <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block">
                             Placement Tier
                           </span>
-                          <span className="text-sm sm:text-base font-extrabold text-slate-900 mt-1 block">
+                          <span className="text-xs sm:text-base font-extrabold text-slate-900 mt-1 block truncate">
                             {performanceData.public_overview?.placement_tier || 'Tier 1 Benchmark'}
                           </span>
                         </div>
 
-                        <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
-                          <span className="text-[11px] text-slate-500 font-medium block">
+                        <div className="bg-slate-50 border border-slate-200/80 p-2.5 sm:p-3.5 rounded-2xl">
+                          <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block">
                             Est. Placement Bracket
                           </span>
-                          <span className="text-sm sm:text-base font-extrabold text-emerald-600 mt-1 block">
+                          <span className="text-xs sm:text-base font-extrabold text-emerald-600 mt-1 block truncate">
                             {performanceData.public_overview?.estimated_placement_bracket || '80% - 92%'}
                           </span>
                         </div>
 
-                        <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
-                          <span className="text-[11px] text-slate-500 font-medium block">
+                        <div className="bg-slate-50 border border-slate-200/80 p-2.5 sm:p-3.5 rounded-2xl">
+                          <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block">
                             Est. Average Package
                           </span>
-                          <span className="text-sm sm:text-base font-extrabold text-brand-700 mt-1 block">
+                          <span className="text-xs sm:text-base font-extrabold text-indigo-700 mt-1 block truncate">
                             {performanceData.public_overview?.estimated_average_package || '₹8.5 LPA - ₹12.0 LPA'}
                           </span>
                         </div>
 
-                        <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
-                          <span className="text-[11px] text-slate-500 font-medium block">
+                        <div className="bg-slate-50 border border-slate-200/80 p-2.5 sm:p-3.5 rounded-2xl">
+                          <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block">
                             Drives Hosted Season
                           </span>
-                          <span className="text-sm sm:text-base font-extrabold text-slate-900 mt-1 block">
+                          <span className="text-xs sm:text-base font-extrabold text-slate-900 mt-1 block truncate">
                             {performanceData.public_overview?.drives_hosted_this_season || 24}+ Drives
                           </span>
                         </div>
                       </div>
 
                       {/* Top Recruiters & Sectors */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
+                        <div className="p-3.5 sm:p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
                           <span className="text-xs font-bold text-slate-700 block mb-2">
                             Top Campus Recruiting Partners
                           </span>
@@ -711,7 +760,7 @@ export default function CollegeDirectory() {
                           </div>
                         </div>
 
-                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
+                        <div className="p-3.5 sm:p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
                           <span className="text-xs font-bold text-slate-700 block mb-2">
                             Active Hiring Sectors
                           </span>
@@ -719,7 +768,7 @@ export default function CollegeDirectory() {
                             {performanceData.public_overview?.active_hiring_sectors?.map((s) => (
                               <span
                                 key={s}
-                                className="px-2.5 py-1 bg-brand-50 border border-brand-200/80 rounded-lg text-xs font-medium text-brand-800"
+                                className="px-2.5 py-1 bg-indigo-50 border border-indigo-200/80 rounded-lg text-xs font-medium text-indigo-800"
                               >
                                 {s}
                               </span>
@@ -752,51 +801,51 @@ export default function CollegeDirectory() {
                       {performanceData.can_view_detailed && performanceData.verified_metrics ? (
                         <div className="space-y-6">
                           {/* Exact Audited Key Figures */}
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
-                              <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                            <div className="p-3 sm:p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl min-w-0">
+                              <span className="text-[10px] sm:text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">
                                 Audited Average CTC
                               </span>
-                              <span className="text-xl sm:text-2xl font-black text-emerald-900 mt-1 block">
+                              <span className="text-base sm:text-2xl font-black text-emerald-900 mt-1 block truncate">
                                 {performanceData.verified_metrics.average_ctc}
                               </span>
-                              <span className="text-[10px] text-emerald-700 font-medium">
-                                Across all engineering branches
+                              <span className="text-[10px] text-emerald-700 font-medium block truncate">
+                                Across all branches
                               </span>
                             </div>
 
-                            <div className="p-4 bg-brand-50/70 border border-brand-200 rounded-2xl">
-                              <span className="text-[11px] font-bold text-brand-800 uppercase tracking-wider block">
+                            <div className="p-3 sm:p-4 bg-indigo-50/70 border border-indigo-200 rounded-2xl min-w-0">
+                              <span className="text-[10px] sm:text-[11px] font-bold text-indigo-800 uppercase tracking-wider block">
                                 Highest Package
                               </span>
-                              <span className="text-xl sm:text-2xl font-black text-brand-900 mt-1 block">
+                              <span className="text-base sm:text-2xl font-black text-indigo-950 mt-1 block truncate">
                                 {performanceData.verified_metrics.highest_ctc}
                               </span>
-                              <span className="text-[10px] text-brand-700 font-medium">
-                                Top national placement offer
+                              <span className="text-[10px] text-indigo-700 font-medium block truncate">
+                                Top placement offer
                               </span>
                             </div>
 
-                            <div className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl">
-                              <span className="text-[11px] font-bold text-purple-800 uppercase tracking-wider block">
+                            <div className="p-3 sm:p-4 bg-purple-50/70 border border-purple-200 rounded-2xl min-w-0">
+                              <span className="text-[10px] sm:text-[11px] font-bold text-purple-800 uppercase tracking-wider block">
                                 Median Salary
                               </span>
-                              <span className="text-xl sm:text-2xl font-black text-purple-900 mt-1 block">
+                              <span className="text-base sm:text-2xl font-black text-purple-900 mt-1 block truncate">
                                 {performanceData.verified_metrics.median_ctc}
                               </span>
-                              <span className="text-[10px] text-purple-700 font-medium">
+                              <span className="text-[10px] text-purple-700 font-medium block truncate">
                                 50th percentile offer
                               </span>
                             </div>
 
-                            <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl">
-                              <span className="text-[11px] font-bold text-blue-800 uppercase tracking-wider block">
+                            <div className="p-3 sm:p-4 bg-blue-50/70 border border-blue-200 rounded-2xl min-w-0">
+                              <span className="text-[10px] sm:text-[11px] font-bold text-blue-800 uppercase tracking-wider block">
                                 Verified Placement %
                               </span>
-                              <span className="text-xl sm:text-2xl font-black text-blue-900 mt-1 block">
+                              <span className="text-base sm:text-2xl font-black text-blue-900 mt-1 block truncate">
                                 {performanceData.verified_metrics.exact_placement_rate}%
                               </span>
-                              <span className="text-[10px] text-blue-700 font-medium">
+                              <span className="text-[10px] text-blue-700 font-medium block truncate">
                                 {performanceData.verified_metrics.total_placed_candidates} of {performanceData.verified_metrics.total_registered_batch} placed
                               </span>
                             </div>
@@ -939,7 +988,7 @@ export default function CollegeDirectory() {
                               <div className="mt-4 flex flex-col sm:flex-row items-center gap-2">
                                 <Link
                                   to="/login?redirect=/colleges"
-                                  className="px-5 py-2.5 bg-slate-900 hover:bg-brand-600 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                                  className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 transition-all flex items-center gap-1.5"
                                 >
                                   <span>Sign In with College Credentials</span>
                                   <ArrowRight size={14} />

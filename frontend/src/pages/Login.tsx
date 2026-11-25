@@ -67,26 +67,26 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-50 font-sans selection:bg-brand-500/20">
-      {/* ================= LEFT SIDE: Simple, Clean & Animated Theme ================= */}
-      <div className="relative hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 text-white flex-col justify-between p-12 xl:p-16 overflow-hidden select-none">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-50 font-sans selection:bg-indigo-500/20 overflow-x-hidden">
+      {/* ================= LEFT SIDE: Simple, Clean & Animated Theme (Desktop) ================= */}
+      <div className="relative hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-950 via-[#0a0e1a] to-[#1e1b4b] text-white flex-col justify-between p-12 xl:p-16 overflow-hidden select-none">
         {/* Subtle Ambient Glows */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-brand-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-teal-400/10 blur-3xl pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(#14b8a6_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-violet-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 
         {/* Top: Brand Logo */}
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-3 group">
             <motion.div
               whileHover={{ rotate: 10, scale: 1.05 }}
-              className="bg-brand-500 p-2.5 rounded-xl text-white shadow-lg shadow-brand-500/30"
+              className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/30"
             >
               <GraduationCap size={26} />
             </motion.div>
             <div className="flex flex-col">
               <span className="text-2xl font-black tracking-tight text-white">CampusConnect</span>
-              <span className="text-[10px] text-brand-300 font-bold uppercase tracking-widest">
+              <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest">
                 Campus Recruitment Network
               </span>
             </div>
@@ -99,9 +99,9 @@ export default function Login() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-brand-300 text-xs font-semibold mb-6 backdrop-blur-md"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-indigo-300 text-xs font-semibold mb-6 backdrop-blur-md"
           >
-            <Sparkles size={14} className="text-brand-400" />
+            <Sparkles size={14} className="text-cyan-400" />
             <span>Unified Placement Platform</span>
           </motion.div>
 
@@ -112,7 +112,7 @@ export default function Login() {
             className="text-3xl xl:text-4xl font-extrabold tracking-tight text-white leading-snug mb-4"
           >
             Where campus talent meets{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-teal-200 to-emerald-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-violet-200 to-cyan-300">
               opportunity.
             </span>
           </motion.h1>
@@ -126,14 +126,14 @@ export default function Login() {
             Connect students, college placement cells, and corporate recruiters under one fast, transparent system.
           </motion.p>
 
-          {/* Simple, Clean Floating Pill Cards (MotionSites style) */}
+          {/* Simple, Clean Floating Pill Cards */}
           <div className="space-y-3">
             <motion.div
               animate={{ y: [0, -4, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
               className="flex items-center gap-3.5 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md hover:bg-white/[0.08] transition-all"
             >
-              <div className="w-9 h-9 rounded-lg bg-brand-500/20 text-brand-300 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0">
                 <GraduationCap size={18} />
               </div>
               <div className="text-xs">
@@ -147,7 +147,7 @@ export default function Login() {
               transition={{ repeat: Infinity, duration: 4.5, ease: 'easeInOut', delay: 0.5 }}
               className="flex items-center gap-3.5 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md hover:bg-white/[0.08] transition-all"
             >
-              <div className="w-9 h-9 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-violet-500/20 text-violet-300 flex items-center justify-center shrink-0">
                 <Building2 size={18} />
               </div>
               <div className="text-xs">
@@ -161,7 +161,7 @@ export default function Login() {
               transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut', delay: 1 }}
               className="flex items-center gap-3.5 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md hover:bg-white/[0.08] transition-all"
             >
-              <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
                 <Briefcase size={18} />
               </div>
               <div className="text-xs">
@@ -185,41 +185,41 @@ export default function Login() {
         </div>
       </div>
 
-      {/* ================= RIGHT SIDE: Clean, Simple Login Form ================= */}
-      <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-between p-6 sm:p-10 lg:p-14 relative bg-slate-50/70">
+      {/* ================= RIGHT SIDE: Mobile Friendly, Clean Login Form ================= */}
+      <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-between p-4 sm:p-8 lg:p-14 relative bg-slate-50/70 overflow-x-hidden">
         {/* Subtle Background Glow Accent */}
-        <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-brand-500/5 blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
 
         {/* Top Header: Mobile Logo & Back Link */}
-        <div className="relative z-10 flex items-center justify-between w-full max-w-md mx-auto mb-6 lg:mb-0">
+        <div className="relative z-10 flex items-center justify-between w-full max-w-md mx-auto mb-4 sm:mb-6 lg:mb-0">
           <div className="lg:hidden">
             <Link to="/" className="inline-flex items-center gap-2 group">
-              <div className="bg-brand-500 p-2 rounded-lg text-white shadow-md">
+              <div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2 rounded-xl text-white shadow-md shadow-indigo-500/20">
                 <GraduationCap size={20} />
               </div>
-              <span className="text-lg font-black text-slate-900 tracking-tight">CampusConnect</span>
+              <span className="text-base sm:text-lg font-black text-slate-900 tracking-tight">CampusConnect</span>
             </Link>
           </div>
 
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors ml-auto group"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-indigo-600 transition-colors ml-auto group py-1"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
-            Back to website
+            <span>Back to website</span>
           </Link>
         </div>
 
-        {/* Main Login Card */}
+        {/* Main Login Card - Optimized with comfortable mobile padding */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-md mx-auto my-auto relative z-10"
         >
-          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-7 sm:p-9">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-5 sm:p-8">
+            <div className="mb-5 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 Sign in to your account
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -248,7 +248,7 @@ export default function Login() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input-field pl-10 pr-4 py-2.5 text-sm sm:text-base rounded-xl"
+                    className="input-field pl-9 pr-3.5 py-2.5 text-sm sm:text-base rounded-xl"
                     placeholder="name@example.com"
                     autoComplete="username email"
                     autoCapitalize="none"
@@ -268,7 +268,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => alert('Please contact your administrator or placement officer to reset your password.')}
-                    className="text-xs font-medium text-brand-600 hover:text-brand-700 hover:underline"
+                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -281,7 +281,7 @@ export default function Login() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-10 pr-10 py-2.5 text-sm rounded-xl"
+                    className="input-field pl-9 pr-9 py-2.5 text-sm rounded-xl"
                     placeholder="••••••••"
                     autoComplete="current-password"
                     required
@@ -289,7 +289,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -303,7 +303,7 @@ export default function Login() {
                 whileTap={{ scale: 0.99 }}
                 type="submit"
                 disabled={loginMutation.isPending}
-                className="btn-primary w-full py-2.5 text-sm font-semibold rounded-xl shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30 flex items-center justify-center gap-2 mt-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full py-3 text-sm font-bold text-white rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 flex items-center justify-center gap-2 mt-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {loginMutation.isPending ? (
                   <>
@@ -320,12 +320,12 @@ export default function Login() {
             </form>
 
             {/* Register Link */}
-            <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+            <div className="mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-slate-100 text-center">
               <p className="text-xs sm:text-sm text-slate-600">
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-semibold text-brand-600 hover:text-brand-700 hover:underline"
+                  className="font-bold text-indigo-600 hover:text-indigo-700 hover:underline"
                 >
                   Create an account
                 </Link>
@@ -335,7 +335,7 @@ export default function Login() {
         </motion.div>
 
         {/* Clean Bottom Note */}
-        <div className="relative z-10 w-full max-w-md mx-auto text-center text-xs text-slate-400 py-2">
+        <div className="relative z-10 w-full max-w-md mx-auto text-center text-xs text-slate-400 py-3">
           <span>CampusConnect &bull; Single Sign-In for Students, Colleges, Companies & Admins</span>
         </div>
       </div>
