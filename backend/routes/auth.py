@@ -28,8 +28,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     db = get_database()
     users_collection = db["users"]
     
-    # 1. Find the user
-    user = await users_collection.find_one({"email": form_data.username})
+    # 1. Find the user (case-insensitive and trimmed email)
+    import re
+    username_clean = (form_data.username or "").strip()
+    user = await users_collection.find_one({
+        "email": {"$regex": f"^{re.escape(username_clean)}$", "$options": "i"}
+    })
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -138,8 +142,12 @@ async def register(user_in: UserCreate):
     if role_val == "company" and not controls.get("allow_company_registration", True):
         raise HTTPException(status_code=403, detail="Company registration is currently paused by the administrator.")
     
-    # Check if user exists
-    existing_user = await users_collection.find_one({"email": user_in.email})
+    # Check if user exists (case-insensitive)
+    import re
+    email_clean = (user_in.email or "").strip().lower()
+    existing_user = await users_collection.find_one({
+        "email": {"$regex": f"^{re.escape(email_clean)}$", "$options": "i"}
+    })
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -148,6 +156,7 @@ async def register(user_in: UserCreate):
     
     # Create new user dictionary
     user_dict = user_in.model_dump(exclude={"password"})
+    user_dict["email"] = email_clean
     user_dict["hashed_password"] = get_password_hash(user_in.password)
     user_dict["is_active"] = True
     user_dict["is_suspended"] = False

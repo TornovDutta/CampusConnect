@@ -131,7 +131,7 @@ else:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
-        allow_origin_regex=r"^https:\/\/.*\.vercel\.app$", # Auto-allows Vercel preview & production deployments
+        allow_origin_regex=r"^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$|^https:\/\/.*\.vercel\.app$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

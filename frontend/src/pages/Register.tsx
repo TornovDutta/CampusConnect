@@ -31,7 +31,12 @@ export default function Register() {
 
   const registerMutation = useMutation({
     mutationFn: async () => {
-      const payload: any = { email, password, role, name };
+      const payload: any = {
+        email: email.trim().toLowerCase(),
+        password,
+        role,
+        name: name.trim()
+      };
       if (role === 'student') payload.college_id = collegeId;
       const response = await api.post('/auth/register', payload);
       return response.data;
@@ -41,7 +46,11 @@ export default function Register() {
       setTimeout(() => navigate('/login'), 2000);
     },
     onError: (error: any) => {
-      setErrorMsg(error.response?.data?.detail || 'Registration failed');
+      if (!error.response) {
+        setErrorMsg('Network error: Unable to connect to server. Please verify your connection or server status.');
+      } else {
+        setErrorMsg(error.response?.data?.detail || 'Registration failed. Please try again.');
+      }
     }
   });
 
@@ -137,6 +146,10 @@ export default function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="input-field"
                 placeholder="email@example.com"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                autoComplete="email"
                 required
               />
             </div>

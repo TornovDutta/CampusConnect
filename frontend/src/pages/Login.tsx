@@ -28,8 +28,9 @@ export default function Login() {
 
   const loginMutation = useMutation({
     mutationFn: async () => {
+      const normalizedEmail = email.trim().toLowerCase();
       const formData = new URLSearchParams();
-      formData.append('username', email.trim());
+      formData.append('username', normalizedEmail);
       formData.append('password', password);
 
       const response = await api.post('/auth/login', formData, {
@@ -43,7 +44,15 @@ export default function Login() {
       login(data.access_token, data.user);
     },
     onError: (error: any) => {
-      setErrorMsg(error.response?.data?.detail || 'Invalid email or password. Please try again.');
+      if (!error.response) {
+        setErrorMsg('Network error: Cannot reach authentication server. Please verify your connection or backend server status.');
+      } else if (error.response.status === 401) {
+        setErrorMsg(error.response?.data?.detail || 'Incorrect email or password. Please verify your credentials.');
+      } else if (error.response.status === 403) {
+        setErrorMsg(error.response?.data?.detail || 'Account suspended or awaiting administrator approval.');
+      } else {
+        setErrorMsg(error.response?.data?.detail || `Login failed (${error.response.status}). Please try again.`);
+      }
     }
   });
 
@@ -239,9 +248,12 @@ export default function Login() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input-field pl-10 pr-4 py-2.5 text-sm rounded-xl"
+                    className="input-field pl-10 pr-4 py-2.5 text-sm sm:text-base rounded-xl"
                     placeholder="name@example.com"
-                    autoComplete="email"
+                    autoComplete="username email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
                     required
                   />
                 </div>

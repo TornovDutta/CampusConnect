@@ -27,7 +27,8 @@ import {
   FileText,
   Calendar,
   Bell,
-  Building2
+  Building2,
+  Menu
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import { api } from '../services/api';
@@ -35,6 +36,7 @@ import { api } from '../services/api';
 export default function DashboardLayout({ allowedRoles }: { allowedRoles: string[] }) {
   const { user, logout, isAuthenticated } = useAuth();
   const [dismissedBannerAt, setDismissedBannerAt] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { data: announcement } = useQuery({
     queryKey: ['platformAnnouncement'],
@@ -75,15 +77,44 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
       : 'bg-brand-50 border-brand-200 text-brand-900';
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col shrink-0">
-        <div className="h-16 flex items-center px-6 border-b border-slate-800">
-          <GraduationCap size={24} className="text-brand-400 mr-2" />
-          <span className="text-xl font-bold tracking-tight">CampusConnect</span>
+    <div className="min-h-screen bg-slate-50 flex relative overflow-x-hidden">
+      {/* Mobile Sidebar Backdrop Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Responsive Sidebar */}
+      <aside 
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 max-w-[85vw] bg-slate-900 text-white flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:static md:w-64 md:translate-x-0 ${
+          isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
+          <div className="flex items-center">
+            <GraduationCap size={24} className="text-brand-400 mr-2" />
+            <span className="text-xl font-bold tracking-tight">CampusConnect</span>
+          </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            aria-label="Close navigation menu"
+          >
+            <X size={20} />
+          </button>
         </div>
         
-        <nav className="flex-1 px-4 py-6 overflow-y-auto custom-scrollbar">
+        <nav 
+          className="flex-1 px-4 py-6 overflow-y-auto custom-scrollbar"
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest('a')) {
+              setIsMobileMenuOpen(false);
+            }
+          }}
+        >
           {/* Overview Section */}
           <div className="mb-6">
             <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Overview</h3>
@@ -640,18 +671,26 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sm:px-8 shadow-sm shrink-0">
-          <div className="flex items-center">
-            <div className="bg-brand-500 p-1.5 rounded-md text-white mr-3">
+      <main className="flex-1 overflow-auto flex flex-col min-w-0 w-full">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 lg:px-8 shadow-sm shrink-0">
+          <div className="flex items-center min-w-0">
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 mr-2 -ml-1 transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+            <div className="bg-brand-500 p-1.5 rounded-md text-white mr-2.5 sm:mr-3 shrink-0">
               <GraduationCap size={20} />
             </div>
-            <h1 className="text-xl font-bold text-slate-800 capitalize">
+            <h1 className="text-base sm:text-xl font-bold text-slate-800 capitalize truncate">
               {user.role.replace('_', ' ')} Portal
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <NotificationBell />
             <div className="hidden sm:flex items-center gap-2.5 pl-3 border-l border-slate-200">
               <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-bold flex items-center justify-center text-xs">
@@ -670,7 +709,7 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
         </header>
 
         {showBanner && announcement && (
-          <div className={`mx-6 sm:mx-8 mt-5 px-4 py-3 rounded-xl border text-sm flex items-center justify-between gap-3 ${bannerClasses}`}>
+          <div className={`mx-3 sm:mx-6 lg:mx-8 mt-4 px-4 py-3 rounded-xl border text-xs sm:text-sm flex items-center justify-between gap-3 ${bannerClasses}`}>
             <div className="flex items-center gap-2.5 min-w-0">
               <Sparkles size={16} className="shrink-0" />
               <p className="truncate sm:whitespace-normal">
@@ -689,7 +728,7 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
           </div>
         )}
 
-        <div className="p-6 sm:p-8 flex-1">
+        <div className="p-3.5 sm:p-6 lg:p-8 flex-1">
           <Outlet />
         </div>
       </main>

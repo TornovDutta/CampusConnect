@@ -26,7 +26,9 @@ import {
   SlidersHorizontal,
   FileText,
   Calendar,
-  Search
+  Search,
+  Menu,
+  X
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
@@ -93,6 +95,7 @@ function AnimatedCounter({ to, suffix = '' }: { to: number; suffix?: string }) {
 
 export default function LandingPage() {
   const [activeWorkflowTab, setActiveWorkflowTab] = useState<'student' | 'college' | 'company'>('student');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const { data: contactInfo } = useQuery({
     queryKey: ['publicContactInfo'],
@@ -136,16 +139,93 @@ export default function LandingPage() {
             </nav>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <Link to="/login" className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors px-3 py-2">
+              <Link to="/login" className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors px-2.5 sm:px-3 py-2">
                 Log in
               </Link>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block">
                 <Link to="/register" className="bg-slate-900 hover:bg-brand-600 text-white text-xs sm:text-sm font-semibold px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all shadow-sm hover:shadow-md hover:shadow-brand-500/20">
                   Get Started
                 </Link>
               </motion.div>
+
+              {/* Mobile Hamburger Button */}
+              <button
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="md:hidden p-2 rounded-full text-slate-700 hover:text-slate-900 hover:bg-black/5 transition-colors focus:outline-none"
+                aria-label="Toggle navigation menu"
+              >
+                {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
             </div>
           </div>
+
+          {/* Animated Mobile Dropdown Menu */}
+          <AnimatePresence>
+            {mobileNavOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                transition={{ duration: 0.2 }}
+                className="md:hidden mt-2 p-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-2xl space-y-2 pointer-events-auto"
+              >
+                <Link
+                  to="/colleges"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="flex items-center justify-between p-3 rounded-2xl bg-brand-50/90 border border-brand-200 text-brand-800 font-bold text-xs sm:text-sm shadow-xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <Search size={16} className="text-brand-600" />
+                    <span>Colleges & Placements</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-extrabold bg-brand-600 text-white px-2 py-0.5 rounded-full">
+                    Directory
+                  </span>
+                </Link>
+
+                <div className="space-y-0.5 pt-1">
+                  <a
+                    href="#features"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    Features
+                  </a>
+                  <a
+                    href="#workflow"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    Platform Tour
+                  </a>
+                  <a
+                    href="#how-it-works"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    How it Works
+                  </a>
+                  <a
+                    href="#stats"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    Impact & Metrics
+                  </a>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="w-full text-center py-2.5 bg-slate-900 hover:bg-brand-600 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-sm transition-colors"
+                  >
+                    Get Started Free
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.header>
       </div>
 
@@ -216,7 +296,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1, type: 'spring', bounce: 0.3 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-6 leading-[1.1]"
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-6 leading-[1.1]"
             >
               Bridge the gap between <br className="hidden md:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 via-teal-600 to-blue-600 animate-gradient-x inline-block">
@@ -276,11 +356,12 @@ export default function LandingPage() {
             >
               <Link
                 to="/colleges"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/90 hover:bg-brand-50 border border-slate-200/90 hover:border-brand-300 text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-700 transition-all shadow-sm hover:shadow-md"
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-white/90 hover:bg-brand-50 border border-slate-200/90 hover:border-brand-300 text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-700 transition-all shadow-sm hover:shadow-md"
               >
-                <Search size={15} className="text-brand-600" />
-                <span>Looking for a college? Search & inspect placement performance</span>
-                <ArrowRight size={14} className="text-brand-600" />
+                <Search size={15} className="text-brand-600 shrink-0" />
+                <span className="hidden sm:inline">Looking for a college? Search & inspect placement performance</span>
+                <span className="sm:hidden font-medium">Search & inspect college placements</span>
+                <ArrowRight size={14} className="text-brand-600 shrink-0" />
               </Link>
             </motion.div>
 
@@ -341,10 +422,10 @@ export default function LandingPage() {
               </p>
 
               {/* Animated Tab Switcher */}
-              <div className="flex items-center justify-center gap-2 mt-8 p-1 bg-slate-100 rounded-2xl w-fit mx-auto border border-slate-200">
+              <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1.5 sm:gap-2 mt-8 p-1 bg-slate-100 rounded-2xl max-w-full mx-auto border border-slate-200">
                 <button
                   onClick={() => setActiveWorkflowTab('student')}
-                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
+                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
                     activeWorkflowTab === 'student' ? 'text-brand-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -352,7 +433,7 @@ export default function LandingPage() {
                 </button>
                 <button
                   onClick={() => setActiveWorkflowTab('college')}
-                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
+                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
                     activeWorkflowTab === 'college' ? 'text-brand-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -360,7 +441,7 @@ export default function LandingPage() {
                 </button>
                 <button
                   onClick={() => setActiveWorkflowTab('company')}
-                  className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
+                  className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
                     activeWorkflowTab === 'company' ? 'text-brand-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >

@@ -1,7 +1,30 @@
 import axios from 'axios';
 
-const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const API_URL = RAW_API_URL.trim().replace(/\/+$/, '');
+function getBaseApiUrl(): string {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
+    return envUrl.trim().replace(/\/+$/, '');
+  }
+
+  // Handle client-side browser navigation dynamically
+  if (typeof window !== 'undefined' && window.location) {
+    const { hostname, protocol } = window.location;
+
+    // Cloud / Vercel preview & production deployments
+    if (hostname.endsWith('.vercel.app')) {
+      return 'https://campus-connect-l5ro-two.vercel.app';
+    }
+
+    // Local area network devices (e.g. mobile phones accessing http://192.168.x.x:5173 or http://10.x.x.x)
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `${protocol}//${hostname}:8000`;
+    }
+  }
+
+  return 'http://localhost:8000';
+}
+
+export const API_URL = getBaseApiUrl();
 
 export const api = axios.create({
   baseURL: API_URL,
