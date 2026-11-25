@@ -305,10 +305,10 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1, type: 'spring', bounce: 0.3 }}
-              className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-5 sm:mb-6 leading-[1.15] break-words"
+              className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight mb-5 sm:mb-6 leading-tight break-words max-w-full px-1"
             >
               Where campus ambition meets <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 animate-gradient-x inline-block">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 animate-gradient-x inline break-words">
                 Elite Career Opportunities
               </span>
             </motion.h1>
@@ -822,17 +822,17 @@ export default function LandingPage() {
         </section>
 
         {/* ================= CTA SECTION ================= */}
-        <section className="py-24 relative overflow-hidden bg-slate-950 text-white">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-600/20 to-teal-600/20 mix-blend-overlay pointer-events-none"></div>
+        <section className="py-20 sm:py-24 relative overflow-hidden bg-slate-950 text-white border-t border-indigo-900/40">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-violet-600/10 to-cyan-500/10 pointer-events-none"></div>
           <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
-            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-3xl md:text-5xl font-black mb-6 leading-tight">
+            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-2xl sm:text-4xl md:text-5xl font-black mb-4 sm:mb-6 leading-tight">
               Ready to transform your <br className="hidden md:block" /> campus recruitment?
             </motion.h2>
-            <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-base sm:text-lg text-slate-300 mb-10 max-w-xl mx-auto">
+            <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="text-sm sm:text-lg text-slate-300 mb-8 sm:mb-10 max-w-xl mx-auto px-2">
               Join hundreds of institutions and companies already streamlining placements with CampusConnect.
             </motion.p>
-            <motion.div initial={{ opacity: 0, scale: 0.85 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.2, type: 'spring' }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
-              <Link to="/register" className="inline-flex items-center justify-center bg-brand-500 hover:bg-brand-400 text-white px-9 py-4 rounded-full text-base font-bold transition-all shadow-xl shadow-brand-500/40 hover:shadow-brand-500/60">
+            <motion.div initial={{ opacity: 0, scale: 0.85 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.2, type: 'spring' }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block w-full sm:w-auto">
+              <Link to="/register" className="inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white px-8 sm:px-9 py-3.5 sm:py-4 rounded-2xl sm:rounded-full text-sm sm:text-base font-bold transition-all shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 w-full sm:w-auto">
                 Get Started Now <ChevronRight size={18} className="ml-1.5" />
               </Link>
             </motion.div>
@@ -841,49 +841,49 @@ export default function LandingPage() {
       </main>
 
       {/* ================= FOOTER ================= */}
-      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800">
+      <footer className="bg-slate-950 text-slate-400 py-12 sm:py-16 border-t border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div className="col-span-1 md:col-span-2 flex flex-col items-center md:items-start">
-              <div className="flex items-center gap-3 mb-5 group cursor-pointer">
-                <div className="bg-brand-500/20 p-2.5 rounded-xl group-hover:bg-brand-500/30 transition-colors">
-                  <GraduationCap size={26} className="text-brand-400" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12 mb-12 sm:mb-16">
+            <div className="col-span-1 md:col-span-2 flex flex-col items-center md:items-start text-center md:text-left">
+              <div className="flex items-center gap-3 mb-4 group cursor-pointer">
+                <div className="bg-indigo-600/20 p-2.5 rounded-xl group-hover:bg-indigo-600/30 transition-colors">
+                  <GraduationCap size={26} className="text-indigo-400" />
                 </div>
                 <span className="text-2xl font-black text-white tracking-tight">CampusConnect</span>
               </div>
-              <p className="text-slate-400 text-center md:text-left max-w-sm leading-relaxed text-sm">
+              <p className="text-slate-400 max-w-sm leading-relaxed text-xs sm:text-sm">
                 Empowering students, colleges, and recruiters with an automated, transparent campus hiring platform.
               </p>
             </div>
 
             <div className="flex flex-col items-center md:items-start">
-              <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Quick Links</h4>
-              <ul className="space-y-3 flex flex-col items-center md:items-start text-xs sm:text-sm">
-                <li><Link to="/register?role=college" className="hover:text-brand-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Register Institution</Link></li>
-                <li><Link to="/register?role=company" className="hover:text-brand-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Hire Talent</Link></li>
-                <li><Link to="/register?role=student" className="hover:text-brand-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Join as Student</Link></li>
-                <li><Link to="/login" className="hover:text-brand-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Login to Portal</Link></li>
+              <h4 className="text-white font-bold mb-4 sm:mb-5 text-xs sm:text-sm uppercase tracking-wider">Quick Links</h4>
+              <ul className="space-y-2.5 sm:space-y-3 flex flex-col items-center md:items-start text-xs sm:text-sm">
+                <li><Link to="/register?role=college" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Register Institution</Link></li>
+                <li><Link to="/register?role=company" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Hire Talent</Link></li>
+                <li><Link to="/register?role=student" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Join as Student</Link></li>
+                <li><Link to="/login" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><ChevronRight size={14} /> Login to Portal</Link></li>
               </ul>
             </div>
 
             <div className="flex flex-col items-center md:items-start">
-              <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Contact & Support</h4>
+              <h4 className="text-white font-bold mb-4 sm:mb-5 text-xs sm:text-sm uppercase tracking-wider">Contact & Support</h4>
               {contactInfo ? (
-                <ul className="space-y-3 w-full max-w-xs flex flex-col items-center md:items-start text-xs sm:text-sm">
+                <ul className="space-y-2.5 sm:space-y-3 w-full max-w-xs flex flex-col items-center md:items-start text-xs sm:text-sm">
                   {contactInfo.email && (
                     <li>
                       <a href={`mailto:${contactInfo.email}`} className="group flex items-center gap-2.5 hover:text-white transition-colors">
-                        <div className="bg-slate-800 p-1.5 rounded-lg text-brand-400">
+                        <div className="bg-slate-900 p-1.5 rounded-lg text-indigo-400 border border-slate-800">
                           <Mail size={16} />
                         </div>
-                        <span>{contactInfo.email}</span>
+                        <span className="truncate">{contactInfo.email}</span>
                       </a>
                     </li>
                   )}
                   {contactInfo.phone && (
                     <li>
                       <a href={`tel:${contactInfo.phone}`} className="group flex items-center gap-2.5 hover:text-white transition-colors">
-                        <div className="bg-slate-800 p-1.5 rounded-lg text-brand-400">
+                        <div className="bg-slate-900 p-1.5 rounded-lg text-indigo-400 border border-slate-800">
                           <Phone size={16} />
                         </div>
                         <span>{contactInfo.phone}</span>
@@ -892,12 +892,12 @@ export default function LandingPage() {
                   )}
                 </ul>
               ) : (
-                <p className="text-xs text-slate-500 bg-slate-900 p-3 rounded-lg">Contact info not available</p>
+                <p className="text-xs text-slate-500 bg-slate-900 p-3 rounded-lg border border-slate-800">Contact info not available</p>
               )}
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-800/60 text-xs text-slate-500 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-900 text-xs text-slate-500 gap-4">
             <p>© {new Date().getFullYear()} CampusConnect. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>

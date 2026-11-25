@@ -347,54 +347,6 @@ export default function CollegeDirectory() {
           </div>
         </div>
       </section>
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-
-            {/* Filter Pills */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mt-4 text-xs">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-slate-500 font-medium flex items-center gap-1">
-                  <Filter size={13} /> Tier:
-                </span>
-                {['All', 'Tier 1', 'Tier 2'].map((tier) => (
-                  <button
-                    key={tier}
-                    onClick={() => setSelectedTier(tier)}
-                    className={`px-3 py-1 rounded-full font-semibold transition-all ${
-                      selectedTier === tier
-                        ? 'bg-slate-900 text-white shadow-sm'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    {tier}
-                  </button>
-                ))}
-              </div>
-
-              {stateOptions.length > 2 && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-slate-500 font-medium flex items-center gap-1">
-                    <MapPin size={13} /> Region:
-                  </span>
-                  <select
-                    value={selectedState}
-                    onChange={(e) => setSelectedState(e.target.value)}
-                    className="bg-white border border-slate-200 text-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500"
-                  >
-                    {stateOptions.map((st) => (
-                      <option key={st} value={st}>
-                        {st}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ================= MAIN DIRECTORY LISTING ================= */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
