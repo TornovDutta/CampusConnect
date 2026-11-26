@@ -113,7 +113,7 @@ async def search_public_colleges(
             "status": {"$in": ["Shortlisted", "Offer Sent", "Hired", "Accepted", "Selected"]}
         })
 
-        # Get prominent recruiting companies for this college
+        # Get prominent recruiting companies for this college from real applications
         companies_cursor = apps_col.aggregate([
             {"$match": {"college_id": cid, "company_name": {"$exists": True, "$ne": ""}}},
             {"$group": {"_id": "$company_name", "count": {"$sum": 1}}},
@@ -125,23 +125,42 @@ async def search_public_colleges(
             if comp["_id"]:
                 top_companies.append(comp["_id"])
 
-        if not top_companies:
-            top_companies = ["Google", "Microsoft", "TCS", "Infosys", "Deloitte"]
+        # Real CTC calculation from offers
+        ctc_cursor = apps_col.find(
+            {"college_id": cid, "status": {"$in": ["Shortlisted", "Offer Sent", "Hired", "Accepted", "Selected"]}},
+            {"offer_details": 1, "stipend": 1}
+        )
+        ctc_vals = []
+        async for c_app in ctc_cursor:
+            raw_c = (c_app.get("offer_details") or {}).get("ctc_or_stipend") or c_app.get("stipend")
+            c_val = _extract_ctc_number(raw_c)
+            if c_val is not None:
+                ctc_vals.append(c_val)
 
-        # Calculate estimated public placement tier without leaking exact confidential numbers
+        if ctc_vals:
+            min_c = min(ctc_vals)
+            max_c = max(ctc_vals)
+            avg_c = round(sum(ctc_vals) / len(ctc_vals), 1)
+            pkg_str = f"₹{min_c} - ₹{max_c} LPA" if min_c != max_c else f"₹{avg_c} LPA Avg"
+        elif placed_count > 0:
+            pkg_str = f"{placed_count} Offer{'s' if placed_count != 1 else ''} Extended"
+        else:
+            pkg_str = "Placement Drives Active"
+
+        # Calculate placement tier directly from real student & placement records
         if student_count > 0:
             rate = round((placed_count / student_count) * 100, 1)
-            if rate >= 85:
-                tier_label = "Tier 1 Prime (88% - 96% Placement Benchmark)"
+            if rate >= 80:
+                tier_label = f"Tier 1 Benchmark ({rate}% Placed)"
                 badge = "High Placement Performance"
-            elif rate >= 65:
-                tier_label = "Tier 2 Established (72% - 85% Placement Benchmark)"
+            elif rate >= 50:
+                tier_label = f"Tier 2 Track ({rate}% Placed)"
                 badge = "Consistent Placement"
             else:
-                tier_label = "Active Placement Track (60% - 75% Placement Benchmark)"
+                tier_label = f"Active Track ({rate}% Placed)" if placed_count > 0 else "Active Placement Track"
                 badge = "Growing Placement Hub"
         else:
-            tier_label = "Accredited Campus Network"
+            tier_label = "Registered Campus Partner"
             badge = "Verified Campus"
 
         colleges.append({
@@ -154,11 +173,11 @@ async def search_public_colleges(
             "location": doc.get("location") or doc.get("city") or "India",
             "website": doc.get("website") or "",
             "accreditation": doc.get("accreditation") or "AICTE / UGC Recognized",
-            "student_pool_size": f"{max(student_count, 150)}+ Enrolled Students",
+            "student_pool_size": f"{student_count} Enrolled Student{'s' if student_count != 1 else ''}",
             "placement_tier": tier_label,
             "performance_badge": badge,
             "top_hiring_partners": top_companies[:4],
-            "average_package_bracket": "₹7.5 LPA - ₹14.0 LPA (Est.)",
+            "average_package_bracket": pkg_str,
             "is_verified": True
         })
 
@@ -279,17 +298,29 @@ async def get_college_placement_performance(
                 })
 
     placed_count = len(placed_students_set)
-    # Guarantee consistent placement baseline for demo/active colleges
-    benchmark_placed = max(placed_count, int(total_students * 0.78)) if total_students > 0 else 42
-    benchmark_total = max(total_students, 50)
-    calculated_rate = round((benchmark_placed / benchmark_total) * 100, 1)
+    calculated_rate = round((placed_count / total_students) * 100, 1) if total_students > 0 else 0.0
 
-    # Top Recruiters
+    # Count real campus drives / jobs open or targeted to this college
+    jobs_col = db["jobs"]
+    drives_hosted = await jobs_col.count_documents({
+        "$or": [
+            {"target_colleges": college_id},
+            {"college_id": college_id},
+            {"visibility": "public"}
+        ],
+        "status": {"$ne": "flagged"}
+    })
+
+    # Real Recruiting Partners from applications
     comp_map: Dict[str, int] = {}
+    sector_set = set()
     for a in applications:
         c_name = a.get("company_name")
         if c_name:
             comp_map[c_name] = comp_map.get(c_name, 0) + 1
+        ind = a.get("job_industry") or a.get("industry")
+        if ind:
+            sector_set.add(ind)
 
     top_recruiters = sorted(
         [{"company": k, "hires": v} for k, v in comp_map.items()],
@@ -297,15 +328,29 @@ async def get_college_placement_performance(
         reverse=True
     )[:8]
 
-    if not top_recruiters:
-        top_recruiters = [
-            {"company": "Google", "hires": 14},
-            {"company": "Microsoft", "hires": 11},
-            {"company": "Amazon", "hires": 9},
-            {"company": "Cisco", "hires": 8},
-            {"company": "Deloitte", "hires": 18},
-            {"company": "Infosys", "hires": 25}
-        ]
+    # Package calculation from real offers
+    if ctc_values:
+        avg_ctc = round(sum(ctc_values) / len(ctc_values), 1)
+        highest_ctc = max(ctc_values)
+        median_ctc = sorted(ctc_values)[len(ctc_values) // 2]
+        est_pkg_str = f"₹{avg_ctc} LPA Avg" if len(ctc_values) == 1 else f"₹{min(ctc_values)} - ₹{highest_ctc} LPA"
+    else:
+        avg_ctc = 0.0
+        highest_ctc = 0.0
+        median_ctc = 0.0
+        est_pkg_str = "Awaiting Offers"
+
+    # Dynamic tier calculation
+    if calculated_rate >= 80:
+        tier_label = f"Tier 1 Benchmark ({calculated_rate}%)"
+    elif calculated_rate >= 50:
+        tier_label = f"Tier 2 Track ({calculated_rate}%)"
+    elif total_students > 0:
+        tier_label = f"Active Track ({calculated_rate}%)" if placed_count > 0 else "Placement Drives Underway"
+    else:
+        tier_label = "Registered Institution"
+
+    est_bracket = f"{calculated_rate}% Verified" if total_students > 0 else "0% (New Campus)"
 
     # Public Overview (Always available to non-logged-in & logged-in users)
     public_overview = {
@@ -316,14 +361,14 @@ async def get_college_placement_performance(
         "state": college_doc.get("state") or "",
         "location": college_doc.get("location") or "India",
         "website": college_doc.get("website") or "",
-        "accreditation": college_doc.get("accreditation") or "NAAC 'A+' Accredited / AICTE Approved",
-        "placement_tier": "Tier 1 National Benchmark" if calculated_rate >= 85 else "Tier 2 Established Placement Track",
-        "estimated_placement_bracket": f"{int(calculated_rate - 4)}% - {min(98, int(calculated_rate + 4))}%",
-        "estimated_average_package": "₹8.5 LPA - ₹12.5 LPA",
+        "accreditation": college_doc.get("accreditation") or "AICTE / UGC Recognized",
+        "placement_tier": tier_label,
+        "estimated_placement_bracket": est_bracket,
+        "estimated_average_package": est_pkg_str,
         "top_recruiters": [r["company"] for r in top_recruiters[:5]],
-        "active_hiring_sectors": ["Cloud & Software Engineering", "AI & Data Systems", "Consulting & Analytics", "Core Engineering"],
-        "student_community_size": f"{benchmark_total}+ Verified Students",
-        "drives_hosted_this_season": max(len(applications) // 3, 16)
+        "active_hiring_sectors": list(sector_set)[:5] if sector_set else ["Software Engineering", "Core Engineering", "Analytics", "Product & Operations"],
+        "student_community_size": f"{total_students} Verified Student{'s' if total_students != 1 else ''}",
+        "drives_hosted_this_season": drives_hosted
     }
 
     # If user does NOT have permission to view detailed confidential data:
@@ -355,15 +400,10 @@ async def get_college_placement_performance(
     # DETAILED ACCURATE DATA (Authorized User Belonging to this College)
     # =================================================================
 
-    # Exact Salary Metrics
-    avg_ctc = round(sum(ctc_values) / len(ctc_values), 1) if ctc_values else 9.6
-    highest_ctc = max(ctc_values) if ctc_values else 28.5
-    median_ctc = round(avg_ctc * 0.92, 1)
-
-    # Department / Branch Breakdown
+    # Department / Branch Breakdown from real students
     branch_stats: Dict[str, Dict[str, Any]] = {}
     for s in students:
-        br = (s.get("branch") or "Computer Science & Eng").strip()
+        br = (s.get("branch") or "General / Multi-Disciplinary").strip()
         sid = str(s["_id"])
         is_placed = sid in placed_students_set
         
@@ -373,7 +413,6 @@ async def get_college_placement_performance(
         if is_placed:
             branch_stats[br]["placed"] += 1
 
-    # Format department breakdown
     dept_breakdown = []
     for br, stats in branch_stats.items():
         tot = stats["total"]
@@ -383,19 +422,10 @@ async def get_college_placement_performance(
             "total_students": tot,
             "placed_students": plc,
             "unplaced_students": max(0, tot - plc),
-            "placement_rate": round((plc / tot) * 100, 1) if tot > 0 else 0
+            "placement_rate": round((plc / tot) * 100, 1) if tot > 0 else 0.0
         })
 
-    if not dept_breakdown:
-        dept_breakdown = [
-            {"branch": "Computer Science & Engineering", "total_students": 120, "placed_students": 112, "unplaced_students": 8, "placement_rate": 93.3},
-            {"branch": "Information Technology", "total_students": 80, "placed_students": 73, "unplaced_students": 7, "placement_rate": 91.2},
-            {"branch": "Electronics & Communication", "total_students": 95, "placed_students": 81, "unplaced_students": 14, "placement_rate": 85.3},
-            {"branch": "Electrical & Electronics", "total_students": 60, "placed_students": 46, "unplaced_students": 14, "placement_rate": 76.7},
-            {"branch": "Mechanical Engineering", "total_students": 50, "placed_students": 36, "unplaced_students": 14, "placement_rate": 72.0}
-        ]
-
-    # CGPA Band Success Matrix
+    # CGPA Band Success Matrix from real students
     cgpa_bands = [
         {"band": "9.0+ CGPA", "total": 0, "placed": 0},
         {"band": "8.0 - 8.9 CGPA", "total": 0, "placed": 0},
@@ -419,40 +449,25 @@ async def get_college_placement_performance(
                 cgpa_bands[3]["total"] += 1
                 if is_p: cgpa_bands[3]["placed"] += 1
 
-    # Fill default matrix if empty
-    if all(b["total"] == 0 for b in cgpa_bands):
-        cgpa_bands = [
-            {"band": "9.0+ CGPA", "total": 45, "placed": 44, "rate": 97.7},
-            {"band": "8.0 - 8.9 CGPA", "total": 110, "placed": 102, "rate": 92.7},
-            {"band": "7.0 - 7.9 CGPA", "total": 90, "placed": 76, "rate": 84.4},
-            {"band": "< 7.0 CGPA", "total": 35, "placed": 21, "rate": 60.0}
-        ]
-    else:
-        for b in cgpa_bands:
-            b["rate"] = round((b["placed"] / b["total"]) * 100, 1) if b["total"] > 0 else 0
+    for b in cgpa_bands:
+        b["rate"] = round((b["placed"] / b["total"]) * 100, 1) if b["total"] > 0 else 0.0
 
     return {
         "can_view_detailed": True,
         "user_context": user_context,
         "public_overview": public_overview,
         "verified_metrics": {
-            "total_registered_batch": benchmark_total,
-            "total_placed_candidates": benchmark_placed,
+            "total_registered_batch": total_students,
+            "total_placed_candidates": placed_count,
             "exact_placement_rate": calculated_rate,
-            "average_ctc": f"₹{avg_ctc} LPA",
-            "highest_ctc": f"₹{highest_ctc} LPA",
-            "median_ctc": f"₹{median_ctc} LPA",
+            "average_ctc": f"₹{avg_ctc} LPA" if ctc_values else "N/A",
+            "highest_ctc": f"₹{highest_ctc} LPA" if ctc_values else "N/A",
+            "median_ctc": f"₹{median_ctc} LPA" if ctc_values else "N/A",
             "active_applications_in_pipeline": len(applications),
             "total_participating_companies": len(top_recruiters)
         },
         "department_breakdown": dept_breakdown,
         "cgpa_success_matrix": cgpa_bands,
         "recruiter_leaderboard": top_recruiters,
-        "recent_placement_roll": offers_list[:10] if offers_list else [
-            {"student_name": "Arjun Sharma", "job_title": "Software Development Engineer", "company_name": "Google", "ctc": "₹24.0 LPA", "status": "Hired"},
-            {"student_name": "Priya Nair", "job_title": "Cloud Systems Associate", "company_name": "Microsoft", "ctc": "₹18.5 LPA", "status": "Hired"},
-            {"student_name": "Karthik Verma", "job_title": "Full-Stack Engineer", "company_name": "Cisco", "ctc": "₹15.0 LPA", "status": "Offer Sent"},
-            {"student_name": "Sneha Patel", "job_title": "Data Analyst", "company_name": "Deloitte", "ctc": "₹11.2 LPA", "status": "Hired"},
-            {"student_name": "Ananya Roy", "job_title": "Systems Engineer", "company_name": "Infosys", "ctc": "₹8.5 LPA", "status": "Selected"}
-        ]
+        "recent_placement_roll": offers_list[:10]
     }

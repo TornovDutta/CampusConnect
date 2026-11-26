@@ -662,7 +662,7 @@ export default function CollegeDirectory() {
                             Placement Tier
                           </span>
                           <span className="text-xs sm:text-base font-extrabold text-slate-900 mt-1 block truncate">
-                            {performanceData.public_overview?.placement_tier || 'Tier 1 Benchmark'}
+                            {performanceData.public_overview?.placement_tier || 'Registered Institution'}
                           </span>
                         </div>
 
@@ -671,7 +671,7 @@ export default function CollegeDirectory() {
                             Est. Placement Bracket
                           </span>
                           <span className="text-xs sm:text-base font-extrabold text-emerald-600 mt-1 block truncate">
-                            {performanceData.public_overview?.estimated_placement_bracket || '80% - 92%'}
+                            {performanceData.public_overview?.estimated_placement_bracket || 'In Progress'}
                           </span>
                         </div>
 
@@ -680,7 +680,7 @@ export default function CollegeDirectory() {
                             Est. Average Package
                           </span>
                           <span className="text-xs sm:text-base font-extrabold text-indigo-700 mt-1 block truncate">
-                            {performanceData.public_overview?.estimated_average_package || '₹8.5 LPA - ₹12.0 LPA'}
+                            {performanceData.public_overview?.estimated_average_package || 'Awaiting Offers'}
                           </span>
                         </div>
 
@@ -689,7 +689,7 @@ export default function CollegeDirectory() {
                             Drives Hosted Season
                           </span>
                           <span className="text-xs sm:text-base font-extrabold text-slate-900 mt-1 block truncate">
-                            {performanceData.public_overview?.drives_hosted_this_season || 24}+ Drives
+                            {performanceData.public_overview?.drives_hosted_this_season ?? 0} Drives
                           </span>
                         </div>
                       </div>
@@ -701,14 +701,18 @@ export default function CollegeDirectory() {
                             Top Campus Recruiting Partners
                           </span>
                           <div className="flex flex-wrap gap-1.5">
-                            {performanceData.public_overview?.top_recruiters?.map((c) => (
-                              <span
-                                key={c}
-                                className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 shadow-2xs"
-                              >
-                                {c}
-                              </span>
-                            ))}
+                            {performanceData.public_overview?.top_recruiters && performanceData.public_overview.top_recruiters.length > 0 ? (
+                              performanceData.public_overview.top_recruiters.map((c) => (
+                                <span
+                                  key={c}
+                                  className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 shadow-2xs"
+                                >
+                                  {c}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-slate-400 italic">No recruiters registered yet</span>
+                            )}
                           </div>
                         </div>
 
@@ -717,14 +721,18 @@ export default function CollegeDirectory() {
                             Active Hiring Sectors
                           </span>
                           <div className="flex flex-wrap gap-1.5">
-                            {performanceData.public_overview?.active_hiring_sectors?.map((s) => (
-                              <span
-                                key={s}
-                                className="px-2.5 py-1 bg-indigo-50 border border-indigo-200/80 rounded-lg text-xs font-medium text-indigo-800"
-                              >
-                                {s}
-                              </span>
-                            ))}
+                            {performanceData.public_overview?.active_hiring_sectors && performanceData.public_overview.active_hiring_sectors.length > 0 ? (
+                              performanceData.public_overview.active_hiring_sectors.map((s) => (
+                                <span
+                                  key={s}
+                                  className="px-2.5 py-1 bg-indigo-50 border border-indigo-200/80 rounded-lg text-xs font-medium text-indigo-800"
+                                >
+                                  {s}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-slate-400 italic">General hiring sectors active</span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -812,24 +820,30 @@ export default function CollegeDirectory() {
                                   Total Batch vs Placed Students
                                 </span>
                               </h5>
-                              <div className="space-y-3">
-                                {performanceData.department_breakdown.map((dept) => (
-                                  <div key={dept.branch} className="space-y-1">
-                                    <div className="flex items-center justify-between text-xs">
-                                      <span className="font-semibold text-slate-800">{dept.branch}</span>
-                                      <span className="font-bold text-slate-900">
-                                        {dept.placement_rate}% ({dept.placed_students} / {dept.total_students} Placed)
-                                      </span>
+                              {performanceData.department_breakdown.length > 0 ? (
+                                <div className="space-y-3">
+                                  {performanceData.department_breakdown.map((dept) => (
+                                    <div key={dept.branch} className="space-y-1">
+                                      <div className="flex items-center justify-between text-xs">
+                                        <span className="font-semibold text-slate-800">{dept.branch}</span>
+                                        <span className="font-bold text-slate-900">
+                                          {dept.placement_rate}% ({dept.placed_students} / {dept.total_students} Placed)
+                                        </span>
+                                      </div>
+                                      <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                                        <div
+                                          className="bg-brand-600 h-full rounded-full transition-all duration-500"
+                                          style={{ width: `${Math.min(100, dept.placement_rate)}%` }}
+                                        />
+                                      </div>
                                     </div>
-                                    <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                                      <div
-                                        className="bg-brand-600 h-full rounded-full transition-all duration-500"
-                                        style={{ width: `${Math.min(100, dept.placement_rate)}%` }}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-slate-400 italic py-2 text-center">
+                                  No department records currently registered for this campus.
+                                </p>
+                              )}
                             </div>
                           )}
 
@@ -847,7 +861,7 @@ export default function CollegeDirectory() {
                                   >
                                     <span className="text-xs font-bold text-slate-900 block">{band.band}</span>
                                     <span className="text-base font-extrabold text-brand-600 mt-1 block">
-                                      {band.rate ?? Math.round((band.placed / (band.total || 1)) * 100)}%
+                                      {band.total > 0 ? `${band.rate ?? Math.round((band.placed / band.total) * 100)}%` : '0%'}
                                     </span>
                                     <span className="text-[10px] text-slate-500">
                                       {band.placed} / {band.total} Placed
@@ -864,44 +878,50 @@ export default function CollegeDirectory() {
                               <h5 className="text-xs font-bold text-slate-800 mb-3">
                                 Recent Verified Placement Roll
                               </h5>
-                              <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-2xs">
-                                <div className="overflow-x-auto">
-                                  <table className="w-full text-left text-xs">
-                                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
-                                      <tr>
-                                        <th className="px-4 py-2.5">Candidate</th>
-                                        <th className="px-4 py-2.5">Company</th>
-                                        <th className="px-4 py-2.5">Role</th>
-                                        <th className="px-4 py-2.5">Package</th>
-                                        <th className="px-4 py-2.5 text-right">Status</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 font-medium">
-                                      {performanceData.recent_placement_roll.map((roll, idx) => (
-                                        <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                                          <td className="px-4 py-2.5 font-bold text-slate-900">
-                                            {roll.student_name}
-                                          </td>
-                                          <td className="px-4 py-2.5 text-slate-800">
-                                            {roll.company_name}
-                                          </td>
-                                          <td className="px-4 py-2.5 text-slate-600">
-                                            {roll.job_title}
-                                          </td>
-                                          <td className="px-4 py-2.5 font-bold text-brand-700">
-                                            {roll.ctc}
-                                          </td>
-                                          <td className="px-4 py-2.5 text-right">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                              {roll.status}
-                                            </span>
-                                          </td>
+                              {performanceData.recent_placement_roll.length > 0 ? (
+                                <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-2xs">
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-xs">
+                                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                                        <tr>
+                                          <th className="px-4 py-2.5">Candidate</th>
+                                          <th className="px-4 py-2.5">Company</th>
+                                          <th className="px-4 py-2.5">Role</th>
+                                          <th className="px-4 py-2.5">Package</th>
+                                          <th className="px-4 py-2.5 text-right">Status</th>
                                         </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
+                                      </thead>
+                                      <tbody className="divide-y divide-slate-100 font-medium">
+                                        {performanceData.recent_placement_roll.map((roll, idx) => (
+                                          <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                                            <td className="px-4 py-2.5 font-bold text-slate-900">
+                                              {roll.student_name}
+                                            </td>
+                                            <td className="px-4 py-2.5 text-slate-800">
+                                              {roll.company_name}
+                                            </td>
+                                            <td className="px-4 py-2.5 text-slate-600">
+                                              {roll.job_title}
+                                            </td>
+                                            <td className="px-4 py-2.5 font-bold text-brand-700">
+                                              {roll.ctc}
+                                            </td>
+                                            <td className="px-4 py-2.5 text-right">
+                                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                                {roll.status}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
                                 </div>
-                              </div>
+                              ) : (
+                                <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xs text-slate-400 italic">
+                                  No student placement offers recorded yet for this academic cycle.
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
