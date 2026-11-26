@@ -411,28 +411,28 @@ export default function CompanyInterviewRoom() {
         {/* Left 2 Cols: Evaluation Rubric & Questions & IDE */}
         <div className="lg:col-span-2 space-y-4">
           {/* Round Toggle */}
-          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold w-fit">
+          <div className="flex flex-wrap sm:flex-nowrap bg-slate-100 p-1 rounded-xl text-xs font-bold w-full sm:w-fit gap-1">
             <button
               onClick={() => setActiveRound('technical')}
-              className={`px-5 py-2 rounded-lg transition-all flex items-center gap-2 ${
+              className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 rounded-lg transition-all flex items-center justify-center gap-2 ${
                 activeRound === 'technical'
                   ? 'bg-white text-purple-700 shadow font-black'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Code2 size={16} />
-              Technical & Live Coding Assessment
+              <Code2 size={16} className="shrink-0" />
+              <span className="truncate">Technical & Coding</span>
             </button>
             <button
               onClick={() => setActiveRound('behavioral')}
-              className={`px-5 py-2 rounded-lg transition-all flex items-center gap-2 ${
+              className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 rounded-lg transition-all flex items-center justify-center gap-2 ${
                 activeRound === 'behavioral'
                   ? 'bg-white text-indigo-700 shadow font-black'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Users2 size={16} />
-              Behavioral, HR & STAR Method Round
+              <Users2 size={16} className="shrink-0" />
+              <span className="truncate">Behavioral & STAR</span>
             </button>
           </div>
 
@@ -452,11 +452,11 @@ export default function CompanyInterviewRoom() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <select
                       value={selectedProblemIndex}
                       onChange={(e) => handleProblemChange(Number(e.target.value))}
-                      className="px-2.5 py-1.5 border border-purple-200 bg-purple-50/50 rounded-lg text-xs font-bold text-purple-900 focus:outline-none"
+                      className="flex-1 sm:flex-none max-w-full px-2.5 py-1.5 border border-purple-200 bg-purple-50/50 rounded-lg text-xs font-bold text-purple-900 focus:outline-none truncate"
                     >
                       {TECH_PROBLEMS.map((prob, idx) => (
                         <option key={prob.id} value={idx}>
@@ -468,7 +468,7 @@ export default function CompanyInterviewRoom() {
                     <select
                       value={selectedLanguage}
                       onChange={(e) => handleLanguageChange(e.target.value as any)}
-                      className="px-2.5 py-1.5 border border-slate-200 bg-slate-50 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
+                      className="px-2.5 py-1.5 border border-slate-200 bg-slate-50 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none shrink-0"
                     >
                       <option value="python">Python 3</option>
                       <option value="javascript">JavaScript (Node.js)</option>
@@ -895,8 +895,8 @@ export default function CompanyInterviewRoom() {
 
       {/* SCHEDULE INTERVIEW MODAL */}
       {showScheduleModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card max-w-lg w-full p-6 space-y-4 shadow-xl">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="card max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <Calendar size={18} className="text-purple-600" />
               Schedule Interview with {selectedApp?.student_name}

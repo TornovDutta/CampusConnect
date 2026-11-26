@@ -331,7 +331,7 @@ export default function AdminNotifications() {
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                   Select Role Group
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                   {[
                     { id: 'student', label: 'All Students', count: recipientsData?.counts.students ?? 0 },
                     { id: 'college', label: 'All Colleges', count: recipientsData?.counts.colleges ?? 0 },

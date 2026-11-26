@@ -671,8 +671,8 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto flex flex-col min-w-0 w-full">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 lg:px-8 shadow-sm shrink-0">
+      <main className="flex-1 flex flex-col min-w-0 w-full">
+        <header className="sticky top-0 z-30 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 lg:px-8 shadow-sm shrink-0">
           <div className="flex items-center min-w-0">
             {/* Mobile Hamburger Button */}
             <button

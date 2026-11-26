@@ -114,9 +114,9 @@ export default function StudentMessages() {
       </div>
 
       {/* Main Chat Box */}
-      <div className="card overflow-hidden flex flex-col h-[600px] border border-slate-200 shadow-sm">
+      <div className="card overflow-hidden flex flex-col h-[calc(100vh-15rem)] min-h-[400px] sm:h-[600px] border border-slate-200 shadow-sm">
         {/* Chat Officer Info Banner */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div className="p-3 sm:p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
               <ShieldCheck size={20} />

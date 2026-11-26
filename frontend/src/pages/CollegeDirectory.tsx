@@ -204,26 +204,26 @@ export default function CollegeDirectory() {
   }, [collegesData, selectedState, selectedTier]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans overflow-x-hidden">
       {/* ================= TOP NAVIGATION BAR ================= */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
-              <GraduationCap size={22} />
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/25 shrink-0">
+              <GraduationCap size={20} />
             </div>
-            <div className="flex flex-col">
-              <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 leading-none">
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm sm:text-lg font-black tracking-tight text-slate-900 leading-none truncate">
                 CampusConnect
               </span>
-              <span className="text-[10px] text-indigo-600 font-semibold tracking-wider uppercase mt-0.5">
+              <span className="text-[9px] sm:text-[10px] text-indigo-600 font-semibold tracking-wider uppercase mt-0.5 truncate">
                 Institutional Directory
               </span>
             </div>
           </Link>
 
           {/* User Status / Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex flex-col text-right">
@@ -244,13 +244,13 @@ export default function CollegeDirectory() {
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Link
                   to="/login"
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors"
+                  className="px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors whitespace-nowrap"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-xs shadow-indigo-500/20 transition-all"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-xs shadow-indigo-500/20 transition-all whitespace-nowrap"
                 >
                   Get Started
                 </Link>
@@ -927,10 +927,10 @@ export default function CollegeDirectory() {
                         </div>
                       ) : (
                         /* GATED / FROSTED LOCKED STATE WITH PREVIEW */
-                        <div className="relative rounded-2xl border border-slate-200 overflow-hidden bg-slate-50/50 p-6 sm:p-8">
+                        <div className="relative rounded-2xl border border-slate-200 overflow-hidden bg-slate-50/50 p-4 sm:p-8 min-h-[290px] sm:min-h-[260px]">
                           {/* Blurred Fake Background representing the data underneath */}
                           <div className="filter blur-sm select-none pointer-events-none opacity-40 space-y-4">
-                            <div className="grid grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                               <div className="h-16 bg-slate-300 rounded-xl" />
                               <div className="h-16 bg-slate-300 rounded-xl" />
                               <div className="h-16 bg-slate-300 rounded-xl" />
@@ -941,7 +941,7 @@ export default function CollegeDirectory() {
                           </div>
 
                           {/* Overlay Lock Notice */}
-                          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-white/75 backdrop-blur-md">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 text-center bg-white/80 backdrop-blur-md">
                             <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3 shadow-md">
                               <Lock size={24} />
                             </div>

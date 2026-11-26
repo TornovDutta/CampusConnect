@@ -138,7 +138,7 @@ export default function StudentDashboard() {
             You can still update your resume and practice with mock interview questions!
           </p>
         </div>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             to="/dashboard/student/resume"
             className="px-4 py-2 bg-brand-600 text-white font-semibold text-xs rounded-xl shadow-sm"
@@ -182,14 +182,14 @@ export default function StudentDashboard() {
             <h3 className="text-lg font-bold">
               {upcomingInterview.job_title} at {upcomingInterview.company_name}
             </h3>
-            <p className="text-xs text-purple-200 flex items-center gap-3">
+            <p className="text-xs text-purple-200 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span>Date: <strong>{upcomingInterview.interview_date}</strong></span>
               <span>Time: <strong>{upcomingInterview.interview_time || '10:00 AM'}</strong></span>
               <span>Mode: <strong>{upcomingInterview.interview_mode}</strong></span>
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {upcomingInterview.interview_link && (
               <a
                 href={upcomingInterview.interview_link}
@@ -647,8 +647,8 @@ export default function StudentDashboard() {
 
       {/* ELIGIBILITY CHECK MODAL */}
       {eligibilityJob && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card max-w-lg w-full p-6 space-y-4 shadow-xl">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="card max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                 <CheckCircle2 size={18} className="text-brand-600" />
@@ -722,8 +722,8 @@ export default function StudentDashboard() {
 
       {/* QUICK APPLY MODAL */}
       {applyingJob && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card max-w-lg w-full p-6 space-y-4 shadow-xl">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="card max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start pb-2 border-b border-slate-100">
               <div>
                 <h3 className="font-bold text-lg text-slate-900">Apply for {applyingJob.title}</h3>

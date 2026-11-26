@@ -132,9 +132,9 @@ export default function CompanyMessages() {
       </div>
 
       {/* Main 2-Column Chat Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column: Applicants / Conversation List */}
-        <div className="card flex flex-col h-[650px] overflow-hidden">
+        <div className="card flex flex-col max-h-[280px] lg:max-h-none lg:h-[650px] overflow-hidden">
           <div className="p-4 border-b border-slate-100 bg-slate-50/70 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-slate-800 text-sm">Applicants ({applications.length})</h3>
@@ -214,11 +214,11 @@ export default function CompanyMessages() {
         </div>
 
         {/* Right Column: Direct Conversation Feed */}
-        <div className="lg:col-span-2 card flex flex-col h-[650px] overflow-hidden">
+        <div className="lg:col-span-2 card flex flex-col h-[460px] lg:h-[650px] overflow-hidden">
           {selectedApp ? (
             <>
               {/* Chat Candidate Header */}
-              <div className="p-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+              <div className="p-3 sm:p-4 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
                     {selectedApp.student_name?.charAt(0) || 'C'}

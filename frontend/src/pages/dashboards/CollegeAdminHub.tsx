@@ -172,10 +172,10 @@ export default function CollegeAdminHub() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-200">
+      <div className="flex gap-2 border-b border-slate-200 overflow-x-auto custom-scrollbar">
         <button
           onClick={() => setActiveTab('messages')}
-          className={`py-3 px-4 border-b-2 text-sm font-semibold inline-flex items-center gap-2 transition-colors ${
+          className={`py-3 px-3 sm:px-4 border-b-2 text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-colors whitespace-nowrap shrink-0 ${
             activeTab === 'messages'
               ? 'border-brand-500 text-brand-600'
               : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -185,7 +185,7 @@ export default function CollegeAdminHub() {
         </button>
         <button
           onClick={() => setActiveTab('reports')}
-          className={`py-3 px-4 border-b-2 text-sm font-semibold inline-flex items-center gap-2 transition-colors ${
+          className={`py-3 px-3 sm:px-4 border-b-2 text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-colors whitespace-nowrap shrink-0 ${
             activeTab === 'reports'
               ? 'border-brand-500 text-brand-600'
               : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -195,7 +195,7 @@ export default function CollegeAdminHub() {
         </button>
         <button
           onClick={() => setActiveTab('students')}
-          className={`py-3 px-4 border-b-2 text-sm font-semibold inline-flex items-center gap-2 transition-colors ${
+          className={`py-3 px-3 sm:px-4 border-b-2 text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-colors whitespace-nowrap shrink-0 ${
             activeTab === 'students'
               ? 'border-brand-500 text-brand-600'
               : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -209,7 +209,7 @@ export default function CollegeAdminHub() {
       </div>
 
       {activeTab === 'messages' && (
-        <div className="card flex flex-col h-[560px] overflow-hidden">
+        <div className="card flex flex-col h-[500px] sm:h-[560px] overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
             <div>
               <h3 className="font-bold text-slate-800 text-sm">Super Admin Direct Thread</h3>
@@ -427,9 +427,9 @@ export default function CollegeAdminHub() {
 
       {/* TAB 3: STUDENT INQUIRIES DESK */}
       {activeTab === 'students' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left: Student Threads List */}
-          <div className="card flex flex-col h-[600px] overflow-hidden">
+          <div className="card flex flex-col max-h-[280px] lg:max-h-none lg:h-[600px] overflow-hidden">
             <div className="p-4 border-b border-slate-100 bg-slate-50/70 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-slate-800 text-sm">Student Inquiries</h3>
@@ -509,7 +509,7 @@ export default function CollegeAdminHub() {
           </div>
 
           {/* Right: Selected Student Chat Thread */}
-          <div className="lg:col-span-2 card flex flex-col h-[600px] overflow-hidden">
+          <div className="lg:col-span-2 card flex flex-col h-[460px] lg:h-[600px] overflow-hidden">
             {selectedStudentId ? (
               <>
                 {/* Chat Header */}

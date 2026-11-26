@@ -480,7 +480,7 @@ export default function StudentResume() {
       ) : (
         /* TAB 2: ATS RESUME BUILDER & PRINT PREVIEW */
         <div className="space-y-4">
-          <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm print:hidden">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm print:hidden">
             <div>
               <h3 className="font-bold text-slate-800 text-sm">ATS-Optimized Campus Resume</h3>
               <p className="text-xs text-slate-500">Live preview generated automatically from your verified academic records and skills.</p>
@@ -488,7 +488,7 @@ export default function StudentResume() {
 
             <button
               onClick={handlePrintResume}
-              className="px-4 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5"
+              className="w-full sm:w-auto justify-center px-4 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5 shrink-0"
             >
               <Printer size={15} />
               Print / Save as PDF
@@ -496,14 +496,14 @@ export default function StudentResume() {
           </div>
 
           {/* Printable Resume Sheet */}
-          <div className="max-w-3xl mx-auto bg-white border border-slate-300 shadow-lg p-10 font-sans text-slate-900 space-y-6 rounded-xl">
+          <div className="max-w-3xl mx-auto bg-white border border-slate-300 shadow-lg p-5 sm:p-10 font-sans text-slate-900 space-y-6 rounded-xl">
             {/* Header */}
             <div className="text-center pb-4 border-b-2 border-slate-900 space-y-1">
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 uppercase break-words">
                 {profile?.name || 'STUDENT NAME'}
               </h1>
-              <div className="flex items-center justify-center gap-3 text-xs text-slate-600 flex-wrap">
-                {profile?.email && <span>{profile.email}</span>}
+              <div className="flex items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-600 flex-wrap">
+                {profile?.email && <span className="break-all">{profile.email}</span>}
                 {phone && <span>• {phone}</span>}
                 {profile?.branch && <span>• {profile.branch}</span>}
               </div>
@@ -529,13 +529,13 @@ export default function StudentResume() {
               <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
                 Education
               </h2>
-              <div className="flex justify-between items-start text-xs">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-2 text-xs">
                 <div>
                   <p className="font-bold text-slate-900">{profile?.college_name || 'Engineering Institution'}</p>
                   <p className="text-slate-600">Bachelor of Technology in {profile?.branch || 'Computer Science'}</p>
                   <p className="text-slate-500 text-[11px]">Roll No: {profile?.roll_number || 'N/A'}</p>
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                   <p className="font-bold text-slate-900">Graduating Batch: {profile?.batch || '2026'}</p>
                   <p className="font-semibold text-brand-700">CGPA: {profile?.cgpa || 'N/A'} / 10.0</p>
                 </div>
@@ -560,7 +560,7 @@ export default function StudentResume() {
             </div>
 
             {/* Institutional Endorsement */}
-            <div className="pt-4 border-t border-slate-200 text-[11px] text-slate-400 flex justify-between items-center">
+            <div className="pt-4 border-t border-slate-200 text-[11px] text-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
               <span>Verified Campus Placement Profile via CampusConnect</span>
               <span>Approval Status: {profile?.is_college_approved ? 'Verified Active' : 'Pending'}</span>
             </div>

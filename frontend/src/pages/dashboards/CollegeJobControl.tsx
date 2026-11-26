@@ -345,7 +345,7 @@ export default function CollegeJobControl() {
                   </div>
 
                   {/* Per-Job College Student Performance Strip */}
-                  <div className="grid grid-cols-4 gap-2 pt-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                     <div className="p-2.5 rounded-lg bg-slate-50 text-center">
                       <p className="text-[10px] uppercase font-semibold text-slate-400">Applied</p>
                       <p className="text-base font-extrabold text-slate-800">{job.college_stats.applied}</p>
@@ -367,7 +367,7 @@ export default function CollegeJobControl() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
                   <button
                     onClick={() => setTrackingJob(job)}
                     className="px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl inline-flex items-center gap-1.5"
@@ -620,7 +620,7 @@ export default function CollegeJobControl() {
               </button>
             </div>
 
-            <div className="overflow-y-auto p-5">
+            <div className="overflow-y-auto overflow-x-auto p-4 sm:p-5">
               {loadingApplicants ? (
                 <div className="py-10 flex justify-center">
                   <Loader2 className="animate-spin text-brand-500" size={26} />
@@ -630,7 +630,8 @@ export default function CollegeJobControl() {
                   None of your students have applied to this job yet.
                 </p>
               ) : (
-                <table className="w-full text-left text-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                     <tr>
                       <th className="px-4 py-2.5">Student</th>
@@ -661,6 +662,7 @@ export default function CollegeJobControl() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>

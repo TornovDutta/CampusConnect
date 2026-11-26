@@ -128,9 +128,9 @@ export default function AdminCollegeDesk() {
       </div>
 
       {activeTab === 'messages' ? (
-        <div className="card grid grid-cols-1 lg:grid-cols-3 h-[580px] overflow-hidden">
+        <div className="card grid grid-cols-1 lg:grid-cols-3 lg:h-[580px] overflow-hidden">
           {/* College Thread List */}
-          <div className="border-r border-slate-200 overflow-y-auto divide-y divide-slate-100 bg-slate-50/40">
+          <div className="border-b lg:border-b-0 lg:border-r border-slate-200 max-h-[260px] lg:max-h-none overflow-y-auto divide-y divide-slate-100 bg-slate-50/40">
             <div className="p-4 border-b border-slate-200 bg-white">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Partner Colleges ({threads.length})
@@ -168,7 +168,7 @@ export default function AdminCollegeDesk() {
           </div>
 
           {/* Chat Pane */}
-          <div className="lg:col-span-2 flex flex-col h-full bg-white">
+          <div className="lg:col-span-2 flex flex-col h-[460px] lg:h-full bg-white">
             {!selectedCollege ? (
               <div className="h-full flex items-center justify-center text-sm text-slate-400">
                 Select a college to start messaging

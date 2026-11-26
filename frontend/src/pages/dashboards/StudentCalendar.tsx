@@ -161,10 +161,10 @@ export default function StudentCalendar() {
       {/* Calendar Grid + Selected Day Agenda */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Monthly Visual Grid */}
-        <div className="lg:col-span-2 card p-6 space-y-4">
+        <div className="lg:col-span-2 card p-3 sm:p-6 space-y-3 sm:space-y-4">
           {/* Month Header */}
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <h2 className="text-lg font-bold text-slate-900">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900">
               {MONTH_NAMES[currentMonth]} {currentYear}
             </h2>
             <div className="flex items-center gap-1">
@@ -193,17 +193,17 @@ export default function StudentCalendar() {
           </div>
 
           {/* Days of Week */}
-          <div className="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 uppercase tracking-wider py-1">
+          <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider py-1">
             {DAYS_OF_WEEK.map((day) => (
               <div key={day}>{day}</div>
             ))}
           </div>
 
           {/* Days Grid */}
-          <div className="grid grid-cols-7 gap-1.5">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
             {/* Blank leading days */}
             {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-              <div key={`blank-${i}`} className="h-20 bg-slate-50/50 rounded-xl border border-transparent" />
+              <div key={`blank-${i}`} className="h-14 sm:h-20 bg-slate-50/50 rounded-xl border border-transparent" />
             ))}
 
             {/* Days in month */}
@@ -221,7 +221,7 @@ export default function StudentCalendar() {
                 <div
                   key={dateKey}
                   onClick={() => setSelectedDate(dateKey)}
-                  className={`h-20 p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                  className={`h-14 sm:h-20 p-1 sm:p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                     isSelected
                       ? 'border-brand-500 bg-brand-50/40 shadow-sm ring-2 ring-brand-100'
                       : isToday
@@ -231,7 +231,7 @@ export default function StudentCalendar() {
                 >
                   <div className="flex items-center justify-between">
                     <span
-                      className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center ${
+                      className={`text-[11px] sm:text-xs font-bold w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${
                         isToday
                           ? 'bg-brand-600 text-white'
                           : isSelected
@@ -242,14 +242,32 @@ export default function StudentCalendar() {
                       {dayNum}
                     </span>
                     {dayEvents.length > 0 && (
-                      <span className="text-[10px] font-bold text-slate-400">
+                      <span className="hidden sm:inline text-[10px] font-bold text-slate-400">
                         {dayEvents.length}
                       </span>
                     )}
                   </div>
 
-                  {/* Event Badges Snippets */}
-                  <div className="space-y-0.5 overflow-hidden">
+                  {/* Mobile Compact Event Dots */}
+                  {dayEvents.length > 0 && (
+                    <div className="flex sm:hidden items-center justify-center gap-0.5 pb-0.5">
+                      {dayEvents.slice(0, 3).map((ev: any, evIdx: number) => (
+                        <span
+                          key={evIdx}
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            ev.event_type === 'interview'
+                              ? 'bg-emerald-500'
+                              : ev.event_type === 'drive_deadline'
+                              ? 'bg-purple-500'
+                              : 'bg-amber-500'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Desktop Event Badges Snippets */}
+                  <div className="hidden sm:block space-y-0.5 overflow-hidden">
                     {dayEvents.slice(0, 2).map((ev: any, evIdx: number) => (
                       <div
                         key={evIdx}

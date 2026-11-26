@@ -473,8 +473,8 @@ export default function StudentApplications() {
 
       {/* Direct Recruiter Chat Modal */}
       {messagingApp && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="card max-w-xl w-full p-6 space-y-4 shadow-2xl flex flex-col h-[520px]">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="card max-w-xl w-full p-4 sm:p-6 space-y-4 shadow-2xl flex flex-col h-[85vh] max-h-[540px]">
             <div className="flex justify-between items-start pb-3 border-b border-slate-100">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600">

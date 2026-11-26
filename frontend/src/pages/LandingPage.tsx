@@ -158,84 +158,84 @@ export default function LandingPage() {
               </button>
             </div>
           </div>
-
-          {/* Animated Mobile Dropdown Menu with Backdrop */}
-          <AnimatePresence>
-            {mobileNavOpen && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setMobileNavOpen(false)}
-                  className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-30 md:hidden pointer-events-auto"
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                  transition={{ duration: 0.2 }}
-                  className="relative z-40 md:hidden mt-2 p-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-2xl space-y-2 pointer-events-auto"
-                >
-                  <Link
-                    to="/colleges"
-                    onClick={() => setMobileNavOpen(false)}
-                    className="flex items-center justify-between p-3 rounded-2xl bg-indigo-50/90 border border-indigo-200 text-indigo-900 font-bold text-xs sm:text-sm shadow-xs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Search size={16} className="text-indigo-600" />
-                      <span>Colleges & Placements</span>
-                    </div>
-                    <span className="text-[10px] uppercase font-extrabold bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-2 py-0.5 rounded-full">
-                      Directory
-                    </span>
-                  </Link>
-
-                  <div className="space-y-0.5 pt-1">
-                    <a
-                      href="#features"
-                      onClick={() => setMobileNavOpen(false)}
-                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                      Features
-                    </a>
-                    <a
-                      href="#workflow"
-                      onClick={() => setMobileNavOpen(false)}
-                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                      Platform Tour
-                    </a>
-                    <a
-                      href="#how-it-works"
-                      onClick={() => setMobileNavOpen(false)}
-                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                      How it Works
-                    </a>
-                    <a
-                      href="#stats"
-                      onClick={() => setMobileNavOpen(false)}
-                      className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                    >
-                      Impact & Metrics
-                    </a>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
-                    <Link
-                      to="/register"
-                      onClick={() => setMobileNavOpen(false)}
-                      className="w-full text-center py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/25 transition-colors"
-                    >
-                      Get Started Free
-                    </Link>
-                  </div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
         </motion.header>
+
+        {/* Animated Mobile Dropdown Menu with Fullscreen Backdrop */}
+        <AnimatePresence>
+          {mobileNavOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileNavOpen(false)}
+                className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-30 md:hidden pointer-events-auto"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                transition={{ duration: 0.2 }}
+                className="relative z-40 md:hidden max-w-6xl mx-auto mt-2.5 p-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-2xl space-y-2 pointer-events-auto"
+              >
+                <Link
+                  to="/colleges"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="flex items-center justify-between p-3 rounded-2xl bg-indigo-50/90 border border-indigo-200 text-indigo-900 font-bold text-xs sm:text-sm shadow-xs"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Search size={16} className="text-indigo-600 shrink-0" />
+                    <span className="truncate">Colleges & Placements</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-extrabold bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-2 py-0.5 rounded-full shrink-0 ml-2">
+                    Directory
+                  </span>
+                </Link>
+
+                <div className="space-y-0.5 pt-1">
+                  <a
+                    href="#features"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    Features
+                  </a>
+                  <a
+                    href="#workflow"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    Platform Tour
+                  </a>
+                  <a
+                    href="#how-it-works"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    How it Works
+                  </a>
+                  <a
+                    href="#stats"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    Impact & Metrics
+                  </a>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="w-full text-center py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/25 transition-colors"
+                  >
+                    Get Started Free
+                  </Link>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
 
       <main className="flex-grow">
@@ -379,7 +379,7 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
-              className="mt-14 sm:mt-20 pt-8 sm:pt-10 border-t border-slate-200/70 max-w-5xl mx-auto"
+              className="mt-12 sm:mt-20 pt-8 sm:pt-10 border-t border-slate-200/70 w-full max-w-5xl mx-auto overflow-hidden"
             >
               <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 sm:mb-6">
                 Trusted by 500+ Top Campuses & Global Hiring Partners
@@ -431,10 +431,10 @@ export default function LandingPage() {
               </p>
 
               {/* Responsive 3-Column Tab Switcher */}
-              <div className="grid grid-cols-3 sm:flex sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 mt-6 sm:mt-8 p-1 sm:p-1.5 bg-slate-100 rounded-2xl max-w-md sm:max-w-none mx-auto border border-slate-200">
+              <div className="grid grid-cols-3 sm:inline-flex items-center justify-center gap-1 sm:gap-2 mt-6 sm:mt-8 p-1 sm:p-1.5 bg-slate-100 rounded-2xl w-full max-w-md sm:max-w-none mx-auto border border-slate-200">
                 <button
                   onClick={() => setActiveWorkflowTab('student')}
-                  className={`px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center truncate ${
+                  className={`px-1.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all text-center ${
                     activeWorkflowTab === 'student' ? 'text-indigo-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -442,7 +442,7 @@ export default function LandingPage() {
                 </button>
                 <button
                   onClick={() => setActiveWorkflowTab('college')}
-                  className={`px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center truncate ${
+                  className={`px-1.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all text-center ${
                     activeWorkflowTab === 'college' ? 'text-indigo-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -450,7 +450,7 @@ export default function LandingPage() {
                 </button>
                 <button
                   onClick={() => setActiveWorkflowTab('company')}
-                  className={`px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center truncate ${
+                  className={`px-1.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold transition-all text-center ${
                     activeWorkflowTab === 'company' ? 'text-indigo-700 shadow-sm bg-white' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -897,9 +897,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-900 text-xs text-slate-500 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-900 text-xs text-slate-500 gap-4 text-center">
             <p>© {new Date().getFullYear()} CampusConnect. All rights reserved.</p>
-            <div className="flex gap-6">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
               <a href="#" className="hover:text-white transition-colors">Security Overview</a>
