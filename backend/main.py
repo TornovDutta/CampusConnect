@@ -7,7 +7,7 @@ from core.security import get_password_hash
 from models.user import RoleEnum
 from datetime import datetime
 from jose import jwt
-from routes import auth, admin, student, college, company, notifications, public_colleges
+from routes import auth, admin, student, college, company, notifications, public_colleges, assistant
 import traceback
 
 app = FastAPI(
@@ -29,6 +29,8 @@ def infer_feature_from_path(path: str) -> str:
         return "Company / ATS"
     if path.startswith("/notifications"):
         return "Notifications"
+    if path.startswith("/assistant"):
+        return "AI Campus Assistant"
     return "API Core"
 
 def extract_user_from_request(request: Request):
@@ -91,6 +93,7 @@ app.include_router(college.router)
 app.include_router(company.router)
 app.include_router(notifications.router)
 app.include_router(public_colleges.router)
+app.include_router(assistant.router)
 
 # Configure CORS origins dynamically from environment variables
 default_origins = [

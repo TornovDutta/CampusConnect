@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
+import CampusAssistantWidget from '../components/CampusAssistantWidget';
 import { motion, useInView, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 
 const fadeIn = {
@@ -907,6 +908,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      <CampusAssistantWidget />
     </div>
   );
 }

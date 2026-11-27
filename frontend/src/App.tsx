@@ -44,6 +44,7 @@ import UserActivity from './pages/dashboards/UserActivity';
 import PostJob from './pages/dashboards/PostJob';
 import EditJob from './pages/dashboards/EditJob';
 import CollegeDirectory from './pages/CollegeDirectory';
+import CampusKnowledgeManager from './pages/dashboards/CampusKnowledgeManager';
 
 function DashboardIndexRedirect() {
   const { user } = useAuth();
@@ -86,6 +87,7 @@ function App() {
             <Route path="admin/issues" element={<AdminIssues />} />
             <Route path="admin/controls" element={<AdminControls />} />
             <Route path="admin/college-desk" element={<AdminCollegeDesk />} />
+            <Route path="admin/assistant-knowledge" element={<CampusKnowledgeManager />} />
             <Route path="admin/activity" element={<UserActivity />} />
             <Route path="admin/organization/:id" element={<OrganizationDetails />} />
             <Route path="student" element={<StudentDashboard />} />
@@ -103,6 +105,7 @@ function App() {
             <Route path="college/selected-jobs" element={<CollegeSelectedJobs />} />
             <Route path="college/notifications" element={<CollegeNotifications />} />
             <Route path="college/admin-hub" element={<CollegeAdminHub />} />
+            <Route path="college/assistant-knowledge" element={<CampusKnowledgeManager />} />
             <Route path="company" element={<CompanyDashboard />} />
             <Route path="company/jobs" element={<CompanyJobs />} />
             <Route path="company/applicants" element={<CompanyApplicants />} />

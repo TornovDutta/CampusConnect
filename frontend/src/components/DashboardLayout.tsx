@@ -28,9 +28,11 @@ import {
   Calendar,
   Bell,
   Building2,
-  Menu
+  Menu,
+  Bot
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
+import CampusAssistantWidget from './CampusAssistantWidget';
 import { api } from '../services/api';
 
 export default function DashboardLayout({ allowedRoles }: { allowedRoles: string[] }) {
@@ -259,6 +261,20 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                   >
                     <MessageSquare size={18} />
                     <span className="font-medium text-sm">College Desk & Msg</span>
+                  </NavLink>
+
+                  <NavLink 
+                    to="/dashboard/admin/assistant-knowledge" 
+                    className={({ isActive }) => 
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <Bot size={18} />
+                    <span className="font-medium text-sm">AI Campus Knowledge</span>
                   </NavLink>
 
                   <NavLink 
@@ -492,6 +508,20 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
                     >
                       <MessageSquare size={18} />
                       <span className="font-medium text-sm">Admin Msg & Reports</span>
+                    </NavLink>
+
+                    <NavLink 
+                      to="/dashboard/college/assistant-knowledge" 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/20' 
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <Bot size={18} />
+                      <span className="font-medium text-sm">AI Campus Knowledge</span>
                     </NavLink>
                   </>
                 )}
@@ -732,6 +762,7 @@ export default function DashboardLayout({ allowedRoles }: { allowedRoles: string
           <Outlet />
         </div>
       </main>
+      <CampusAssistantWidget />
     </div>
   );
 }

@@ -14,7 +14,12 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
     CORS_ORIGINS: str = ""
 
+    # Groq AI Assistant Configuration (matches backend/.env.example names)
+    GROP_APIKEY: str = ""
+    GROP_MODEL: str = "openai/gpt-oss-120b"
+
     class Config:
         env_file = (".env", "backend/.env")
+        extra = "ignore"
 
 settings = Settings()

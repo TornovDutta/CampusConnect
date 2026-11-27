@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import CampusAssistantWidget from '../components/CampusAssistantWidget';
 
 interface PublicCollegeItem {
   id: string;
@@ -1004,6 +1005,14 @@ export default function CollegeDirectory() {
           </div>
         )}
       </AnimatePresence>
+      <CampusAssistantWidget
+        collegeId={selectedCollegeId || undefined}
+        contextLabel={
+          performanceData?.public_overview?.name
+            ? `About ${performanceData.public_overview.name}`
+            : undefined
+        }
+      />
     </div>
   );
 }
