@@ -300,7 +300,7 @@ export default function CampusKnowledgeManager() {
             const meta = getCategoryMeta(item.category);
             const canEdit =
               user?.role === 'super_admin' ||
-              (user?.role === 'college' && item.college_id === user?.id);
+              (user?.role === 'college' && item.college_id === user?._id);
 
             return (
               <div
