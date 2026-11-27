@@ -216,8 +216,8 @@ export default function CollegeDirectory() {
               <span className="text-sm sm:text-lg font-black tracking-tight text-slate-900 leading-none truncate">
                 CampusConnect
               </span>
-              <span className="text-[9px] sm:text-[10px] text-indigo-600 font-semibold tracking-wider uppercase mt-0.5 truncate">
-                Institutional Directory
+              <span className="text-[9px] sm:text-[10px] text-indigo-600 font-semibold tracking-normal sm:tracking-wider uppercase mt-0.5 whitespace-nowrap">
+                College Directory
               </span>
             </div>
           </Link>
@@ -291,7 +291,7 @@ export default function CollegeDirectory() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search college by name, city, state, or location..."
+                placeholder="Search college, city, or state..."
                 className="w-full px-3 py-2 text-xs sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent"
               />
               {searchQuery && (

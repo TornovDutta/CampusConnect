@@ -115,14 +115,14 @@ export default function LandingPage() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="max-w-6xl mx-auto bg-white/85 backdrop-blur-2xl backdrop-saturate-150 border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full pointer-events-auto transition-all"
         >
-          <div className="flex justify-between h-14 sm:h-16 items-center px-3.5 sm:px-6">
-            <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-              <div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2 rounded-xl text-white shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-300">
+          <div className="flex justify-between h-14 sm:h-16 items-center px-3 sm:px-6 gap-2">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+              <div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-1.5 sm:p-2 rounded-xl text-white shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-300 shrink-0">
                 <motion.div animate={{ rotate: [0, -8, 8, -8, 0] }} transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}>
-                  <GraduationCap size={20} strokeWidth={2.5} />
+                  <GraduationCap size={19} strokeWidth={2.5} />
                 </motion.div>
               </div>
-              <span className="text-base sm:text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight">
+              <span className="text-sm sm:text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight truncate">
                 CampusConnect
               </span>
             </Link>
@@ -238,9 +238,9 @@ export default function LandingPage() {
         </AnimatePresence>
       </div>
 
-      <main className="flex-grow">
+      <main className="flex-grow min-w-0 w-full">
         {/* ================= HERO SECTION (MotionSites Style) ================= */}
-        <section className="relative pt-28 sm:pt-36 md:pt-44 pb-16 sm:pb-20 md:pb-32 overflow-hidden flex items-center justify-center min-h-[85vh] sm:min-h-[92vh]">
+        <section className="relative pt-24 sm:pt-36 md:pt-44 pb-14 sm:pb-20 md:pb-32 overflow-hidden flex flex-col justify-center w-full max-w-full min-h-[85vh] sm:min-h-[92vh]">
           {/* Animated Ambient Blobs (No mix-blend-multiply to avoid iOS Safari gray boxes) */}
           <div className="absolute top-[-5%] left-[-5%] w-[55%] h-[55%] rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
           <div className="absolute top-[20%] right-[-5%] w-[55%] h-[55%] rounded-full bg-violet-500/15 blur-3xl pointer-events-none" />
@@ -288,13 +288,13 @@ export default function LandingPage() {
             <span className="text-xs font-bold text-slate-800">97.8% ATS Verification Score</span>
           </motion.div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <div className="w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             {/* Glowing Pill Tag */}
             <motion.div
               initial="hidden"
               animate="visible"
               variants={fadeIn}
-              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-white/90 border border-indigo-200 text-indigo-700 font-bold text-[11px] sm:text-xs mb-6 sm:mb-8 shadow-xs backdrop-blur-md max-w-full truncate"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white/90 border border-indigo-200 text-indigo-700 font-bold text-[11px] sm:text-xs mb-6 sm:mb-8 shadow-xs backdrop-blur-md max-w-full"
             >
               <Sparkles size={14} className="text-indigo-600 animate-pulse shrink-0" />
               <span className="truncate">Next-Gen Campus Placement Ecosystem 2.0</span>
@@ -379,7 +379,7 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
-              className="mt-12 sm:mt-20 pt-8 sm:pt-10 border-t border-slate-200/70 w-full max-w-5xl mx-auto overflow-hidden"
+              className="mt-12 sm:mt-20 pt-8 sm:pt-10 border-t border-slate-200/70 w-full min-w-0 max-w-5xl mx-auto overflow-hidden"
             >
               <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 sm:mb-6">
                 Trusted by 500+ Top Campuses & Global Hiring Partners
